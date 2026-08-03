@@ -17,7 +17,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 
 const drawerWidth = 240;
-const navItems = [['Expertise', 'expertise'], ['History', 'history'], ['Projects', 'projects'], ['Contact', 'contact']];
+const navItems = [['Education', 'education'], ['Career', 'career'], ['Skills', 'skills'], ['Projects', 'projects'], ['Gallery', 'gallery'], ['Contact', 'contact']];
+
+// Lives in /public so it is served straight from the site rather than depending
+// on an external host. PUBLIC_URL keeps it correct under the GitHub Pages path.
+const resumeUrl = `${process.env.PUBLIC_URL}/Joseph_Nguyen_Resume.pdf`;
 
 function Navigation({parentToChild, modeChange}: any) {
 
@@ -69,6 +73,17 @@ function Navigation({parentToChild, modeChange}: any) {
             </ListItemButton>
           </ListItem>
         ))}
+        <ListItem disablePadding>
+          <ListItemButton
+            sx={{ textAlign: 'center' }}
+            component="a"
+            href={resumeUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <ListItemText primary="Resume" />
+          </ListItemButton>
+        </ListItem>
       </List>
     </Box>
   );
@@ -98,6 +113,15 @@ function Navigation({parentToChild, modeChange}: any) {
                 {item[0]}
               </Button>
             ))}
+            <Button
+              className="nav-resume"
+              href={resumeUrl}
+              target="_blank"
+              rel="noreferrer"
+              sx={{ color: '#fff' }}
+            >
+              Resume
+            </Button>
           </Box>
         </Toolbar>
       </AppBar>

@@ -38,15 +38,58 @@
 
     p {
         font-size: 1.5em;
-        margin-block-start: 0px;
+        margin-block-start: 10px;
         margin-block-end: 0px;
     }
 
     h1 {
         font-size: 5em;
-        margin-block-start: 0px;
+        margin-block-start: 8px;
         margin-block-end: 0px;
+        /* Display type needs a much tighter line box than the browser default
+           of ~1.2, which at this size leaves a large gap between the two lines.
+           Negative tracking is the usual companion at large sizes. */
+        line-height: 1.0;
+        letter-spacing: -0.025em;
     }
+}
+
+/* ---- Typewriter -------------------------------------------------------- */
+
+.typewriter {
+    position: relative;
+    display: inline-block;
+}
+
+/* Invisible full-length copy that holds the final box open. */
+.typewriter-ghost {
+    visibility: hidden;
+}
+
+.typewriter-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.typewriter-caret {
+    display: inline-block;
+    width: 0.055em;
+    height: 0.76em;
+    margin-left: 0.07em;
+    /* Cancels its own advance so the caret contributes zero width to the line.
+       Without this it can tip a full line over the edge and wrap by itself. */
+    margin-right: -0.125em;
+    vertical-align: baseline;
+    background-color: #7b3fe4;
+    animation: caretBlink 1s steps(1, end) infinite;
+}
+
+@keyframes caretBlink {
+    0%, 49%   { opacity: 1; }
+    50%, 100% { opacity: 0; }
 }
 
 .about-section .image-wrapper {
@@ -57,10 +100,150 @@
     }
 }
 
-.about p {
-    text-align: center;
-    padding-top: 30%;
-    padding-bottom: 30%;
+
+/* ---- Hero entrance ---------------------------------------------------- */
+
+@keyframes heroRise {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Text animations are held paused until App adds `is-loaded`, so the entrance
+   is not spent while the loading splash is still covering the page. */
+.is-loaded .about-section .content > p,
+.is-loaded .about-section .content .social_icons,
+.is-loaded .about-section .content .mobile_social_icons {
+    animation-play-state: running;
+}
+
+.about-section .content {
+    /* The h1 has no entrance animation of its own — the typewriter is it. */
+
+    > p {
+        animation: heroRise 700ms cubic-bezier(0.16, 1, 0.3, 1) 240ms both;
+        animation-play-state: paused;
+    }
+
+    .social_icons {
+        animation: heroRise 700ms cubic-bezier(0.16, 1, 0.3, 1) 360ms both;
+        animation-play-state: paused;
+    }
+
+    .mobile_social_icons {
+        animation: heroRise 700ms cubic-bezier(0.16, 1, 0.3, 1) 360ms both;
+        animation-play-state: paused;
+    }
+
+    .social_icons a,
+    .mobile_social_icons a {
+        display: inline-flex;
+        transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1),
+                    color 250ms ease;
+    }
+
+    .social_icons a:hover,
+    .mobile_social_icons a:hover {
+        transform: translateY(-4px) scale(1.15);
+    }
+
+    .resume-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 26px;
+        padding: 12px 24px;
+        border: 2px solid rgba(255, 255, 255, 0.7);
+        border-radius: 4px;
+        color: #fff;
+        font-size: 1rem;
+        animation: heroRise 700ms cubic-bezier(0.16, 1, 0.3, 1) 460ms both;
+        animation-play-state: paused;
+        transition: background-color 250ms ease,
+                    border-color 250ms ease,
+                    transform 250ms cubic-bezier(0.16, 1, 0.3, 1),
+                    box-shadow 250ms ease;
+
+        svg {
+            font-size: 1.2em;
+        }
+
+        /* Both labels occupy the same grid cell, so the button is sized to the
+           wider of the two and never resizes when they swap. */
+        .resume-label {
+            display: inline-grid;
+            text-align: center;
+        }
+
+        .resume-label > span {
+            grid-area: 1 / 1;
+            transition: opacity 200ms ease, transform 200ms ease;
+        }
+
+        .resume-label-hover {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+    }
+
+    /* Focus is included: keyboard users never hover, so without it they would
+       only ever see the resting label. */
+    .resume-button:hover .resume-label-rest,
+    .resume-button:focus-visible .resume-label-rest {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    .resume-button:hover .resume-label-hover,
+    .resume-button:focus-visible .resume-label-hover {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .resume-button:hover,
+    .resume-button:focus-visible {
+        background-color: #5000ca;
+        border-color: #7b3fe4;
+        color: #fff;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 24px rgba(80, 0, 202, 0.4);
+        outline: none;
+    }
+}
+
+/* The hero swaps to a light background image in light mode, so the button has
+   to flip to dark ink and a dark border or it disappears into the page. */
+.light-mode .about-section .content .resume-button {
+    color: #0d1116;
+    border-color: rgba(13, 17, 22, 0.45);
+}
+
+.light-mode .about-section .content .resume-button:hover,
+.light-mode .about-section .content .resume-button:focus-visible {
+    color: #fff;
+    border-color: #7b3fe4;
+}
+
+/* Touch devices have no hover, so the swap can never happen there. Show the
+   explicit label instead of a prompt the visitor cannot resolve. */
+@media (hover: none) {
+    .about-section .content .resume-button .resume-label-rest {
+        opacity: 0;
+    }
+
+    .about-section .content .resume-button .resume-label-hover {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.is-loaded .about-section .content .resume-button {
+    animation-play-state: running;
 }
 
 @media screen {
@@ -96,11 +279,6 @@
             width: 100%;
         }
 
-        .about {
-            padding-left: 5%;
-            padding-right: 5%;
-            font-size: 12px;
-        }
     }
 
     @media (max-width:768px) {

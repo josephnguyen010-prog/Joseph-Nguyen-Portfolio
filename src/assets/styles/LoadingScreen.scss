@@ -1,0 +1,197 @@
+$accent: #5000ca;
+$accent-bright: #7b3fe4;
+$screen-bg: #0d1116;
+
+.loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $screen-bg;
+    opacity: 1;
+    transition: opacity 450ms ease, transform 450ms ease;
+}
+
+.loading-screen.is-leaving {
+    opacity: 0;
+    transform: scale(1.04);
+    pointer-events: none;
+}
+
+/* Faint CRT scanlines over the whole panel. */
+.loading-screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.035) 0px,
+        rgba(255, 255, 255, 0.035) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+}
+
+.loading-inner {
+    width: min(680px, 90vw);
+    text-align: center;
+    font-family: 'Courier Prime', source-code-pro, Menlo, Monaco, Consolas,
+        'Courier New', monospace;
+}
+
+.loading-name {
+    margin: 0;
+    font-family: inherit;
+    /* Held to a single line. 25 characters at ~0.76em of advance each (glyph
+       plus tracking) needs roughly 19x the font size in width, so the cap and
+       the panel width below are set to keep that inside the viewport. */
+    white-space: nowrap;
+    font-size: clamp(0.6rem, 3.6vw, 1.75rem);
+    letter-spacing: 0.16em;
+    line-height: 1.3;
+    color: #fff;
+    text-shadow: 0 0 18px rgba(123, 63, 228, 0.55);
+    animation: bootIn 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ---- Track, runner, obstacles ----------------------------------------- */
+
+.loading-track {
+    position: relative;
+    height: 14px;
+    margin: 44px 0 0;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.04);
+    animation: bootIn 600ms cubic-bezier(0.16, 1, 0.3, 1) 240ms both;
+}
+
+.loading-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: linear-gradient(90deg, $accent, $accent-bright);
+    box-shadow: 0 0 14px rgba(123, 63, 228, 0.7);
+}
+
+.loading-track .obstacle {
+    position: absolute;
+    bottom: 100%;
+    width: 6px;
+    height: 12px;
+    margin-bottom: 2px;
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.loading-track .runner {
+    position: absolute;
+    bottom: 100%;
+    width: 12px;
+    height: 12px;
+    margin-bottom: 2px;
+    margin-left: -6px;
+    background-color: #fff;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.75);
+    animation: hop 620ms steps(1, end) infinite;
+}
+
+/* Once the bar is full the runner has arrived, so it stops hopping. */
+.loading-track .runner.is-resting {
+    animation: none;
+    transform: none;
+}
+
+@keyframes hop {
+    0%   { transform: translateY(0)     scaleY(1); }
+    18%  { transform: translateY(-14px) scaleY(1.15); }
+    38%  { transform: translateY(-20px) scaleY(1); }
+    58%  { transform: translateY(-14px) scaleY(1); }
+    76%  { transform: translateY(0)     scaleY(0.82); }
+    100% { transform: translateY(0)     scaleY(1); }
+}
+
+/* ---- Readout ----------------------------------------------------------- */
+
+.loading-status {
+    display: flex;
+    justify-content: space-between;
+    margin: 14px 0 0;
+    font-family: inherit;
+    font-size: clamp(0.7rem, 2.4vw, 0.85rem);
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.6);
+    animation: bootIn 600ms cubic-bezier(0.16, 1, 0.3, 1) 300ms both;
+}
+
+.loading-percent {
+    color: $accent-bright;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Reserves the row so the layout does not jump when the button replaces the
+   waiting hint. */
+.loading-action {
+    min-height: 92px;
+    margin-top: 40px;
+}
+
+.loading-start {
+    display: inline-block;
+    padding: 12px 26px;
+    font-family: inherit;
+    font-size: clamp(0.85rem, 3vw, 1.05rem);
+    letter-spacing: 0.28em;
+    color: #fff;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    /* Blink runs unconditionally. It used to be paused on hover/focus, but the
+       button is auto-focused the moment it appears, so that stopped it dead. */
+    animation: bootIn 400ms cubic-bezier(0.16, 1, 0.3, 1) both,
+               blink 900ms steps(1, end) 150ms infinite;
+    transition: background-color 200ms ease,
+                border-color 200ms ease,
+                color 200ms ease;
+}
+
+.loading-start:hover,
+.loading-start:focus-visible {
+    background-color: $accent;
+    border-color: $accent-bright;
+    color: #fff;
+    outline: none;
+}
+
+.loading-start:focus-visible {
+    box-shadow: 0 0 0 3px rgba(123, 63, 228, 0.5);
+}
+
+.loading-hint {
+    margin: 12px 0 0;
+    font-family: inherit;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: rgba(255, 255, 255, 0.3);
+    animation: bootIn 600ms ease both;
+}
+
+@keyframes bootIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+    0%, 54%   { opacity: 1; }
+    55%, 100% { opacity: 0.15; }
+}
+
+/* The component unmounts itself under reduced motion, but this keeps the
+   splash inert if it is ever rendered anyway. */
+@media (prefers-reduced-motion: reduce) {
+    .loading-screen,
+    .loading-screen * {
+        animation: none !important;
+        transition: none !important;
+    }
+}

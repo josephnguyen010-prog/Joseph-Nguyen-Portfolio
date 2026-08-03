@@ -1,16 +1,16 @@
 import React from "react";
 import '@fortawesome/free-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBriefcase, faGraduationCap } from '@fortawesome/free-solid-svg-icons';
+import { faBriefcase } from '@fortawesome/free-solid-svg-icons';
 import { VerticalTimeline, VerticalTimelineElement }  from 'react-vertical-timeline-component';
 import 'react-vertical-timeline-component/style.min.css';
 import '../assets/styles/Timeline.scss'
 
 function Timeline() {
   return (
-    <div id="history">
+    <div id="career">
       <div className="items-container">
-        <h1>Career History</h1>
+        <h1>Career</h1>
         <VerticalTimeline>
           <VerticalTimelineElement
             className="vertical-timeline-element--work"
@@ -97,20 +97,6 @@ function Timeline() {
               Supported 2 semesters of Foundations of Business, leading weekly review sessions for
               100+ students, holding 2-3 weekly office hours, and covering course delivery during
               instructor absences.
-            </p>
-          </VerticalTimelineElement>
-          <VerticalTimelineElement
-            className="vertical-timeline-element--work"
-            date="2023 - 2027"
-            iconStyle={{ background: '#5000ca', color: 'rgb(39, 40, 34)' }}
-            icon={<FontAwesomeIcon icon={faGraduationCap} />}
-          >
-            <h3 className="vertical-timeline-element-title">B.B.A. Business Information Technology</h3>
-            <h4 className="vertical-timeline-element-subtitle">Virginia Tech — Blacksburg, VA</h4>
-            <p>
-              Concentration in Decision Support Systems. GPA 3.7/4.0. 1st place, RSM Capstone Case
-              Study Competition (out of 100 interns); RSM Excellence Academy Scholar; Pamplin Inspire
-              Excellence Scholarship.
             </p>
           </VerticalTimelineElement>
         </VerticalTimeline>

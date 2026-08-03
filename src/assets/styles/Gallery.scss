@@ -1,0 +1,207 @@
+.gallery-container {
+    padding: 5% 10%;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 24px;
+}
+
+.gallery-item {
+    position: relative;
+}
+
+.gallery-button {
+    display: block;
+    position: relative;
+    width: 100%;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+    background: none;
+    cursor: pointer;
+    line-height: 0;
+    transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 350ms ease;
+
+    img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        display: block;
+        transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+}
+
+.gallery-button:hover,
+.gallery-button:focus-visible {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+    outline: none;
+}
+
+.gallery-button:focus-visible {
+    box-shadow: 0 0 0 3px rgba(123, 63, 228, 0.7);
+}
+
+/* Shadows tuned against the dark page read as smudges on the light one. */
+.light-mode .gallery-button:hover {
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.15);
+}
+
+.gallery-button:hover img {
+    transform: scale(1.06);
+}
+
+.gallery-caption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 26px 12px 10px;
+    font-size: 0.85rem;
+    line-height: 1.3;
+    text-align: left;
+    color: #fff;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.gallery-button:hover .gallery-caption,
+.gallery-button:focus-visible .gallery-caption {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ---- Lightbox ---------------------------------------------------------- */
+
+.lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 1400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px;
+    background-color: rgba(0, 0, 0, 0.92);
+    animation: lightboxIn 250ms ease both;
+}
+
+@keyframes lightboxIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.lightbox-figure {
+    margin: 0;
+    max-width: min(1100px, 88vw);
+    text-align: center;
+
+    img {
+        max-width: 100%;
+        max-height: 78vh;
+        object-fit: contain;
+        border-radius: 6px;
+        animation: lightboxZoom 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    figcaption {
+        margin-top: 14px;
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 0.95rem;
+    }
+}
+
+@keyframes lightboxZoom {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.lightbox-close,
+.lightbox-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 auto;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 200ms ease, transform 200ms ease;
+
+    svg {
+        color: #fff;
+    }
+}
+
+.lightbox-close:hover,
+.lightbox-nav:hover,
+.lightbox-close:focus-visible,
+.lightbox-nav:focus-visible {
+    background-color: #5000ca;
+    transform: scale(1.08);
+    outline: none;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+@media screen {
+    @media (max-width: 1024px) {
+        .gallery-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .gallery-container {
+            padding-left: 5%;
+            padding-right: 5%;
+        }
+
+        .gallery-grid {
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 14px;
+        }
+
+        /* Captions sit permanently visible where there is no hover. */
+        .gallery-caption {
+            opacity: 1;
+            transform: none;
+            font-size: 0.75rem;
+        }
+
+        .lightbox {
+            padding: 12px;
+            gap: 4px;
+        }
+
+        .lightbox-close,
+        .lightbox-nav {
+            width: 38px;
+            height: 38px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .gallery-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+}

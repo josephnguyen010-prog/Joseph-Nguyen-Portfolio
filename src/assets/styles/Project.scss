@@ -22,12 +22,26 @@
   
 .zoom {
     border-radius: 5px;
-    transition: transform .2s;
+    transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 400ms ease;
     margin: 0 auto;
 }
-  
+
 .zoom:hover {
     transform: scale(1.05);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+}
+
+.projects-container .projects-grid .project {
+    transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.projects-container .projects-grid .project:hover {
+    transform: translateY(-4px);
+}
+
+.project h2 {
+    transition: color 250ms ease;
 }
 
 @media screen {

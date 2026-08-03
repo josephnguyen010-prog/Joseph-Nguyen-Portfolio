@@ -11,11 +11,25 @@
     float: right;
     background-color: white;
     color: #050f0b;
+    transition: background-color 300ms ease,
+                color 300ms ease,
+                transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 300ms ease;
   }
 
   button:hover {
     background-color: #5000ca;
     color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(80, 0, 202, 0.35);
+  }
+
+  button svg {
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  button:hover svg {
+    transform: translateX(4px);
   }
 
   fieldset {

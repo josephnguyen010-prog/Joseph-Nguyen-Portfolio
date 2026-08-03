@@ -1,0 +1,186 @@
+.education-container {
+    padding: 5% 10%;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.education-card {
+    padding: 28px 32px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.education-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.education-icon svg {
+    color: #7b3fe4;
+}
+
+.education-heading {
+    flex: 1 1 auto;
+
+    h2 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+}
+
+.education-meta {
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+    opacity: 0.65;
+}
+
+.education-gpa {
+    flex: 0 0 auto;
+    padding: 6px 14px;
+    border: 1px solid rgba(123, 63, 228, 0.6);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    color: #fff;
+}
+
+.education-degree {
+    margin: 22px 0 0;
+    font-size: 1.05rem;
+}
+
+.education-concentration {
+    margin: 6px 0 0;
+    font-size: 0.95rem;
+    opacity: 0.7;
+}
+
+.education-coursework {
+    margin-top: 20px;
+    line-height: 2.2;
+
+    /* A bare span inherits nothing from the global colour rule, so it has to be
+       set explicitly in both modes or it falls back to black. */
+    .chip-title {
+        color: #fff;
+        padding-right: 10px;
+        opacity: 0.7;
+    }
+
+    .MuiChip-root {
+        margin-right: 0.5em;
+        transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+                    box-shadow 200ms ease;
+    }
+
+    .MuiChip-root:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+    }
+}
+
+/* ---- Awards ------------------------------------------------------------ */
+
+.awards-heading {
+    margin: 46px 0 0;
+    font-size: 1.15rem;
+    letter-spacing: 0.04em;
+}
+
+.awards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 16px;
+    margin-top: 18px;
+}
+
+.award {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+    border: 1px solid transparent;
+    border-left: 3px solid #5000ca;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.03);
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 300ms ease;
+
+    svg {
+        margin-top: 3px;
+        color: #7b3fe4;
+        flex: 0 0 auto;
+    }
+}
+
+.award:hover {
+    transform: translateX(4px);
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.award-title {
+    margin: 0;
+    font-size: 0.98rem;
+    line-height: 1.4;
+}
+
+.award-detail {
+    margin: 4px 0 0;
+    font-size: 0.85rem;
+    opacity: 0.6;
+}
+
+/* ---- Light mode -------------------------------------------------------- */
+
+.light-mode {
+    .education-card,
+    .award {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+
+    .education-card {
+        border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .education-gpa {
+        color: #0d1116;
+    }
+
+    .education-coursework .chip-title {
+        color: #0d1116;
+    }
+
+    .award:hover {
+        background-color: rgba(0, 0, 0, 0.06);
+    }
+}
+
+@media screen {
+    @media (max-width: 768px) {
+        .education-container {
+            padding-left: 5%;
+            padding-right: 5%;
+        }
+
+        .education-card {
+            padding: 22px 20px;
+        }
+
+        .education-header {
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .education-heading {
+            flex: 1 1 60%;
+        }
+
+        .awards-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+}

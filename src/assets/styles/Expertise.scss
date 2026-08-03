@@ -18,6 +18,35 @@
 .skills-container .skills-grid .skill {
     align-items: center;
     text-align: left;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 350ms ease,
+                background-color 350ms ease,
+                box-shadow 350ms ease;
+
+    svg {
+        transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1),
+                    color 400ms ease;
+    }
+}
+
+.skills-container .skills-grid .skill:hover {
+    transform: translateY(-6px);
+    border-color: rgba(80, 0, 202, 0.5);
+    background-color: rgba(255, 255, 255, 0.03);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.skills-container .skills-grid .skill:hover svg {
+    transform: scale(1.12) rotate(-4deg);
+    color: #7b3fe4;
+}
+
+.light-mode .skills-container .skills-grid .skill:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
 }
   
 .chip {
@@ -38,7 +67,8 @@
 
 .flex-chips {
     line-height: 2;
-    margin: 0.5;
+    /* Was `margin: 0.5` with no unit, which browsers discard entirely. */
+    margin: 0.5rem 0 0;
 
     .chip-title {
         color: white;
@@ -48,6 +78,13 @@
 
 .flex-chips .MuiChip-root {
     margin-right: 0.5em;
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 200ms ease;
+}
+
+.flex-chips .MuiChip-root:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
 }
 
 .flex-chips .MuiChip-outlined {
