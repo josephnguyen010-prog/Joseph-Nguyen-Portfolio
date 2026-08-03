@@ -89,7 +89,7 @@ export default function Reveal(props: PropsWithChildren<Props>) {
         });
       },
       // Shrinking the root's bottom edge means an element fires once its top
-      // has risen into the lower fifth of the screen — late enough that you are
+      // has risen into the lower fifth of the screen - late enough that you are
       // looking at it, early enough that it is not already half read. Works the
       // same whether the element is 100px or 4000px tall.
       { threshold, rootMargin: "0px 0px -18% 0px" }

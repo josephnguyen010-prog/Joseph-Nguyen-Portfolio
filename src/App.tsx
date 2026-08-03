@@ -6,6 +6,7 @@ import {
   Expertise,
   Project,
   Gallery,
+  DoodleGame,
   Contact,
   Navigation,
   Footer,
@@ -44,7 +45,7 @@ function App() {
             <Main started={!loading}/>
         </FadeIn>
         {/* Education, Expertise and Gallery stagger their own children, so they
-            must NOT be wrapped again here — a parent Reveal sits at opacity 0
+            must NOT be wrapped again here - a parent Reveal sits at opacity 0
             while the children's observers fire anyway, spending the whole
             stagger invisibly. Only sections that animate as one block are
             wrapped. */}
@@ -53,7 +54,13 @@ function App() {
         <Expertise/>
         <Project/>
         <Gallery/>
-        <Reveal><Contact/></Reveal>
+        {/* Not wrapped in Reveal: it is interactive and a nav target, so it
+            should be ready the moment you arrive. */}
+        <DoodleGame mode={mode}/>
+        {/* Deliberately not wrapped: it is the jump target for the nav, and
+            animating a section you have just scrolled to lands you on blank
+            space that then slides in under you. */}
+        <Contact/>
         <Footer />
     </div>
     </>

@@ -1,13 +1,23 @@
-import React, { useRef, useState } from 'react';
-import '../assets/styles/Contact.scss';
-// import emailjs from '@emailjs/browser';
+import React, { useState } from 'react';
+import emailjs from '@emailjs/browser';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import SendIcon from '@mui/icons-material/Send';
 import TextField from '@mui/material/TextField';
+import '../assets/styles/Contact.scss';
+
+const EMAIL = 'joseph.nguyen010@gmail.com';
+
+// Read at build time. CRA inlines these into the bundle, so they are public by
+// design — EmailJS issues a publishable key precisely for this use.
+const SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
+const TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
+const PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
+const isConfigured = Boolean(SERVICE_ID && TEMPLATE_ID && PUBLIC_KEY);
+
+type Status = 'idle' | 'sending' | 'sent' | 'error';
 
 function Contact() {
-
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [message, setMessage] = useState<string>('');
@@ -16,37 +26,44 @@ function Contact() {
   const [emailError, setEmailError] = useState<boolean>(false);
   const [messageError, setMessageError] = useState<boolean>(false);
 
-  const form = useRef();
+  const [status, setStatus] = useState<Status>('idle');
 
-  const sendEmail = (e: any) => {
+  const sendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    setNameError(name === '');
-    setEmailError(email === '');
-    setMessageError(message === '');
+    const missingName = name.trim() === '';
+    const missingEmail = email.trim() === '';
+    const missingMessage = message.trim() === '';
 
-    /* Uncomment below if you want to enable the emailJS */
+    setNameError(missingName);
+    setEmailError(missingEmail);
+    setMessageError(missingMessage);
 
-    // if (name !== '' && email !== '' && message !== '') {
-    //   var templateParams = {
-    //     name: name,
-    //     email: email,
-    //     message: message
-    //   };
+    if (missingName || missingEmail || missingMessage) return;
 
-    //   console.log(templateParams);
-    //   emailjs.send('service_id', 'template_id', templateParams, 'api_key').then(
-    //     (response) => {
-    //       console.log('SUCCESS!', response.status, response.text);
-    //     },
-    //     (error) => {
-    //       console.log('FAILED...', error);
-    //     },
-    //   );
-    //   setName('');
-    //   setEmail('');
-    //   setMessage('');
-    // }
+    // Never pretend to send. If the keys are absent, say so and point at the
+    // mailto instead of swallowing the message.
+    if (!isConfigured) {
+      setStatus('error');
+      return;
+    }
+
+    setStatus('sending');
+
+    try {
+      await emailjs.send(
+        SERVICE_ID as string,
+        TEMPLATE_ID as string,
+        { name, email, message },
+        { publicKey: PUBLIC_KEY as string }
+      );
+      setStatus('sent');
+      setName('');
+      setEmail('');
+      setMessage('');
+    } catch {
+      setStatus('error');
+    }
   };
 
   return (
@@ -54,58 +71,83 @@ function Contact() {
       <div className="items-container">
         <div className="contact_wrapper">
           <h1>Contact Me</h1>
-          <p>Always happy to talk about product, data, or anything I'm building. Reach me directly at <a href="mailto:joseph.nguyen010@gmail.com">joseph.nguyen010@gmail.com</a>.</p>
+          <p>
+            Always happy to talk about product, data, or anything I'm building.
+            Send a note below, or email me directly at{' '}
+            <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.
+          </p>
+
           <Box
-            ref={form}
             component="form"
             noValidate
             autoComplete="off"
-            className='contact-form'
+            className="contact-form"
+            onSubmit={sendEmail}
           >
-            <div className='form-flex'>
+            {/* Labels are plain elements above each field rather than MUI's
+                floating variant, which lands on the border and straddles the
+                white field and the dark page. */}
+            <div className="form-flex">
+              <div className="field">
+                <label htmlFor="contact-name">Your Name</label>
+                <TextField
+                  required
+                  id="contact-name"
+                  placeholder="What's your name?"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  error={nameError}
+                  helperText={nameError ? 'Please enter your name' : ''}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="contact-email">Email / Phone</label>
+                <TextField
+                  required
+                  id="contact-email"
+                  placeholder="How can I reach you?"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  error={emailError}
+                  helperText={emailError ? 'Please enter your email or phone number' : ''}
+                />
+              </div>
+            </div>
+
+            <div className="field body-form">
+              <label htmlFor="contact-message">Message</label>
               <TextField
                 required
-                id="outlined-required"
-                label="Your Name"
-                placeholder="What's your name?"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                }}
-                error={nameError}
-                helperText={nameError ? "Please enter your name" : ""}
-              />
-              <TextField
-                required
-                id="outlined-required"
-                label="Email / Phone"
-                placeholder="How can I reach you?"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-                error={emailError}
-                helperText={emailError ? "Please enter your email or phone number" : ""}
+                id="contact-message"
+                placeholder="Send me any inquiries or questions"
+                multiline
+                rows={10}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                error={messageError}
+                helperText={messageError ? 'Please enter the message' : ''}
               />
             </div>
-            <TextField
-              required
-              id="outlined-multiline-static"
-              label="Message"
-              placeholder="Send me any inquiries or questions"
-              multiline
-              rows={10}
-              className="body-form"
-              value={message}
-              onChange={(e) => {
-                setMessage(e.target.value);
-              }}
-              error={messageError}
-              helperText={messageError ? "Please enter the message" : ""}
-            />
-            <Button variant="contained" endIcon={<SendIcon />} onClick={sendEmail}>
-              Send
+
+            <Button
+              type="submit"
+              variant="contained"
+              endIcon={<SendIcon />}
+              disabled={status === 'sending'}
+            >
+              {status === 'sending' ? 'Sending...' : 'Send'}
             </Button>
+
+            {/* aria-live so the outcome is announced, not just shown. */}
+            <p className={`form-status is-${status}`} role="status" aria-live="polite">
+              {status === 'sent' && 'Thanks. Your message is on its way.'}
+              {status === 'error' && (
+                <>
+                  Something went wrong sending that. Please email me directly at{' '}
+                  <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.
+                </>
+              )}
+            </p>
           </Box>
         </div>
       </div>

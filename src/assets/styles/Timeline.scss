@@ -31,6 +31,43 @@
     color: white;
 }
 
+/* ---- Company marks ----------------------------------------------------- */
+
+.timeline-mark {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #fff;
+
+    /* Logos with transparent backgrounds sit inside the circle with padding. */
+    img {
+        max-width: 64%;
+        max-height: 64%;
+        object-fit: contain;
+    }
+}
+
+/* Artwork that carries its own background fills the whole circle instead. */
+.timeline-mark.is-full img {
+    max-width: none;
+    max-height: none;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.timeline-monogram {
+    font-family: 'Courier Prime', source-code-pro, monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #5000ca;
+}
+
 @media screen and (max-width: 1170px) {
     .vertical-timeline-element .vertical-timeline-element-date {
         color: rgb(39, 40, 34);

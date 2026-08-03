@@ -21,7 +21,7 @@ interface ProjectItem {
 
 /**
  * TODO: these are still the template author's projects, thumbnails included.
- * Replace each entry with your own — the layout, hover states and stagger all
+ * Replace each entry with your own - the layout, hover states and stagger all
  * come from this one array, so nothing else needs touching.
  */
 const projects: ProjectItem[] = [

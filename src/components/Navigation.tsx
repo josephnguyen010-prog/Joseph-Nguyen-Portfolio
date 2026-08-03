@@ -17,7 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 
 const drawerWidth = 240;
-const navItems = [['Education', 'education'], ['Career', 'career'], ['Skills', 'skills'], ['Projects', 'projects'], ['Gallery', 'gallery'], ['Contact', 'contact']];
+const navItems = [['Education', 'education'], ['Career', 'career'], ['Skills', 'skills'], ['Projects', 'projects'], ['Gallery', 'gallery'], ['Doodle', 'doodle'], ['Contact', 'contact']];
 
 // Lives in /public so it is served straight from the site rather than depending
 // on an external host. PUBLIC_URL keeps it correct under the GitHub Pages path.

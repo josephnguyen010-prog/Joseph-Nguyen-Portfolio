@@ -6,4 +6,5 @@ export { default as Timeline } from "./Timeline";
 export { default as Education } from "./Education";
 export { default as Project } from "./Project";
 export { default as Gallery } from "./Gallery";
+export { default as DoodleGame } from "./DoodleGame";
 export { default as Contact } from "./Contact";

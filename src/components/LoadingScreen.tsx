@@ -95,7 +95,7 @@ export default function LoadingScreen({ onFinish, duration = BASE_TOTAL }: Props
   }, [duration, reduced]);
 
   // Input is only accepted once the bar has finished. Before that there is no
-  // way past the screen — the loading sequence cannot be skipped.
+  // way past the screen - the loading sequence cannot be skipped.
   useEffect(() => {
     if (reduced || !ready) return;
     const go = () => enter();

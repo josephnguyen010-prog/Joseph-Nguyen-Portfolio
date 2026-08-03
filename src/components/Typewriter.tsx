@@ -71,7 +71,7 @@ export default function Typewriter({
 
   return (
     <span className="typewriter" aria-hidden="true">
-      {/* Text only — no caret. Including one here pushed the longest phrase
+      {/* Text only - no caret. Including one here pushed the longest phrase
           onto an extra line and reserved a blank row beneath the heading. The
           caret costs no width (see the negative margin in Main.scss), so it
           needs no space reserved for it. */}

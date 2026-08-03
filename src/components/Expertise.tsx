@@ -10,8 +10,7 @@ const labelsFirst = [
     "Power BI",
     "Tableau",
     "SQL",
-    "Python",
-    "MS Excel",
+    "Excel",
     "VBA",
     "Power Platform",
     "KPI Design",
@@ -30,12 +29,12 @@ const labelsSecond = [
 
 const labelsThird = [
     "React",
-    "TypeScript",
     "JavaScript",
-    "Java",
     "Python",
+    "Java",
     "PostgreSQL",
     "HTML",
+    "Azure",
     "Git",
 ];
 
@@ -48,9 +47,11 @@ function Expertise() {
                 <Reveal className="skill" delay={0}>
                     <FontAwesomeIcon icon={faChartColumn} size="3x"/>
                     <h3>Data &amp; Analytics</h3>
-                    <p>I turn scattered source data into reporting people actually use. At RSM I built interactive Power BI dashboards that replaced manual report assembly across multiple teams, and I use SQL, Python, and Excel to clean and integrate data end to end.</p>
+                    <p>
+                        <span className="skill-lead">I'm really good at</span>
+                        turning scattered spreadsheets into dashboards people actually open.
+                    </p>
                     <div className="flex-chips">
-                        <span className="chip-title">Tech stack:</span>
                         {labelsFirst.map((label, index) => (
                             <Chip key={index} className='chip' label={label} />
                         ))}
@@ -60,9 +61,11 @@ function Expertise() {
                 <Reveal className="skill" delay={120}>
                     <FontAwesomeIcon icon={faDiagramProject} size="3x"/>
                     <h3>Business Analysis &amp; Tech Risk</h3>
-                    <p>I map how a business actually works and find where it breaks. I've run process walkthroughs with client owners, tested application access controls against approved listings, and supported AI governance work on regulatory and compliance considerations.</p>
+                    <p>
+                        <span className="skill-lead">Ask me about</span>
+                        the step in a process everyone forgot they owned.
+                    </p>
                     <div className="flex-chips">
-                        <span className="chip-title">Tech stack:</span>
                         {labelsSecond.map((label, index) => (
                             <Chip key={index} className='chip' label={label} />
                         ))}
@@ -72,9 +75,11 @@ function Expertise() {
                 <Reveal className="skill" delay={240}>
                     <FontAwesomeIcon icon={faCode} size="3x"/>
                     <h3>Product &amp; Engineering</h3>
-                    <p>I build the things I design. As founder of Venus I architected a 20-table Postgres backend with row-level security and server-enforced state machines, and engineered a two-layer matching algorithm scoring compatibility across 22 weighted dimensions.</p>
+                    <p>
+                        <span className="skill-lead">I'd rather</span>
+                        build the thing than write the deck about the thing.
+                    </p>
                     <div className="flex-chips">
-                        <span className="chip-title">Tech stack:</span>
                         {labelsThird.map((label, index) => (
                             <Chip key={index} className='chip' label={label} />
                         ))}

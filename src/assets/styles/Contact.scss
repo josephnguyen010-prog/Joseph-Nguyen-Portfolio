@@ -6,40 +6,78 @@
 
 .contact-form {
   padding-top: 20px;
+  width: 100% !important;
 
   button {
     float: right;
     background-color: white;
     color: #050f0b;
-    transition: background-color 300ms ease,
-                color 300ms ease,
-                transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 300ms ease;
   }
 
   button:hover {
     background-color: #5000ca;
     color: white;
-    transform: translateY(-3px);
-    box-shadow: 0 10px 24px rgba(80, 0, 202, 0.35);
   }
 
-  button svg {
-    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  button:hover svg {
-    transform: translateX(4px);
-  }
-
-  fieldset {
-    background-color: white;
+  button.Mui-disabled {
+    background-color: rgba(255, 255, 255, 0.4);
+    color: rgba(5, 15, 11, 0.6);
   }
 }
 
-label {
-  font-size: 1.2rem;
-  font-family: 'DomaineDispNar-Medium', sans-serif;
+/* ---- Fields ------------------------------------------------------------ */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Static label above the input. Colour comes from the global rule, so it
+   follows light and dark mode without extra work. */
+.field > label {
+  margin-bottom: 8px;
+  font-size: 1rem;
+  font-family: 'Lato', sans-serif;
+  opacity: 0.85;
+}
+
+.field .MuiOutlinedInput-root {
+  background-color: white;
+  border-radius: 4px;
+}
+
+.field .MuiOutlinedInput-input {
+  color: #0d1116;
+}
+
+.field .MuiOutlinedInput-input::placeholder {
+  color: #6b7280;
+  opacity: 1;
+}
+
+/* The notch exists only to make room for a floating label. There isn't one
+   any more, so keep the border unbroken. */
+.field .MuiOutlinedInput-notchedOutline legend {
+  display: none;
+}
+
+.field .MuiOutlinedInput-notchedOutline {
+  top: 0;
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
+.field .Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #5000ca;
+  border-width: 2px;
+}
+
+.field .Mui-error .MuiOutlinedInput-notchedOutline {
+  border-color: #d3302f;
+}
+
+.field .MuiFormHelperText-root {
+  margin-left: 2px;
 }
 
 .form-flex {
@@ -48,15 +86,52 @@ label {
   padding-bottom: 15px;
 }
 
-.form-flex .MuiFormControl-root {
-  width: 100%;
-}
-
-form {
-  width: 100% !important;
-}
-
 .body-form {
-  width: 100% !important;
   margin-bottom: 15px !important;
+}
+
+/* ---- Status ------------------------------------------------------------ */
+
+/* Sits under the floated Send button, so it needs its own line. */
+.form-status {
+  clear: both;
+  margin: 0;
+  padding-top: 14px;
+  font-size: 0.95rem;
+  min-height: 1.4em;
+}
+
+.form-status.is-sent {
+  color: #7ee0a1;
+}
+
+.form-status.is-error {
+  color: #ff8f8a;
+}
+
+.form-status a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.light-mode {
+  .form-status.is-sent {
+    color: #1c7a44;
+  }
+
+  .form-status.is-error {
+    color: #b3261e;
+  }
+}
+
+@media screen {
+  @media (max-width: 567px) {
+    .form-flex {
+      display: block;
+    }
+
+    .form-flex .field {
+      margin-bottom: 15px;
+    }
+  }
 }

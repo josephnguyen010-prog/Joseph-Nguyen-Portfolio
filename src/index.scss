@@ -137,6 +137,56 @@ html {
   justify-content: center;
 }
 
+/* ---- Easter eggs -------------------------------------------------------
+   Add `className="egg"`, a `data-egg` message and `tabIndex={0}` to anything
+   that should reveal a line on hover. Focusable so keyboard and touch users
+   can trigger it too, since neither of them hover. */
+
+.egg {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dashed rgba(123, 63, 228, 0.55);
+  outline: none;
+}
+
+.egg::after {
+  content: attr(data-egg);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  z-index: 20;
+  width: max-content;
+  max-width: 250px;
+  padding: 9px 13px;
+  border-radius: 8px;
+  background-color: #2a1b45;
+  border: 1px solid rgba(123, 63, 228, 0.55);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-family: "Lato", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: normal;
+  text-align: center;
+  text-transform: none;
+  white-space: normal;
+  opacity: 0;
+  transform: translate(-50%, 5px);
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.egg:hover::after,
+.egg:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .egg::after { transition: none; }
+}
+
 .light-mode {
   background-color: #f8f9fa;
 
@@ -186,9 +236,6 @@ html {
     border-right: 7px solid rgba(0, 0, 0, 0.08) !important;
   }
 
-  .flex-chips .chip-title {
-    color: #0d1116;
-  }
 }
 
 @media screen {
