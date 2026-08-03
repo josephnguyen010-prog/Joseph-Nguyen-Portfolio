@@ -1,44 +1,41 @@
 import React from "react";
 import '@fortawesome/free-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faReact, faDocker, faPython } from '@fortawesome/free-brands-svg-icons';
+import { faChartColumn, faDiagramProject, faCode } from '@fortawesome/free-solid-svg-icons';
 import Chip from '@mui/material/Chip';
 import '../assets/styles/Expertise.scss';
 
 const labelsFirst = [
-    "React",
-    "TypeScript",
-    "JavaScript",
-    "HTML5",
-    "CSS3",
-    "SASS",
-    "Flask",
-    "Python",
+    "Power BI",
+    "Tableau",
     "SQL",
-    "PostgreSQL",
-    "Postman"
+    "Python",
+    "MS Excel",
+    "VBA",
+    "Power Platform",
+    "KPI Design",
 ];
 
 const labelsSecond = [
-    "Git",
-    "GitHub Actions",
-    "Docker",
-    "AWS",
-    "Azure",
-    "Linux",
-    "Snowflake",
-    "Pandas",
-    "Selenium",
+    "Process Mapping",
+    "Requirements Gathering",
+    "Risk Assessments",
+    "Access Controls",
+    "AI Governance",
+    "Agile",
+    "Jira",
+    "Miro",
 ];
 
 const labelsThird = [
-    "OpenAI",
-    "Groq",
-    "LangChain",
-    "Qdrant",
-    "Hugging Face",
-    "LlamaIndex",
-    "Streamlit",
+    "React",
+    "TypeScript",
+    "JavaScript",
+    "Java",
+    "Python",
+    "PostgreSQL",
+    "HTML",
+    "Git",
 ];
 
 function Expertise() {
@@ -48,9 +45,9 @@ function Expertise() {
             <h1>Expertise</h1>
             <div className="skills-grid">
                 <div className="skill">
-                    <FontAwesomeIcon icon={faReact} size="3x"/>
-                    <h3>Full Stack Web Development</h3>
-                    <p>I have built a diverse array of web applications from scratch using modern technologies such as React and Flask. I have a strong proficiency in the SDLC process and frontend + backend development.</p>
+                    <FontAwesomeIcon icon={faChartColumn} size="3x"/>
+                    <h3>Data &amp; Analytics</h3>
+                    <p>I turn scattered source data into reporting people actually use. At RSM I built interactive Power BI dashboards that replaced manual report assembly across multiple teams, and I use SQL, Python, and Excel to clean and integrate data end to end.</p>
                     <div className="flex-chips">
                         <span className="chip-title">Tech stack:</span>
                         {labelsFirst.map((label, index) => (
@@ -60,9 +57,9 @@ function Expertise() {
                 </div>
 
                 <div className="skill">
-                    <FontAwesomeIcon icon={faDocker} size="3x"/>
-                    <h3>DevOps & Automation</h3>
-                    <p>Once the application is built, I help clients set up DevOps testing, CI/CD pipelines, and deployment automation to support the successful Go-Live.</p>
+                    <FontAwesomeIcon icon={faDiagramProject} size="3x"/>
+                    <h3>Business Analysis &amp; Tech Risk</h3>
+                    <p>I map how a business actually works and find where it breaks. I've run process walkthroughs with client owners, tested application access controls against approved listings, and supported AI governance work on regulatory and compliance considerations.</p>
                     <div className="flex-chips">
                         <span className="chip-title">Tech stack:</span>
                         {labelsSecond.map((label, index) => (
@@ -72,9 +69,9 @@ function Expertise() {
                 </div>
 
                 <div className="skill">
-                    <FontAwesomeIcon icon={faPython} size="3x"/>
-                    <h3>GenAI & LLM</h3>
-                    <p>Stay relevant in the market by leveraging the latest AI models in your projects. I have professional experience building enterprise grade GenAI-enabled solutions to empower intelligent decision making.</p>
+                    <FontAwesomeIcon icon={faCode} size="3x"/>
+                    <h3>Product &amp; Engineering</h3>
+                    <p>I build the things I design. As founder of Venus I architected a 20-table Postgres backend with row-level security and server-enforced state machines, and engineered a two-layer matching algorithm scoring compatibility across 22 weighted dimensions.</p>
                     <div className="flex-chips">
                         <span className="chip-title">Tech stack:</span>
                         {labelsThird.map((label, index) => (
