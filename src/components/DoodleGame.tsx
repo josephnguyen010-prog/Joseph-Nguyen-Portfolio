@@ -2,6 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import DownloadIcon from '@mui/icons-material/Download';
 import ReplayIcon from '@mui/icons-material/Replay';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import SendIcon from '@mui/icons-material/Send';
+import { EMAIL, isEmailConfigured, sendDoodle } from '../lib/email';
+import { canvasToPng, isUploadConfigured, uploadDoodle } from '../lib/doodleUpload';
 import '../assets/styles/DoodleGame.scss';
 
 /**
@@ -81,9 +84,13 @@ const BULB_GAP = 30;
 const DRAW_SECONDS = 30;
 /** When the counter turns red and starts pulsing. */
 const LOW_SECONDS = 7;
-const EMAIL = "joseph.nguyen010@gmail.com";
+
+/** One-click send needs somewhere to put the image *and* a way to tell me it
+ *  arrived. Missing either one and we fall back to download-plus-mailto. */
+const CAN_SEND = isEmailConfigured && isUploadConfigured;
 
 type Phase = "idle" | "spinning" | "countdown" | "drawing" | "done";
+type SendStatus = "idle" | "sending" | "sent" | "error";
 
 /**
  * The pointer becomes an actual brush whose bristles carry the selected colour,
@@ -139,6 +146,11 @@ function DoodleGame({ mode = 'dark' }: Props) {
   const [colourIndex, setColourIndex] = useState(0);
   const [widthIndex, setWidthIndex] = useState(1);
   const [erasing, setErasing] = useState(false);
+
+  const [sender, setSender] = useState("");
+  const [note, setNote] = useState("");
+  const [senderError, setSenderError] = useState(false);
+  const [sendStatus, setSendStatus] = useState<SendStatus>("idle");
 
   const machineRef = useRef<HTMLDivElement | null>(null);
   const [bulbs, setBulbs] = useState<Point[]>([]);
@@ -319,6 +331,48 @@ function DoodleGame({ mode = 'dark' }: Props) {
     link.click();
   };
 
+  /**
+   * Upload the drawing, then mail me the link. Two network calls rather than
+   * one because EmailJS will not carry an attachment on the free plan and a
+   * base64 PNG blows past its template variable limit — so the image goes to an
+   * image host first and only the URL travels by mail.
+   *
+   * The canvas still holds the finished drawing during the "done" phase; it is
+   * not cleared until the next lever pull.
+   */
+  const send = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas || sendStatus === "sending") return;
+
+    const missingName = sender.trim() === "";
+    setSenderError(missingName);
+    if (missingName) return;
+
+    setSendStatus("sending");
+    try {
+      const blob = await canvasToPng(canvas);
+      const imageUrl = await uploadDoodle(blob);
+      await sendDoodle({
+        name: sender.trim(),
+        note: note.trim(),
+        prompt,
+        imageUrl,
+      });
+      setSendStatus("sent");
+    } catch {
+      setSendStatus("error");
+    }
+  };
+
+  /** Wipe the send form so a second doodle does not open pre-filled or still
+   *  showing the last result. The name is kept: same visitor, same drawer. */
+  const clearSendState = () => {
+    setNote("");
+    setSenderError(false);
+    setSendStatus("idle");
+  };
+
   // ---- Slots -------------------------------------------------------------
 
   const spin = () => {
@@ -326,6 +380,7 @@ function DoodleGame({ mode = 'dark' }: Props) {
     clearTimers();
     strokes.current = [];
     redraw();
+    clearSendState();
 
     const next = dealPrompt();
     // Vary how far the reel travels so no two pulls feel identical.
@@ -384,6 +439,7 @@ function DoodleGame({ mode = 'dark' }: Props) {
     setPhase("idle");
     setSecondsLeft(DRAW_SECONDS);
     setErasing(false);
+    clearSendState();
   };
 
   const busy = phase === "spinning" || phase === "countdown" || phase === "drawing";
@@ -572,16 +628,76 @@ function DoodleGame({ mode = 'dark' }: Props) {
           {phase === "done" && (
             <div className="doodle-done">
               <div className="doodle-actions">
-                <button type="button" className="doodle-button" onClick={download}>
+                <button type="button" className="doodle-button is-ghost" onClick={download}>
                   <DownloadIcon aria-hidden="true"/> Download
                 </button>
                 <button type="button" className="doodle-button is-ghost" onClick={reset}>
                   <ReplayIcon aria-hidden="true"/> Go again
                 </button>
               </div>
-              <p className="doodle-send">
-                Send it to <a href={`mailto:${EMAIL}?subject=A doodle for you`}>{EMAIL}</a>.
-              </p>
+
+              {/* With an image host and EmailJS configured the drawing goes
+                  straight to me. Without them, the old download-and-mail route
+                  is still there rather than a button that quietly does nothing. */}
+              {CAN_SEND ? (
+                sendStatus === "sent" ? (
+                  <p className="doodle-send is-sent" role="status" aria-live="polite">
+                    Got it &mdash; thanks, {sender.trim()}. That one's mine now.
+                  </p>
+                ) : (
+                  <form className="doodle-send-form" onSubmit={send}>
+                    <p className="doodle-send-lead">Send it to me?</p>
+                    <div className="doodle-send-fields">
+                      <label className="doodle-field">
+                        <span>Your name</span>
+                        <input
+                          type="text"
+                          value={sender}
+                          maxLength={40}
+                          placeholder="Who drew this?"
+                          onChange={(e) => {
+                            setSender(e.target.value);
+                            if (senderError) setSenderError(false);
+                          }}
+                          aria-invalid={senderError}
+                        />
+                      </label>
+                      <label className="doodle-field">
+                        <span>Note <em>(optional)</em></span>
+                        <input
+                          type="text"
+                          value={note}
+                          maxLength={120}
+                          placeholder="Say something about it"
+                          onChange={(e) => setNote(e.target.value)}
+                        />
+                      </label>
+                      <button
+                        type="submit"
+                        className="doodle-button"
+                        disabled={sendStatus === "sending"}
+                      >
+                        <SendIcon aria-hidden="true"/>
+                        {sendStatus === "sending" ? "Sending..." : "Send"}
+                      </button>
+                    </div>
+
+                    <p className="doodle-send-status" role="status" aria-live="polite">
+                      {senderError && "Add a name first so I know who it's from."}
+                      {sendStatus === "error" && (
+                        <>
+                          That didn't go through. Download it and email me at{' '}
+                          <a href={`mailto:${EMAIL}?subject=A doodle for you`}>{EMAIL}</a>.
+                        </>
+                      )}
+                    </p>
+                  </form>
+                )
+              ) : (
+                <p className="doodle-send">
+                  Send it to <a href={`mailto:${EMAIL}?subject=A doodle for you`}>{EMAIL}</a>.
+                </p>
+              )}
             </div>
           )}
         </div>

@@ -1,19 +1,10 @@
 import React, { useState } from 'react';
-import emailjs from '@emailjs/browser';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import SendIcon from '@mui/icons-material/Send';
 import TextField from '@mui/material/TextField';
+import { EMAIL, isEmailConfigured, sendContactMessage } from '../lib/email';
 import '../assets/styles/Contact.scss';
-
-const EMAIL = 'joseph.nguyen010@gmail.com';
-
-// Read at build time. CRA inlines these into the bundle, so they are public by
-// design — EmailJS issues a publishable key precisely for this use.
-const SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
-const TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
-const PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
-const isConfigured = Boolean(SERVICE_ID && TEMPLATE_ID && PUBLIC_KEY);
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
@@ -43,7 +34,7 @@ function Contact() {
 
     // Never pretend to send. If the keys are absent, say so and point at the
     // mailto instead of swallowing the message.
-    if (!isConfigured) {
+    if (!isEmailConfigured) {
       setStatus('error');
       return;
     }
@@ -51,12 +42,7 @@ function Contact() {
     setStatus('sending');
 
     try {
-      await emailjs.send(
-        SERVICE_ID as string,
-        TEMPLATE_ID as string,
-        { name, email, message },
-        { publicKey: PUBLIC_KEY as string }
-      );
+      await sendContactMessage({ name, email, message });
       setStatus('sent');
       setName('');
       setEmail('');
