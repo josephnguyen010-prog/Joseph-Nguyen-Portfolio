@@ -1,5 +1,16 @@
 {
   // Puts an "NPM SCRIPTS" section in the Explorer sidebar with a play button
   // next to each script - one click to deploy, no task picker.
-  "npm.enableScriptExplorer": true
+  "npm.enableScriptExplorer": true,
+
+  // Use the TypeScript this project actually compiles with (4.9.5) rather than
+  // the newer one VS Code ships. Without this the editor reports problems the
+  // build does not have - notably marking "moduleResolution": "node" as
+  // deprecated, since TS 5.0 renamed it to "node10". Taking that suggestion
+  // would break the build outright: 4.9.5 rejects "node10" as an invalid value.
+  //
+  // VS Code asks for confirmation the first time. If no prompt appears, open any
+  // .ts file, click the TypeScript version in the status bar, and choose
+  // "Use Workspace Version".
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

@@ -59,8 +59,7 @@ function Contact() {
           <h1>Contact Me</h1>
           <p>
             Always happy to talk about product, data, or anything I'm building.
-            Send a note below, or email me directly at{' '}
-            <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.
+            Send a note below.
           </p>
 
           <Box
@@ -135,6 +134,15 @@ function Contact() {
               )}
             </p>
           </Box>
+
+          {/* Kept, but demoted below the form so the two are not competing for
+              the same click. Worth keeping visible rather than only surfacing in
+              the error state: anyone wanting to attach a job spec, CC someone,
+              or keep a copy in their own sent folder needs the address itself,
+              and the form cannot give them any of that. */}
+          <p className="contact-alt">
+            Prefer email? <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+          </p>
         </div>
       </div>
     </div>

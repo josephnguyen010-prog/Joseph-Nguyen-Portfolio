@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import DownloadIcon from '@mui/icons-material/Download';
-import ReplayIcon from '@mui/icons-material/Replay';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import ReplayIcon from '@mui/icons-material/Replay';
 import SendIcon from '@mui/icons-material/Send';
 import { EMAIL, isEmailConfigured, sendDoodle } from '../lib/email';
 import { canvasToPng, isUploadConfigured, uploadDoodle } from '../lib/doodleUpload';
@@ -67,10 +66,17 @@ const PROMPTS: string[] = [
 const WIDTHS = [2, 5, 10, 18];
 const ERASER_SCALE = 5;
 
-/** Index 0 is left blank here: it is the mode-aware ink, filled in at render. */
+/**
+ * Eight, not the twelve this started with. Twelve needed two rows and made the
+ * toolbar tall enough to shove the canvas away from the prompt; nobody picks a
+ * considered palette in thirty seconds anyway. The four cut were the ones with
+ * a near neighbour still here: teal (green/blue), indigo (blue/purple), grey
+ * (ink) and brown.
+ *
+ * Index 0 is the mode-aware ink, filled in at render.
+ */
 const COLOUR_NAMES = [
-  "Ink", "Red", "Orange", "Yellow", "Green", "Teal",
-  "Blue", "Indigo", "Purple", "Pink", "Brown", "Grey",
+  "Ink", "Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink",
 ];
 
 const ITEM_HEIGHT = 72;
@@ -86,11 +92,36 @@ const DRAW_SECONDS = 30;
 const LOW_SECONDS = 7;
 
 /** One-click send needs somewhere to put the image *and* a way to tell me it
- *  arrived. Missing either one and we fall back to download-plus-mailto. */
+ *  arrived. Missing either one and the send form is replaced by a plain mailto,
+ *  since there is no longer a download button to attach anything with. */
 const CAN_SEND = isEmailConfigured && isUploadConfigured;
 
 type Phase = "idle" | "spinning" | "countdown" | "drawing" | "done";
 type SendStatus = "idle" | "sending" | "sent" | "error";
+
+/**
+ * The name is remembered across visits so that sending a second doodle is a
+ * single tap with nothing to type. Both accessors swallow their errors:
+ * localStorage throws outright in Safari private mode and wherever storage is
+ * blocked, and a forgotten name is not worth breaking the game over.
+ */
+const NAME_KEY = "doodle-sender-name";
+
+const readStoredName = (): string => {
+  try {
+    return window.localStorage.getItem(NAME_KEY) || "";
+  } catch {
+    return "";
+  }
+};
+
+const storeName = (name: string): void => {
+  try {
+    window.localStorage.setItem(NAME_KEY, name);
+  } catch {
+    /* Nothing to do, and nothing the visitor needs telling about. */
+  }
+};
 
 /**
  * The pointer becomes an actual brush whose bristles carry the selected colour,
@@ -129,16 +160,15 @@ function DoodleGame({ mode = 'dark' }: Props) {
   const ink = dark ? '#f5f5f5' : '#16181d';
   // Ink first so there is always a swatch guaranteed to show on the current
   // board, then a conventional paint box.
+  // Order and count must match COLOUR_NAMES.
   const palette = [
     ink,
-    '#e53935', '#fb8c00', '#fdd835', '#43a047', '#00acc1',
-    '#1e88e5', '#3949ab', '#8e24aa', '#ec407a', '#6d4c41', '#9e9e9e',
+    '#e53935', '#fb8c00', '#fdd835', '#43a047',
+    '#1e88e5', '#8e24aa', '#ec407a',
   ];
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [pick, setPick] = useState(0);
-  const [offset, setOffset] = useState(0);
-  const [animating, setAnimating] = useState(false);
   const [pulled, setPulled] = useState(false);
   const [count, setCount] = useState(3);
   const [secondsLeft, setSecondsLeft] = useState(DRAW_SECONDS);
@@ -147,12 +177,13 @@ function DoodleGame({ mode = 'dark' }: Props) {
   const [widthIndex, setWidthIndex] = useState(1);
   const [erasing, setErasing] = useState(false);
 
-  const [sender, setSender] = useState("");
-  const [note, setNote] = useState("");
+  // Lazy initialiser so the read happens once, not on every render.
+  const [sender, setSender] = useState(readStoredName);
   const [senderError, setSenderError] = useState(false);
   const [sendStatus, setSendStatus] = useState<SendStatus>("idle");
 
   const machineRef = useRef<HTMLDivElement | null>(null);
+  const stripRef = useRef<HTMLDivElement | null>(null);
   const [bulbs, setBulbs] = useState<Point[]>([]);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -322,15 +353,6 @@ function DoodleGame({ mode = 'dark' }: Props) {
     redraw();
   };
 
-  const download = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const link = document.createElement("a");
-    link.download = `doodle-${prompt.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  };
-
   /**
    * Upload the drawing, then mail me the link. Two network calls rather than
    * one because EmailJS will not carry an attachment on the free plan and a
@@ -349,31 +371,72 @@ function DoodleGame({ mode = 'dark' }: Props) {
     setSenderError(missingName);
     if (missingName) return;
 
+    const name = sender.trim();
     setSendStatus("sending");
     try {
       const blob = await canvasToPng(canvas);
       const imageUrl = await uploadDoodle(blob);
-      await sendDoodle({
-        name: sender.trim(),
-        note: note.trim(),
-        prompt,
-        imageUrl,
-      });
+      await sendDoodle({ name, prompt, imageUrl });
+      // Only remember a name that actually reached me, so a failed send does
+      // not leave a stored name the visitor never successfully used.
+      storeName(name);
       setSendStatus("sent");
     } catch {
       setSendStatus("error");
     }
   };
 
-  /** Wipe the send form so a second doodle does not open pre-filled or still
-   *  showing the last result. The name is kept: same visitor, same drawer. */
+  /** Reset the outcome so a second doodle does not open still showing the last
+   *  result. The name stays: same visitor, and retyping it is the whole thing
+   *  we are trying to avoid. */
   const clearSendState = () => {
-    setNote("");
     setSenderError(false);
     setSendStatus("idle");
   };
 
   // ---- Slots -------------------------------------------------------------
+
+  /** Jump the reel to an index with no animation. */
+  const settleReel = (index: number) => {
+    const strip = stripRef.current;
+    if (!strip) return;
+    strip.style.transition = "none";
+    strip.style.transform = `translateY(-${index * ITEM_HEIGHT}px)`;
+  };
+
+  /**
+   * Animate the reel from one index to another.
+   *
+   * Driven straight off the DOM rather than rendered from state. A CSS
+   * transition only runs if the browser resolves the start and end styles
+   * separately, and going through React gives no control over that: React 18
+   * batches both updates into one commit, so the browser is free to collapse
+   * them and skip the animation. Restarting a round made it certain to fail,
+   * because arriving from "done" the start values already equalled the current
+   * state, so React had nothing to commit and the reset style never landed at
+   * all — the reel jumped straight to its answer.
+   *
+   * Reading offsetHeight between the two is what forces the first style to be
+   * resolved, which is the whole trick.
+   */
+  const runReel = (from: number, to: number) => {
+    const strip = stripRef.current;
+    if (!strip) return;
+
+    settleReel(from);
+    void strip.offsetHeight; // forced reflow; do not remove
+
+    // Honour a reduced-motion preference by landing on the answer directly.
+    // matchMedia is guarded because jsdom does not implement it.
+    const still = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (still) {
+      settleReel(to);
+      return;
+    }
+
+    strip.style.transition = `transform ${SPIN_MS}ms cubic-bezier(0.16, 1, 0.3, 1)`;
+    strip.style.transform = `translateY(-${to * ITEM_HEIGHT}px)`;
+  };
 
   const spin = () => {
     if (phase === "spinning" || phase === "countdown" || phase === "drawing") return;
@@ -381,6 +444,9 @@ function DoodleGame({ mode = 'dark' }: Props) {
     strokes.current = [];
     redraw();
     clearSendState();
+    // Picked up from the old reset(): finishing a round with the eraser
+    // selected should not start the next one still erasing.
+    setErasing(false);
 
     const next = dealPrompt();
     // Vary how far the reel travels so no two pulls feel identical.
@@ -389,22 +455,16 @@ function DoodleGame({ mode = 'dark' }: Props) {
     setPulled(true);
     timers.current.push(window.setTimeout(() => setPulled(false), 420));
 
-    setAnimating(false);
-    setOffset(pick * ITEM_HEIGHT);
     setPhase("spinning");
-
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        setAnimating(true);
-        setOffset((loops * PROMPTS.length + next) * ITEM_HEIGHT);
-      });
-    });
+    runReel(pick, loops * PROMPTS.length + next);
 
     timers.current.push(
       window.setTimeout(() => {
-        setAnimating(false);
+        // The strip repeats, so the item under the window is already PROMPTS[next].
+        // Snapping back to the first repeat is invisible, and leaves the reel
+        // room to travel forwards again on the next pull.
+        settleReel(next);
         setPick(next);
-        setOffset(next * ITEM_HEIGHT);
         setPhase("countdown");
         setCount(3);
       }, SPIN_MS + 250)
@@ -434,13 +494,8 @@ function DoodleGame({ mode = 'dark' }: Props) {
     return () => window.clearTimeout(t);
   }, [phase, secondsLeft]);
 
-  const reset = () => {
-    clearTimers();
-    setPhase("idle");
-    setSecondsLeft(DRAW_SECONDS);
-    setErasing(false);
-    clearSendState();
-  };
+  // No reset(): the lever is the only way back to a fresh round, and spin()
+  // already clears the board, the timers and the send state on its way through.
 
   const busy = phase === "spinning" || phase === "countdown" || phase === "drawing";
 
@@ -448,10 +503,10 @@ function DoodleGame({ mode = 'dark' }: Props) {
     <div className="container" id="doodle">
       <div className="doodle-container">
         <h1>Doodle Machine</h1>
+        {/* One line. The lever, the timer and the send form all explain
+            themselves as you reach them, so the intro does not need to. */}
         <p className="doodle-intro">
-          Pull the lever for a prompt &mdash; sometimes about you, sometimes a
-          dinosaur eating pizza &mdash; then you get {DRAW_SECONDS} seconds to draw
-          it. Send me the result if it turns out good. Or especially if it doesn't.
+          Pull the lever for a prompt. You get {DRAW_SECONDS} seconds.
         </p>
 
         {/* ---- Machine ---- */}
@@ -469,15 +524,9 @@ function DoodleGame({ mode = 'dark' }: Props) {
 
           <div className={`slots${phase === "spinning" ? " is-spinning" : ""}`}>
             <div className="reel">
-              <div
-                className="reel-strip"
-                style={{
-                  transform: `translateY(-${offset}px)`,
-                  transition: animating
-                    ? `transform ${SPIN_MS}ms cubic-bezier(0.16, 1, 0.3, 1)`
-                    : "none",
-                }}
-              >
+              {/* transform and transition are set imperatively by runReel, not
+                  rendered from state — see the comment there. */}
+              <div className="reel-strip" ref={stripRef}>
                 {/* Enough repeats that the longest possible spin still has
                     strip left to travel through. */}
                 {Array.from({ length: 10 }).flatMap((_, loop) =>
@@ -503,82 +552,12 @@ function DoodleGame({ mode = 'dark' }: Props) {
           </button>
         </div>
 
-        <p className="doodle-hint">
-          {/* The reel itself is showing the prompt by now, so this line is the
-              running commentary rather than a repeat of it. */}
-          {phase === "idle" && "Pull the lever"}
-          {phase === "spinning" && "Spinning..."}
-          {phase === "countdown" && "Get ready"}
-          {phase === "drawing" && `${DRAW_SECONDS} seconds. Go.`}
-          {phase === "done" && "Pencils down."}
-        </p>
+        {/* No commentary line between the reel and the board: it repeated what
+            the reel, the countdown overlay and the timer badge each already
+            say, and it was pushing the prompt off the top of the screen. */}
 
         {/* ---- Board: always present ---- */}
         <div className="doodle-board">
-          <div className="doodle-tools" aria-hidden={phase !== "drawing"}>
-            <div className="tool-group swatches">
-              {palette.map((c, i) => (
-                <button
-                  type="button"
-                  key={i}
-                  className={`swatch${!erasing && colourIndex === i ? " is-active" : ""}`}
-                  style={{ backgroundColor: c }}
-                  onClick={() => { setColourIndex(i); setErasing(false); }}
-                  disabled={phase !== "drawing"}
-                  aria-label={COLOUR_NAMES[i]}
-                  aria-pressed={!erasing && colourIndex === i}
-                />
-              ))}
-            </div>
-
-            <span className="tool-divider" aria-hidden="true" />
-
-            <div className="tool-group">
-              {WIDTHS.map((w, i) => (
-                <button
-                  type="button"
-                  key={w}
-                  className={`size${widthIndex === i ? " is-active" : ""}`}
-                  onClick={() => setWidthIndex(i)}
-                  disabled={phase !== "drawing"}
-                  aria-label={`Brush size ${i + 1}`}
-                  aria-pressed={widthIndex === i}
-                >
-                  {/* Dot scaled to the actual stroke width it produces. */}
-                  <span
-                    style={{
-                      width: `${Math.max(4, w)}px`,
-                      height: `${Math.max(4, w)}px`,
-                      backgroundColor: erasing ? undefined : palette[colourIndex],
-                    }}
-                  />
-                </button>
-              ))}
-            </div>
-
-            <span className="tool-divider" aria-hidden="true" />
-
-            <div className="tool-group">
-              <button
-                type="button"
-                className={`tool${erasing ? " is-active" : ""}`}
-                onClick={() => setErasing((v) => !v)}
-                disabled={phase !== "drawing"}
-                aria-pressed={erasing}
-              >
-                Eraser
-              </button>
-              <button
-                type="button"
-                className="tool"
-                onClick={clearCanvas}
-                disabled={phase !== "drawing"}
-              >
-                <DeleteOutlineIcon aria-hidden="true"/> Clear
-              </button>
-            </div>
-          </div>
-
           <div className="doodle-canvas-wrap">
             <canvas
               ref={canvasRef}
@@ -593,6 +572,141 @@ function DoodleGame({ mode = 'dark' }: Props) {
               onPointerUp={endStroke}
               onPointerCancel={endStroke}
             />
+
+            {/* One strip floating on the canvas rather than stacked under it.
+                Between them the toolbar and the end-of-round actions were
+                adding well over a hundred pixels below the board, which is the
+                exact space that pushed the prompt off the screen. Same strip,
+                swapped contents: paint while drawing, then send or play again.
+
+                Only rendered for the phase it belongs to, so nothing here needs
+                a disabled prop the way the old always-present toolbar did. */}
+            {phase === "drawing" && (
+              <div className="canvas-bar">
+                <div className="tool-group swatches">
+                  {palette.map((c, i) => (
+                    <button
+                      type="button"
+                      key={i}
+                      className={`swatch${!erasing && colourIndex === i ? " is-active" : ""}`}
+                      style={{ backgroundColor: c }}
+                      onClick={() => { setColourIndex(i); setErasing(false); }}
+                      aria-label={COLOUR_NAMES[i]}
+                      aria-pressed={!erasing && colourIndex === i}
+                    />
+                  ))}
+                </div>
+
+                <span className="tool-divider" aria-hidden="true" />
+
+                <div className="tool-group">
+                  {WIDTHS.map((w, i) => (
+                    <button
+                      type="button"
+                      key={w}
+                      className={`size${widthIndex === i ? " is-active" : ""}`}
+                      onClick={() => setWidthIndex(i)}
+                      aria-label={`Brush size ${i + 1}`}
+                      aria-pressed={widthIndex === i}
+                    >
+                      {/* Dot scaled to the actual stroke width it produces. */}
+                      <span
+                        style={{
+                          width: `${Math.max(4, w)}px`,
+                          height: `${Math.max(4, w)}px`,
+                          backgroundColor: erasing ? undefined : palette[colourIndex],
+                        }}
+                      />
+                    </button>
+                  ))}
+                </div>
+
+                <span className="tool-divider" aria-hidden="true" />
+
+                <div className="tool-group">
+                  <button
+                    type="button"
+                    className={`tool${erasing ? " is-active" : ""}`}
+                    onClick={() => setErasing((v) => !v)}
+                    aria-pressed={erasing}
+                  >
+                    Eraser
+                  </button>
+                  <button type="button" className="tool" onClick={clearCanvas}>
+                    <DeleteOutlineIcon aria-hidden="true"/> Clear
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {phase === "done" && (
+              <div className="canvas-bar is-done">
+                {/* With an image host and EmailJS configured the drawing goes
+                    straight to me. Without them, say so plainly rather than
+                    show a Send button that quietly does nothing. */}
+                {CAN_SEND && sendStatus !== "sent" ? (
+                  <form className="doodle-send-form" onSubmit={send}>
+                    <div className="doodle-send-fields">
+                      {/* A returning visitor finds the name already filled and
+                          only taps Send. */}
+                      <input
+                        type="text"
+                        className="doodle-name"
+                        value={sender}
+                        maxLength={40}
+                        placeholder="Your name"
+                        aria-label="Your name"
+                        onChange={(e) => {
+                          setSender(e.target.value);
+                          if (senderError) setSenderError(false);
+                        }}
+                        aria-invalid={senderError}
+                      />
+                      <button
+                        type="submit"
+                        className="doodle-button"
+                        disabled={sendStatus === "sending"}
+                      >
+                        <SendIcon aria-hidden="true"/>
+                        {sendStatus === "sending" ? "Sending..." : "Send it to me"}
+                      </button>
+                      {/* type="button" so it cannot submit the form it sits in.
+                          spin() is the restart: it clears the board, resets the
+                          timers and deals a fresh prompt. */}
+                      <button type="button" className="tool" onClick={spin}>
+                        <ReplayIcon aria-hidden="true"/> Play again
+                      </button>
+                    </div>
+
+                    <p className="doodle-send-status" role="status" aria-live="polite">
+                      {senderError && "Add a name first so I know who it's from."}
+                      {sendStatus === "error" && (
+                        <>
+                          That didn't go through. Try again, or say hello at{' '}
+                          <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.
+                        </>
+                      )}
+                    </p>
+                  </form>
+                ) : (
+                  <div className="doodle-send-fields">
+                    {sendStatus === "sent" ? (
+                      <p className="doodle-send is-sent" role="status" aria-live="polite">
+                        Got it &mdash; thanks, {sender.trim()}.
+                      </p>
+                    ) : (
+                      <p className="doodle-send">
+                        Sending is offline. Say hello at{' '}
+                        <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.
+                      </p>
+                    )}
+                    <button type="button" className="tool" onClick={spin}>
+                      <ReplayIcon aria-hidden="true"/> Play again
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {phase === "countdown" && (
               <div className="canvas-overlay" aria-live="assertive">
@@ -614,93 +728,8 @@ function DoodleGame({ mode = 'dark' }: Props) {
               </div>
             )}
           </div>
-
-          <div className="doodle-timer-bar" aria-hidden="true">
-            <div
-              style={{
-                width: phase === "drawing" || phase === "done"
-                  ? `${(secondsLeft / DRAW_SECONDS) * 100}%`
-                  : "100%",
-              }}
-            />
-          </div>
-
-          {phase === "done" && (
-            <div className="doodle-done">
-              <div className="doodle-actions">
-                <button type="button" className="doodle-button is-ghost" onClick={download}>
-                  <DownloadIcon aria-hidden="true"/> Download
-                </button>
-                <button type="button" className="doodle-button is-ghost" onClick={reset}>
-                  <ReplayIcon aria-hidden="true"/> Go again
-                </button>
-              </div>
-
-              {/* With an image host and EmailJS configured the drawing goes
-                  straight to me. Without them, the old download-and-mail route
-                  is still there rather than a button that quietly does nothing. */}
-              {CAN_SEND ? (
-                sendStatus === "sent" ? (
-                  <p className="doodle-send is-sent" role="status" aria-live="polite">
-                    Got it &mdash; thanks, {sender.trim()}. That one's mine now.
-                  </p>
-                ) : (
-                  <form className="doodle-send-form" onSubmit={send}>
-                    <p className="doodle-send-lead">Send it to me?</p>
-                    <div className="doodle-send-fields">
-                      <label className="doodle-field">
-                        <span>Your name</span>
-                        <input
-                          type="text"
-                          value={sender}
-                          maxLength={40}
-                          placeholder="Who drew this?"
-                          onChange={(e) => {
-                            setSender(e.target.value);
-                            if (senderError) setSenderError(false);
-                          }}
-                          aria-invalid={senderError}
-                        />
-                      </label>
-                      <label className="doodle-field">
-                        <span>Note <em>(optional)</em></span>
-                        <input
-                          type="text"
-                          value={note}
-                          maxLength={120}
-                          placeholder="Say something about it"
-                          onChange={(e) => setNote(e.target.value)}
-                        />
-                      </label>
-                      <button
-                        type="submit"
-                        className="doodle-button"
-                        disabled={sendStatus === "sending"}
-                      >
-                        <SendIcon aria-hidden="true"/>
-                        {sendStatus === "sending" ? "Sending..." : "Send"}
-                      </button>
-                    </div>
-
-                    <p className="doodle-send-status" role="status" aria-live="polite">
-                      {senderError && "Add a name first so I know who it's from."}
-                      {sendStatus === "error" && (
-                        <>
-                          That didn't go through. Download it and email me at{' '}
-                          <a href={`mailto:${EMAIL}?subject=A doodle for you`}>{EMAIL}</a>.
-                        </>
-                      )}
-                    </p>
-                  </form>
-                )
-              ) : (
-                <p className="doodle-send">
-                  Send it to <a href={`mailto:${EMAIL}?subject=A doodle for you`}>{EMAIL}</a>.
-                </p>
-              )}
-            </div>
-          )}
         </div>
+
       </div>
     </div>
   );

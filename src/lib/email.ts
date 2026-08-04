@@ -70,11 +70,13 @@ export const sendContactMessage = (fields: {
  */
 export const sendDoodle = (fields: {
   name: string;
-  note: string;
   prompt: string;
   imageUrl: string;
+  /** Not currently collected — the send form is one tap and one field. Kept
+   *  because the template still has a {{note}} slot for it. */
+  note?: string;
 }) => {
-  const { name, note, prompt, imageUrl } = fields;
+  const { name, prompt, imageUrl, note = '' } = fields;
   const message =
     `${name} drew "${prompt}".\n\n` +
     (note ? `They said: ${note}\n\n` : '') +

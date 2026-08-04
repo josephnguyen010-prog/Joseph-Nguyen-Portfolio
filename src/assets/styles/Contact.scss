@@ -116,6 +116,22 @@
   text-decoration: underline;
 }
 
+/* ---- Email fallback ---------------------------------------------------- */
+
+/* Quiet and below the form: present for anyone who wants the address, without
+   pulling attention away from the field the form wants filled in. */
+.contact-alt {
+  clear: both;
+  margin: 22px 0 0;
+  font-size: 0.9rem;
+  opacity: 0.65;
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
+}
+
 .light-mode {
   .form-status.is-sent {
     color: #1c7a44;

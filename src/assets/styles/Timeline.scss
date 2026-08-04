@@ -33,6 +33,13 @@
     color: white;
 }
 
+/* On wide screens the library positions the date outside the white card, on the
+   page background — where white text vanished against the light page. The card
+   text below is unaffected: the card itself stays white in both modes. */
+.light-mode .vertical-timeline-element .vertical-timeline-element-date {
+    color: #0d1116;
+}
+
 /* ---- Company marks ----------------------------------------------------- */
 
 .timeline-mark {
