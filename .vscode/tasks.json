@@ -1,0 +1,73 @@
+{
+  // Ctrl+Shift+B shows this list. No task is marked isDefault, which is what
+  // keeps the picker appearing instead of one task running straight away.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start dev server",
+      "detail": "npm start - opens localhost:3000 with hot reload",
+      "type": "npm",
+      "script": "start",
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Build for production",
+      "detail": "npm run build - compiles into build/",
+      "type": "npm",
+      "script": "build",
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Deploy to GitHub Pages",
+      "detail": "npm run deploy - builds, then publishes to the gh-pages branch",
+      "type": "npm",
+      "script": "deploy",
+      // The default build task: Ctrl+Shift+B runs this one straight away.
+      // Every other task is still reachable via Ctrl+Shift+P > "Run Task".
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Type-check",
+      "detail": "tsc --noEmit - reports type errors without emitting files",
+      "type": "shell",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "group": "build",
+      "problemMatcher": ["$tsc"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Run tests",
+      "detail": "npm test - watch mode",
+      "type": "npm",
+      "script": "test",
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}

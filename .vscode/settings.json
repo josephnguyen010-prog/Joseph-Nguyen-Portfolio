@@ -1,0 +1,5 @@
+{
+  // Puts an "NPM SCRIPTS" section in the Explorer sidebar with a play button
+  // next to each script - one click to deploy, no task picker.
+  "npm.enableScriptExplorer": true
+}
