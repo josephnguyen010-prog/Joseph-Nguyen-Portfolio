@@ -81,6 +81,8 @@ const COLOUR_NAMES = [
 
 const ITEM_HEIGHT = 72;
 const SPIN_MS = 2600;
+/** The spin for anyone who has asked for reduced motion. */
+const REDUCED_SPIN_MS = 520;
 
 /** How far the bulb ring sits inside the cabinet edge. */
 const MARQUEE_INSET = 14;
@@ -419,22 +421,14 @@ function DoodleGame({ mode = 'dark' }: Props) {
    * Reading offsetHeight between the two is what forces the first style to be
    * resolved, which is the whole trick.
    */
-  const runReel = (from: number, to: number) => {
+  const runReel = (from: number, to: number, durationMs: number) => {
     const strip = stripRef.current;
     if (!strip) return;
 
     settleReel(from);
     void strip.offsetHeight; // forced reflow; do not remove
 
-    // Honour a reduced-motion preference by landing on the answer directly.
-    // matchMedia is guarded because jsdom does not implement it.
-    const still = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    if (still) {
-      settleReel(to);
-      return;
-    }
-
-    strip.style.transition = `transform ${SPIN_MS}ms cubic-bezier(0.16, 1, 0.3, 1)`;
+    strip.style.transition = `transform ${durationMs}ms cubic-bezier(0.16, 1, 0.3, 1)`;
     strip.style.transform = `translateY(-${to * ITEM_HEIGHT}px)`;
   };
 
@@ -455,8 +449,23 @@ function DoodleGame({ mode = 'dark' }: Props) {
     setPulled(true);
     timers.current.push(window.setTimeout(() => setPulled(false), 420));
 
+    /**
+     * Reduced motion shortens the spin rather than removing it. Skipping it
+     * outright left the machine with no visible reaction to its own lever,
+     * which reads as broken rather than as calm; a brief slide straight to the
+     * answer keeps cause and effect legible without the long travel. The
+     * countdown is held back to match, so the wait is not left dangling.
+     *
+     * matchMedia is guarded because jsdom does not implement it.
+     */
+    const reduced = Boolean(
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    );
+    const spinMs = reduced ? REDUCED_SPIN_MS : SPIN_MS;
+    const target = reduced ? next : loops * PROMPTS.length + next;
+
     setPhase("spinning");
-    runReel(pick, loops * PROMPTS.length + next);
+    runReel(pick, target, spinMs);
 
     timers.current.push(
       window.setTimeout(() => {
@@ -467,7 +476,7 @@ function DoodleGame({ mode = 'dark' }: Props) {
         setPick(next);
         setPhase("countdown");
         setCount(3);
-      }, SPIN_MS + 250)
+      }, spinMs + 250)
     );
   };
 

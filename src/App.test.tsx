@@ -2,8 +2,13 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+/**
+ * A smoke test, not a thorough one: it asserts the tree renders far enough to
+ * reach the last section on the page. It replaces the create-react-app
+ * boilerplate, which looked for a "learn react" link that stopped existing the
+ * moment this template was made into a portfolio.
+ */
+test('renders the page through to the contact section', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: /contact me/i })).toBeInTheDocument();
 });
