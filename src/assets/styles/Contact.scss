@@ -1,3 +1,5 @@
+﻿@use './variables' as *;
+
 .contact_wrapper svg {
   font-size: 1em;
   vertical-align: middle;
@@ -15,7 +17,7 @@
   }
 
   button:hover {
-    background-color: #5000ca;
+    background-color: $accent;
     color: white;
   }
 
@@ -68,7 +70,7 @@
 }
 
 .field .Mui-focused .MuiOutlinedInput-notchedOutline {
-  border-color: #5000ca;
+  border-color: $accent;
   border-width: 2px;
 }
 

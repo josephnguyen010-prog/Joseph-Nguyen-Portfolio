@@ -1,0 +1,19 @@
+// The single source of truth for the accent colour. Every stylesheet pulls
+// these in rather than repeating hex values, so changing the scheme is one
+// edit here instead of thirty across the project.
+//
+// The pair is picked for contrast, not by rotating the old purple's hue: a
+// straight rotation lands on a much lighter colour, and white button text
+// stops being legible on it.
+
+// Deep petrol. Used wherever the accent is a background under white text, or
+// text on a light background. ~5.5:1 against white, so it works both ways.
+$accent: #0e7490;
+
+// Bright petrol. Used for text, borders and glows on the dark background,
+// where the deep shade would disappear. ~7.8:1 against the page background.
+$accent-bright: #22b8cf;
+
+// A desaturated near-black teal, for tooltip surfaces that need to sit above
+// the page without reading as a lit accent.
+$accent-deep: #14313a;

@@ -1,3 +1,5 @@
+﻿@use './assets/styles/variables' as *;
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
@@ -24,7 +26,7 @@ a {
 }
 
 a:hover {
-  color: #5000ca;
+  color: $accent;
   transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out;
 }
 
@@ -72,7 +74,7 @@ html {
     right: 50%;
     bottom: 2px;
     height: 2px;
-    background-color: #5000ca;
+    background-color: $accent;
     transition: left 300ms cubic-bezier(0.16, 1, 0.3, 1),
                 right 300ms cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -90,7 +92,7 @@ html {
 
   svg:hover {
     transform: rotate(25deg) scale(1.15);
-    color: #7b3fe4;
+    color: $accent-bright;
   }
 }
 
@@ -145,7 +147,7 @@ html {
 .egg {
   position: relative;
   cursor: help;
-  border-bottom: 1px dashed rgba(123, 63, 228, 0.55);
+  border-bottom: 1px dashed rgba($accent-bright, 0.55);
   outline: none;
 }
 
@@ -159,8 +161,8 @@ html {
   max-width: 250px;
   padding: 9px 13px;
   border-radius: 8px;
-  background-color: #2a1b45;
-  border: 1px solid rgba(123, 63, 228, 0.55);
+  background-color: $accent-deep;
+  border: 1px solid rgba($accent-bright, 0.55);
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
   color: #fff;
   font-family: "Lato", sans-serif;
@@ -199,7 +201,7 @@ html {
   }
 
   a:hover {
-    color: #5000ca;
+    color: $accent;
     transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out;
   }
 

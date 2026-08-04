@@ -1,3 +1,5 @@
+﻿@use './variables' as *;
+
 .dark-mode .about-section {
     background-color: rgba(0, 0, 0, 0.2);
 }
@@ -83,7 +85,7 @@
        Without this it can tip a full line over the edge and wrap by itself. */
     margin-right: -0.125em;
     vertical-align: baseline;
-    background-color: #7b3fe4;
+    background-color: $accent-bright;
     animation: caretBlink 1s steps(1, end) infinite;
 }
 
@@ -207,11 +209,11 @@
 
     .resume-button:hover,
     .resume-button:focus-visible {
-        background-color: #5000ca;
-        border-color: #7b3fe4;
+        background-color: $accent;
+        border-color: $accent-bright;
         color: #fff;
         transform: translateY(-3px);
-        box-shadow: 0 10px 24px rgba(80, 0, 202, 0.4);
+        box-shadow: 0 10px 24px rgba($accent, 0.4);
         outline: none;
     }
 }
@@ -226,7 +228,7 @@
 .light-mode .about-section .content .resume-button:hover,
 .light-mode .about-section .content .resume-button:focus-visible {
     color: #fff;
-    border-color: #7b3fe4;
+    border-color: $accent-bright;
 }
 
 /* Touch devices have no hover, so the swap can never happen there. Show the

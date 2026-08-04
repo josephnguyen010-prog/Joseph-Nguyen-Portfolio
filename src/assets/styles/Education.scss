@@ -1,3 +1,5 @@
+﻿@use './variables' as *;
+
 .education-container {
     padding: 5% 10%;
     display: flex;
@@ -56,7 +58,7 @@
 .education-gpa {
     flex: 0 0 auto;
     padding: 6px 14px;
-    border: 1px solid rgba(123, 63, 228, 0.6);
+    border: 1px solid rgba($accent-bright, 0.6);
     border-radius: 999px;
     font-size: 0.85rem;
     white-space: nowrap;

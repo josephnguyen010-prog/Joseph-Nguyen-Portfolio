@@ -1,3 +1,5 @@
+﻿@use './variables' as *;
+
 .gallery-container {
     padding: 5% 10%;
     display: flex;
@@ -48,7 +50,7 @@
 }
 
 .gallery-button:focus-visible {
-    box-shadow: 0 0 0 3px rgba(123, 63, 228, 0.7);
+    box-shadow: 0 0 0 3px rgba($accent-bright, 0.7);
 }
 
 /* Shadows tuned against the dark page read as smudges on the light one. */
@@ -151,7 +153,7 @@
 .lightbox-nav:hover,
 .lightbox-close:focus-visible,
 .lightbox-nav:focus-visible {
-    background-color: #5000ca;
+    background-color: $accent;
     transform: scale(1.08);
     outline: none;
 }

@@ -1,3 +1,5 @@
+﻿@use './variables' as *;
+
 .vertical-timeline span {
     color: white;
     font-family: 'Courier Prime', monospace;
@@ -65,7 +67,7 @@
     font-size: 0.82rem;
     font-weight: 700;
     letter-spacing: 0.02em;
-    color: #5000ca;
+    color: $accent;
 }
 
 @media screen and (max-width: 1170px) {
