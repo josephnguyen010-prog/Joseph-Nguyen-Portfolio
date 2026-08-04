@@ -1,21 +1,21 @@
 {
   "files": {
-    "main.css": "/Joseph-Nguyen-Porfolio-/static/css/main.0c6e5c82.css",
-    "main.js": "/Joseph-Nguyen-Porfolio-/static/js/main.b8d24d10.js",
+    "main.css": "/Joseph-Nguyen-Porfolio-/static/css/main.c6245270.css",
+    "main.js": "/Joseph-Nguyen-Porfolio-/static/js/main.317e5fce.js",
     "static/js/453.b05d8aa5.chunk.js": "/Joseph-Nguyen-Porfolio-/static/js/453.b05d8aa5.chunk.js",
     "static/media/mock10.png": "/Joseph-Nguyen-Porfolio-/static/media/mock10.2d05b02ba569a430a255.png",
     "static/media/mock09.png": "/Joseph-Nguyen-Porfolio-/static/media/mock09.e18677ccfc932e52d754.png",
     "static/media/mock08.png": "/Joseph-Nguyen-Porfolio-/static/media/mock08.13f46873fdbd382f4b76.png",
     "static/media/mock04.png": "/Joseph-Nguyen-Porfolio-/static/media/mock04.f7b5679efade992a078c.png",
+    "static/media/bg-light.png": "/Joseph-Nguyen-Porfolio-/static/media/bg-light.bac0efb485244a522981.png",
     "static/media/mock07.png": "/Joseph-Nguyen-Porfolio-/static/media/mock07.3f1110f482232b33c6a2.png",
-    "static/media/bg-light.png": "/Joseph-Nguyen-Porfolio-/static/media/bg-light.17cc3deeb6feecf2caeb.png",
     "static/media/mock05.png": "/Joseph-Nguyen-Porfolio-/static/media/mock05.4faafa70d200d1519a34.png",
     "static/media/mock06.png": "/Joseph-Nguyen-Porfolio-/static/media/mock06.ea816617e0d0fa0f63ca.png",
+    "static/media/bg-dark.png": "/Joseph-Nguyen-Porfolio-/static/media/bg-dark.f420c6b8458af72de935.png",
     "static/media/virginia-tech.webp": "/Joseph-Nguyen-Porfolio-/static/media/virginia-tech.9675d3ca52951be3583e.webp",
     "static/media/world-cup-2026.webp": "/Joseph-Nguyen-Porfolio-/static/media/world-cup-2026.eacb766b159a471a31a5.webp",
     "static/media/national-intern-day.webp": "/Joseph-Nguyen-Porfolio-/static/media/national-intern-day.50619b9380112a17e59d.webp",
     "static/media/mock01.png": "/Joseph-Nguyen-Porfolio-/static/media/mock01.61bd486a54bf6e17ee5a.png",
-    "static/media/bg-dark.png": "/Joseph-Nguyen-Porfolio-/static/media/bg-dark.409e174655ad5c4b9d49.png",
     "static/media/rsm-intern-class.webp": "/Joseph-Nguyen-Porfolio-/static/media/rsm-intern-class.6111d47ea100f6dca5a3.webp",
     "static/media/minneapolis.webp": "/Joseph-Nguyen-Porfolio-/static/media/minneapolis.c49eff7f36ffec502fe6.webp",
     "static/media/rsm-game-night.webp": "/Joseph-Nguyen-Porfolio-/static/media/rsm-game-night.22897151ce12b0b30062.webp",
@@ -27,12 +27,12 @@
     "static/media/avatar.jpg": "/Joseph-Nguyen-Porfolio-/static/media/avatar.9807f5ee78de27639fcc.jpg",
     "index.html": "/Joseph-Nguyen-Porfolio-/index.html",
     "static/media/virginia-tech.svg": "/Joseph-Nguyen-Porfolio-/static/media/virginia-tech.6949aa9cec7639318918d8888b571d77.svg",
-    "main.0c6e5c82.css.map": "/Joseph-Nguyen-Porfolio-/static/css/main.0c6e5c82.css.map",
-    "main.b8d24d10.js.map": "/Joseph-Nguyen-Porfolio-/static/js/main.b8d24d10.js.map",
+    "main.c6245270.css.map": "/Joseph-Nguyen-Porfolio-/static/css/main.c6245270.css.map",
+    "main.317e5fce.js.map": "/Joseph-Nguyen-Porfolio-/static/js/main.317e5fce.js.map",
     "453.b05d8aa5.chunk.js.map": "/Joseph-Nguyen-Porfolio-/static/js/453.b05d8aa5.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.0c6e5c82.css",
-    "static/js/main.b8d24d10.js"
+    "static/css/main.c6245270.css",
+    "static/js/main.317e5fce.js"
   ]
 }
