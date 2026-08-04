@@ -114,9 +114,9 @@ function Timeline() {
                 ? { borderRight: '7px solid  white' }
                 : undefined}
               date={role.date}
-              /* Kept in sync by hand with $accent in assets/styles/_variables.scss:
-                 the timeline library takes its icon ring as an inline style. */
-              iconStyle={{ background: '#ffffff', boxShadow: '0 0 0 4px #0e7490' }}
+              /* No accent ring: the library draws one by default, and several of
+                 these logos carry their own brand colour that it clashed with. */
+              iconStyle={{ background: '#ffffff', boxShadow: 'none' }}
               icon={
                 <span className={`timeline-mark${role.fullBleed ? ' is-full' : ''}`}>
                   {role.logo

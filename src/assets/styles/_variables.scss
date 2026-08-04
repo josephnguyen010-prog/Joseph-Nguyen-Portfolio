@@ -2,18 +2,19 @@
 // these in rather than repeating hex values, so changing the scheme is one
 // edit here instead of thirty across the project.
 //
-// The pair is picked for contrast, not by rotating the old purple's hue: a
-// straight rotation lands on a much lighter colour, and white button text
-// stops being legible on it.
+// If you swap these for another hue, check contrast rather than rotating the
+// hue directly: this purple pair happens to work both as a background under
+// white text and as text on white, which most hues do not manage at the same
+// lightness.
 
-// Deep petrol. Used wherever the accent is a background under white text, or
-// text on a light background. ~5.5:1 against white, so it works both ways.
-$accent: #0e7490;
+// Deep purple. Used wherever the accent is a background under white text, or
+// text on a light background.
+$accent: #5000ca;
 
-// Bright petrol. Used for text, borders and glows on the dark background,
-// where the deep shade would disappear. ~7.8:1 against the page background.
-$accent-bright: #22b8cf;
+// Bright purple. Used for text, borders and glows on the dark background,
+// where the deep shade would disappear.
+$accent-bright: #7b3fe4;
 
-// A desaturated near-black teal, for tooltip surfaces that need to sit above
+// A desaturated near-black purple, for tooltip surfaces that need to sit above
 // the page without reading as a lit accent.
-$accent-deep: #14313a;
+$accent-deep: #2a1b45;
