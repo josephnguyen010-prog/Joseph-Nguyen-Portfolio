@@ -1,5 +1,6 @@
 $accent: #5000ca;
 $accent-bright: #7b3fe4;
+$bulb: #ffd66b;
 
 .doodle-container {
     padding: 5% 10%;
@@ -20,23 +21,77 @@ $accent-bright: #7b3fe4;
 
 /* ---- Machine and lever ------------------------------------------------- */
 
+/* The cabinet stays dark in both colour modes: gold bulbs on a light panel
+   read as washed out, and the marquee is the whole point of the thing. */
 .machine {
+    position: relative;
     display: flex;
     align-items: stretch;
     gap: 14px;
     width: 100%;
     max-width: 820px;
+    padding: 28px 26px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #2a1a3d, #150d1f);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45),
+                inset 0 0 0 2px rgba(255, 255, 255, 0.07);
+}
+
+/* ---- Marquee bulbs ----------------------------------------------------- */
+
+/* Inset matches MARQUEE_INSET in DoodleGame.tsx: the bulb coordinates are
+   percentages of this box, so the two have to agree. */
+.marquee {
+    position: absolute;
+    inset: 14px;
+    pointer-events: none;
+}
+
+.bulb {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    /* Pulls each bulb onto its own centre point without a transform, leaving
+       transforms free for the pulse. */
+    margin: -3.5px 0 0 -3.5px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 34%, #fff6d8, $bulb 62%, #e0a52b);
+    box-shadow: 0 0 7px 1px rgba(255, 190, 60, 0.75);
+    animation: bulbBlink 900ms steps(1, end) infinite;
+}
+
+.bulb.is-offbeat {
+    animation-delay: 450ms;
+}
+
+/* A pull speeds the chase up, so the machine looks like it is working. */
+.machine.is-live .bulb {
+    animation-duration: 340ms;
+}
+
+.machine.is-live .bulb.is-offbeat {
+    animation-delay: 170ms;
+}
+
+@keyframes bulbBlink {
+    0%, 50% {
+        opacity: 1;
+        box-shadow: 0 0 7px 1px rgba(255, 190, 60, 0.75);
+    }
+    51%, 100% {
+        opacity: 0.22;
+        box-shadow: 0 0 3px 0 rgba(255, 190, 60, 0.25);
+    }
 }
 
 .slots {
     display: flex;
     flex: 1 1 auto;
     min-width: 0;
-    gap: 10px;
-    padding: 14px;
+    padding: 12px;
     border: 2px solid rgba(255, 255, 255, 0.18);
     border-radius: 14px;
-    background-color: rgba(0, 0, 0, 0.35);
+    background-color: rgba(0, 0, 0, 0.42);
     overflow: hidden;
 }
 
@@ -44,7 +99,7 @@ $accent-bright: #7b3fe4;
     position: relative;
     flex: 1 1 0;
     min-width: 0;
-    height: 56px;
+    height: 72px;
     overflow: hidden;
     border-radius: 8px;
     background-color: rgba(255, 255, 255, 0.06);
@@ -67,14 +122,16 @@ $accent-bright: #7b3fe4;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 56px;
-    padding: 0 8px;
+    height: 72px;
+    padding: 0 12px;
     font-family: 'Courier Prime', source-code-pro, monospace;
-    font-size: clamp(0.58rem, 1.4vw, 0.88rem);
+    /* Sized so the longest prompt still fits in two lines at 72px. */
+    font-size: clamp(0.72rem, 2.2vw, 1.15rem);
     font-weight: 700;
-    letter-spacing: 0.03em;
-    line-height: 1.15;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
     color: #fff;
+    text-shadow: 0 0 18px rgba(255, 214, 107, 0.25);
 }
 
 .slots.is-spinning .reel-item {
@@ -453,28 +510,8 @@ $accent-bright: #7b3fe4;
 /* ---- Light mode -------------------------------------------------------- */
 
 .light-mode {
-    .slots {
-        background-color: rgba(0, 0, 0, 0.06);
-        border-color: rgba(0, 0, 0, 0.12);
-    }
-
-    .reel { background-color: rgba(0, 0, 0, 0.05); }
-    .reel-item { color: #0d1116; }
-
-    .reel::after {
-        background: linear-gradient(
-            rgba(255, 255, 255, 0.7),
-            transparent 34%,
-            transparent 66%,
-            rgba(255, 255, 255, 0.7)
-        );
-    }
-
-    .lever-slot {
-        background-color: rgba(0, 0, 0, 0.12);
-        box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.12);
-    }
-
+    /* The cabinet and everything inside it keep their dark treatment here;
+       only the surrounding page furniture flips. */
     .doodle-canvas { border-color: rgba(0, 0, 0, 0.18); }
 
     .doodle-button.is-ghost {
@@ -517,8 +554,13 @@ $accent-bright: #7b3fe4;
             padding-right: 5%;
         }
 
-        .slots { gap: 6px; padding: 10px; }
-        .lever { flex-basis: 44px; }
+        .machine { padding: 22px 18px; gap: 8px; }
+        /* Tighter than MARQUEE_INSET to clear the narrower frame. Only the bulb
+           count is measured off that constant; positions are percentages of
+           this box, so the two need not match exactly. */
+        .marquee { inset: 12px; }
+        .slots { padding: 9px; }
+        .lever { flex-basis: 40px; }
         .doodle-canvas { aspect-ratio: 1 / 1; }
     }
 }
@@ -529,5 +571,11 @@ $accent-bright: #7b3fe4;
     .lever-arm {
         animation: none;
         transition: none;
+    }
+
+    /* Every bulb held on: a steady lit frame instead of a flashing one. */
+    .bulb {
+        animation: none;
+        opacity: 1;
     }
 }

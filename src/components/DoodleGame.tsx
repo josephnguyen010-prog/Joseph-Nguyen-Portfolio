@@ -5,30 +5,59 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import '../assets/styles/DoodleGame.scss';
 
 /**
- * Each prompt is split into three chunks that read left to right across the
- * reels. The reels spin through every prompt's chunk for their position and
- * land on a shared index, so the three windows always settle into one coherent
- * sentence while showing nonsense on the way past.
+ * One reel, one whole prompt. Two flavours, dealt from the same bag: absurd
+ * ones that are just fun to attempt, and personal ones that actually tell me
+ * something about whoever pulled the lever. Every prompt names something with
+ * a shape to it, so the thirty seconds go on drawing rather than on working
+ * out how you would even picture the answer.
+ *
+ * Keep new prompts under about 44 characters: past that they stop fitting the
+ * reel window in two lines on a narrow screen.
  */
-const PROMPTS: [string, string, string][] = [
-  ["DRAW YOUR", "SPIRIT", "ANIMAL"],
-  ["DRAW YOUR", "GO-TO", "KARAOKE SONG"],
-  ["DRAW THE", "LAST THING", "YOU GOOGLED"],
-  ["DRAW YOUR", "HIDDEN", "TALENT"],
-  ["DRAW YOUR", "DREAM", "DINNER GUEST"],
-  ["DRAW YOUR", "COMFORT", "MOVIE"],
-  ["DRAW WHAT", "YOU WANTED", "TO BE AT SIX"],
-  ["DRAW YOUR", "MOST USED", "EMOJI"],
-  ["DRAW WHAT", "IS ALWAYS", "IN YOUR BAG"],
-  ["DRAW YOUR", "IDEAL", "SUNDAY"],
-  ["DRAW YOUR", "SUPERPOWER", "OF CHOICE"],
-  ["DRAW YOUR", "CHILDHOOD", "HERO"],
-  ["DRAW WHERE", "YOU'D FLY", "TOMORROW"],
-  ["DRAW YOUR", "DESERT ISLAND", "SNACK"],
-  ["DRAW YOUR", "WALK-UP", "SONG"],
-  ["DRAW THE", "PET YOU", "ALWAYS WANTED"],
-  ["DRAW YOUR", "PHONE", "WALLPAPER"],
-  ["DRAW YOUR", "PERFECT", "PIZZA"],
+const PROMPTS: string[] = [
+  // Outlandish. The specifics are the joke, so stay specific.
+  "DRAW A DINOSAUR EATING PIZZA",
+  "DRAW A SHARK ON ITS FIRST DAY AT WORK",
+  "DRAW A CAT RUNNING FOR PRESIDENT",
+  "DRAW A SNAIL WITH A ROCKET STRAPPED ON",
+  "DRAW A GHOST WHO IS AFRAID OF THE DARK",
+  "DRAW A WIZARD WAITING AT THE DMV",
+  "DRAW A BEAR STUCK IN A VENDING MACHINE",
+  "DRAW AN OCTOPUS PLAYING FIVE INSTRUMENTS",
+  "DRAW A PIGEON THAT SECRETLY RUNS THE CITY",
+  "DRAW A T-REX TRYING TO CLAP",
+  "DRAW AN ALIEN ORDERING FAST FOOD",
+  "DRAW A CACTUS IN A COZY SWEATER",
+  "DRAW A SLOTH IN A HIGH SPEED CAR CHASE",
+  "DRAW A CROCODILE AT THE DENTIST",
+  "DRAW A RACCOON DOING YOUR TAXES",
+  "DRAW A TOASTER THAT ACHIEVED SELF AWARENESS",
+  "DRAW A GIRAFFE STUCK IN A PHONE BOOTH",
+  "DRAW A DUCK PULLING OFF A BANK HEIST",
+  "DRAW A FROG RUNNING A LEMONADE STAND",
+  "DRAW A PENGUIN ON A TROPICAL VACATION",
+  "DRAW A SPIDER KNITTING A SWEATER",
+  "DRAW A BANANA AT THE GYM",
+
+  // Personal. These are the ones worth emailing me.
+  "DRAW YOUR SPIRIT ANIMAL",
+  "DRAW THE LAST THING YOU ATE",
+  "DRAW A SELF PORTRAIT",
+  "DRAW WHAT IS IN YOUR BAG",
+  "DRAW YOUR PERFECT PIZZA",
+  "DRAW THE VIEW FROM YOUR WINDOW",
+  "DRAW YOUR DESK RIGHT NOW",
+  "DRAW THE PET YOU ALWAYS WANTED",
+  "DRAW YOUR DREAM HOUSE",
+  "DRAW YOUR DREAM CAR",
+  "DRAW YOUR CHILDHOOD BEDROOM",
+  "DRAW YOUR GO-TO BREAKFAST",
+  "DRAW YOUR COFFEE ORDER",
+  "DRAW YOUR DREAM SANDWICH",
+  "DRAW A SNACK YOU WOULD FIGHT FOR",
+  "DRAW THE MONSTER UNDER YOUR BED",
+  "DRAW A HOUSE PLANT THAT SURVIVED YOU",
+  "DRAW A ROBOT THAT DOES YOUR CHORES",
 ];
 
 /** Brush sizes in pixels. The eraser scales off whichever is selected. */
@@ -41,8 +70,14 @@ const COLOUR_NAMES = [
   "Blue", "Indigo", "Purple", "Pink", "Brown", "Grey",
 ];
 
-const ITEM_HEIGHT = 56;
-const SPIN_MS = [1900, 2400, 2900];
+const ITEM_HEIGHT = 72;
+const SPIN_MS = 2600;
+
+/** How far the bulb ring sits inside the cabinet edge. */
+const MARQUEE_INSET = 14;
+/** Target gap between bulbs. The real gap is this rounded to fit each edge
+ *  exactly, so corners land on a bulb instead of a leftover stub. */
+const BULB_GAP = 30;
 const DRAW_SECONDS = 30;
 /** When the counter turns red and starts pulsing. */
 const LOW_SECONDS = 7;
@@ -95,7 +130,7 @@ function DoodleGame({ mode = 'dark' }: Props) {
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [pick, setPick] = useState(0);
-  const [offsets, setOffsets] = useState<number[]>([0, 0, 0]);
+  const [offset, setOffset] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [pulled, setPulled] = useState(false);
   const [count, setCount] = useState(3);
@@ -104,6 +139,9 @@ function DoodleGame({ mode = 'dark' }: Props) {
   const [colourIndex, setColourIndex] = useState(0);
   const [widthIndex, setWidthIndex] = useState(1);
   const [erasing, setErasing] = useState(false);
+
+  const machineRef = useRef<HTMLDivElement | null>(null);
+  const [bulbs, setBulbs] = useState<Point[]>([]);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const strokes = useRef<Stroke[]>([]);
@@ -142,7 +180,51 @@ function DoodleGame({ mode = 'dark' }: Props) {
   };
   useEffect(() => clearTimers, []);
 
-  const prompt = PROMPTS[pick].join(" ");
+  // ---- Marquee -----------------------------------------------------------
+
+  /**
+   * Bulbs are placed by measurement rather than by a repeating background, so
+   * every edge divides into a whole number of equal gaps and each corner gets
+   * exactly one bulb. Positions are fractions of the ring, applied as
+   * percentages, so they survive a resize between measurements.
+   */
+  useEffect(() => {
+    const el = machineRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      const width = el.clientWidth - MARQUEE_INSET * 2;
+      const height = el.clientHeight - MARQUEE_INSET * 2;
+      if (width <= 0 || height <= 0) return;
+
+      const cols = Math.max(2, Math.round(width / BULB_GAP));
+      const rows = Math.max(2, Math.round(height / BULB_GAP));
+
+      // Walk the ring once, corners included a single time each. Two bulbs per
+      // column and per row makes the total even, so the alternating on/off
+      // phase closes cleanly where the walk meets its start.
+      const ring: Point[] = [];
+      for (let i = 0; i < cols; i++) ring.push({ x: i / cols, y: 0 });
+      for (let j = 0; j < rows; j++) ring.push({ x: 1, y: j / rows });
+      for (let i = cols; i > 0; i--) ring.push({ x: i / cols, y: 1 });
+      for (let j = rows; j > 0; j--) ring.push({ x: 0, y: j / rows });
+      setBulbs(ring);
+    };
+
+    measure();
+
+    // ResizeObserver catches layout shifts a window resize misses; the resize
+    // listener is the fallback where it is unavailable.
+    if (typeof ResizeObserver !== "undefined") {
+      const ro = new ResizeObserver(measure);
+      ro.observe(el);
+      return () => ro.disconnect();
+    }
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  const prompt = PROMPTS[pick];
 
   // ---- Canvas ------------------------------------------------------------
 
@@ -246,20 +328,20 @@ function DoodleGame({ mode = 'dark' }: Props) {
     redraw();
 
     const next = dealPrompt();
-    // Vary how far the reels travel so no two pulls feel identical.
-    const extraLoops = 1 + Math.floor(Math.random() * 3);
+    // Vary how far the reel travels so no two pulls feel identical.
+    const loops = 3 + Math.floor(Math.random() * 3);
 
     setPulled(true);
     timers.current.push(window.setTimeout(() => setPulled(false), 420));
 
     setAnimating(false);
-    setOffsets([pick, pick, pick].map((p) => p * ITEM_HEIGHT));
+    setOffset(pick * ITEM_HEIGHT);
     setPhase("spinning");
 
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
         setAnimating(true);
-        setOffsets(SPIN_MS.map((_, i) => ((i + extraLoops + 2) * PROMPTS.length + next) * ITEM_HEIGHT));
+        setOffset((loops * PROMPTS.length + next) * ITEM_HEIGHT);
       });
     });
 
@@ -267,10 +349,10 @@ function DoodleGame({ mode = 'dark' }: Props) {
       window.setTimeout(() => {
         setAnimating(false);
         setPick(next);
-        setOffsets([next, next, next].map((t) => t * ITEM_HEIGHT));
+        setOffset(next * ITEM_HEIGHT);
         setPhase("countdown");
         setCount(3);
-      }, Math.max(...SPIN_MS) + 250)
+      }, SPIN_MS + 250)
     );
   };
 
@@ -311,35 +393,44 @@ function DoodleGame({ mode = 'dark' }: Props) {
       <div className="doodle-container">
         <h1>Doodle Machine</h1>
         <p className="doodle-intro">
-          Pull the lever for an icebreaker, then you get {DRAW_SECONDS} seconds to
-          draw your answer. Send me the result if it turns out good. Or especially
-          if it doesn't.
+          Pull the lever for a prompt &mdash; sometimes about you, sometimes a
+          dinosaur eating pizza &mdash; then you get {DRAW_SECONDS} seconds to draw
+          it. Send me the result if it turns out good. Or especially if it doesn't.
         </p>
 
         {/* ---- Machine ---- */}
-        <div className="machine">
-          <div className={`slots${phase === "spinning" ? " is-spinning" : ""}`}>
-            {[0, 1, 2].map((i) => (
-              <div className="reel" key={i}>
-                <div
-                  className="reel-strip"
-                  style={{
-                    transform: `translateY(-${offsets[i]}px)`,
-                    transition: animating
-                      ? `transform ${SPIN_MS[i]}ms cubic-bezier(0.16, 1, 0.3, 1)`
-                      : "none",
-                  }}
-                >
-                  {/* Enough repeats that the longest possible spin still has
-                      strip left to travel through. */}
-                  {Array.from({ length: 10 }).flatMap((_, loop) =>
-                    PROMPTS.map((p, j) => (
-                      <div className="reel-item" key={`${loop}-${j}`}>{p[i]}</div>
-                    ))
-                  )}
-                </div>
-              </div>
+        <div className={`machine${busy ? " is-live" : ""}`} ref={machineRef}>
+          {/* Alternate bulbs blink out of phase: the Vegas marquee chase. */}
+          <span className="marquee" aria-hidden="true">
+            {bulbs.map((b, i) => (
+              <span
+                key={i}
+                className={`bulb${i % 2 ? " is-offbeat" : ""}`}
+                style={{ left: `${b.x * 100}%`, top: `${b.y * 100}%` }}
+              />
             ))}
+          </span>
+
+          <div className={`slots${phase === "spinning" ? " is-spinning" : ""}`}>
+            <div className="reel">
+              <div
+                className="reel-strip"
+                style={{
+                  transform: `translateY(-${offset}px)`,
+                  transition: animating
+                    ? `transform ${SPIN_MS}ms cubic-bezier(0.16, 1, 0.3, 1)`
+                    : "none",
+                }}
+              >
+                {/* Enough repeats that the longest possible spin still has
+                    strip left to travel through. */}
+                {Array.from({ length: 10 }).flatMap((_, loop) =>
+                  PROMPTS.map((p, j) => (
+                    <div className="reel-item" key={`${loop}-${j}`}>{p}</div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
 
           <button
@@ -357,9 +448,12 @@ function DoodleGame({ mode = 'dark' }: Props) {
         </div>
 
         <p className="doodle-hint">
+          {/* The reel itself is showing the prompt by now, so this line is the
+              running commentary rather than a repeat of it. */}
           {phase === "idle" && "Pull the lever"}
           {phase === "spinning" && "Spinning..."}
-          {(phase === "drawing" || phase === "countdown") && prompt}
+          {phase === "countdown" && "Get ready"}
+          {phase === "drawing" && `${DRAW_SECONDS} seconds. Go.`}
           {phase === "done" && "Pencils down."}
         </p>
 
