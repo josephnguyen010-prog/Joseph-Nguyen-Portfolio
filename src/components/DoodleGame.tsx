@@ -677,7 +677,11 @@ function DoodleGame({ mode = 'dark' }: Props) {
                         disabled={sendStatus === "sending"}
                       >
                         <SendIcon aria-hidden="true"/>
-                        {sendStatus === "sending" ? "Sending..." : "Send it to me"}
+                        {/* Named rather than "send it to me": the button is
+                            pressed by the visitor, so first person points at
+                            the wrong person, and saying where the drawing goes
+                            is worth being plain about before an upload. */}
+                        {sendStatus === "sending" ? "Sending..." : "Send to Joseph"}
                       </button>
                       {/* type="button" so it cannot submit the form it sits in.
                           spin() is the restart: it clears the board, resets the
