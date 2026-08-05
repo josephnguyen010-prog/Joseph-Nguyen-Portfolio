@@ -1,5 +1,16 @@
 @use './variables' as *;
 
+// The game runs on Virginia Tech's colours, so its controls should too. The
+// site accent is purple, and beside a maroon bird and an orange-plumed Cavalier
+// it read as a third brand arriving uninvited. These two are what the sprites
+// are already painted with.
+//
+// Orange carries the accents on dark surfaces - the cabinet, and the overlay
+// across the screen. Maroon takes over wherever an accent lands on the page
+// itself, where orange on a near-white background is too weak to read as text.
+$hokie-orange: #E5751F;
+$hokie-maroon: #861F41;
+
 /* Tighter than a section gap: it now sits inside the education card, a couple
    of lines under the concentration. */
 .hokie-run {
@@ -13,7 +24,7 @@
     align-items: center;
     gap: 10px;
     padding: 13px 24px;
-    border: 1px dashed rgba($accent-bright, 0.5);
+    border: 1px dashed rgba($hokie-orange, 0.55);
     border-radius: 999px;
     background-color: rgba(255, 255, 255, 0.03);
     /* Explicit, not `inherit`. index.scss sets `button { color: white }`, but a
@@ -32,32 +43,32 @@
 .hokie-teaser:hover,
 .hokie-teaser:focus-visible {
     border-style: solid;
-    border-color: $accent-bright;
-    background-color: rgba($accent-bright, 0.12);
+    border-color: $hokie-orange;
+    background-color: rgba($hokie-orange, 0.14);
     transform: translateY(-2px);
     outline: none;
 }
 
 .hokie-teaser-mark {
-    color: $accent-bright;
+    color: $hokie-orange;
 }
 
 /* Stated rather than left to the blanket `.light-mode button` rule, so the pair
    is visible together and neither can drift. */
 .light-mode .hokie-teaser {
     background-color: rgba(0, 0, 0, 0.03);
-    border-color: rgba($accent, 0.55);
+    border-color: rgba($hokie-maroon, 0.5);
     color: #0d1116;
 }
 
 .light-mode .hokie-teaser:hover,
 .light-mode .hokie-teaser:focus-visible {
-    border-color: $accent;
-    background-color: rgba($accent, 0.1);
+    border-color: $hokie-maroon;
+    background-color: rgba($hokie-maroon, 0.08);
 }
 
 .light-mode .hokie-teaser-mark {
-    color: $accent;
+    color: $hokie-maroon;
 }
 
 /* The cabinet arriving. Scaled from the top edge so it reads as unfolding out
@@ -98,7 +109,7 @@
 .hokie-hide:hover,
 .hokie-hide:focus-visible {
     opacity: 1;
-    color: $accent-bright;
+    color: $hokie-orange;
     outline: none;
 }
 
@@ -108,7 +119,7 @@
 
 .light-mode .hokie-hide:hover,
 .light-mode .hokie-hide:focus-visible {
-    color: $accent;
+    color: $hokie-maroon;
 }
 
 /* The arcade screen stays dark in both modes, so its prompt has to keep light
@@ -120,7 +131,7 @@
 
 .light-mode .hokie-prompt:hover,
 .light-mode .hokie-prompt:focus-visible {
-    color: $accent-bright;
+    color: $hokie-orange;
 }
 
 /* An arcade screen: dark bezel, inset shadow, faint glow. Kept dark in both
@@ -148,8 +159,11 @@
     touch-action: manipulation; /* no double-tap zoom while jumping */
 }
 
+/* Maroon, not orange: this ring is drawn against the daylight sky at the top of
+   the canvas, and orange on pale blue is not a strong enough edge to serve as a
+   focus indicator. */
 .hokie-canvas:focus-visible {
-    outline: 2px solid $accent-bright;
+    outline: 2px solid $hokie-maroon;
     outline-offset: 3px;
 }
 
@@ -178,12 +192,12 @@
 .hokie-prompt:hover,
 .hokie-prompt:focus-visible {
     background-color: rgba(12, 14, 19, 0.35);
-    color: $accent-bright;
+    color: $hokie-orange;
     outline: none;
 }
 
 .hokie-blink {
-    color: $accent-bright;
+    color: $hokie-orange;
     animation: hokieBlink 1s steps(1, end) infinite;
 }
 
