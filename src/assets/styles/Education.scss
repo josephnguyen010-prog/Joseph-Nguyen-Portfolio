@@ -1,7 +1,7 @@
 ﻿@use './variables' as *;
 
 .education-container {
-    padding: 5% 10%;
+    padding: $section-pad-y 10%;
     display: flex;
     flex-direction: column;
     text-align: left;

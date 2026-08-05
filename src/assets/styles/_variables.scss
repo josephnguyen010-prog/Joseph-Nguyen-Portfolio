@@ -18,3 +18,12 @@ $accent-bright: #7b3fe4;
 // A desaturated near-black purple, for tooltip surfaces that need to sit above
 // the page without reading as a lit accent.
 $accent-deep: #2a1b45;
+
+// Breathing room at the top and bottom of every page section.
+//
+// This was `5%`, and percentage padding resolves against the container's WIDTH,
+// not its height - so it grew with the viewport instead of staying put. At
+// 1920px it came to 96px a side, and since neighbouring sections each contribute
+// their own, every boundary opened to over 200px of nothing. Clamped to real
+// units it stays where it is put.
+$section-pad-y: clamp(36px, 3.6vw, 58px);

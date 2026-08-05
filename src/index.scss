@@ -103,8 +103,46 @@ html {
   }
 }
 
+/* Every nav target, so a jump stops short of the fixed navbar instead of
+   sliding underneath it.
+ *
+ * This used to fall out of each section's large top padding, which meant one
+ * number was doing two unrelated jobs - the gap between sections and the
+ * clearance under the navbar - and doing the second badly: that padding was a
+ * percentage of the page WIDTH, so on a 1280px screen it resolved to 64px,
+ * exactly the navbar's height, and headings grazed it there already. Separating
+ * them lets the spacing be chosen on how it looks and this be chosen on what
+ * the navbar actually measures. */
+#about,
+#education,
+#career,
+#skills,
+#projects,
+#doodle,
+#contact {
+  scroll-margin-top: 88px;
+}
+
+/* Section headings. The browser default puts 0.67em above and below a 2em
+   heading, and the space above only duplicates padding the section has already
+   provided - about 24px added to every boundary on the page. The hero's h1 is
+   deliberately not in this list: it is display type at 5em with its own margins
+   in Main.scss. */
+.about-container h1,
+.education-container h1,
+.skills-container h1,
+.projects-container h1,
+.doodle-container h1,
+.items-container h1 {
+  margin: 0 0 26px;
+}
+
 .container {
-  margin-top: 64px;
+  /* Was 64px on every section, which stacked on top of both neighbours' padding
+     at each boundary. The hero needs that clearance to sit below the fixed
+     navbar, so it now carries it itself in Main.scss rather than every section
+     paying for it. */
+  margin-top: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -132,7 +170,7 @@ html {
 }
 
 .items-container {
-  padding: 5% 10%;
+  padding: $section-pad-y 10%;
   text-align: left;
   display: flex;
   flex-direction: column;
@@ -243,7 +281,7 @@ html {
 @media screen {
   @media (max-width: 768px) {
     .items-container {
-      padding: 5% 5%;
+      padding: $section-pad-y 5%;
     }
   }
 }

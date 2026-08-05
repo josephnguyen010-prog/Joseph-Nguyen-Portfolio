@@ -1,7 +1,9 @@
+@use './variables' as *;
+
 .projects-container {
     display: flex;
     flex-direction: column;
-    padding: 5% 10%;
+    padding: $section-pad-y 10%;
     text-align: left;
 }
   

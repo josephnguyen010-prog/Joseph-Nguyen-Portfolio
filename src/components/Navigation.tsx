@@ -17,7 +17,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 
 const drawerWidth = 240;
-const navItems = [['Education', 'education'], ['Career', 'career'], ['Skills', 'skills'], ['Projects', 'projects'], ['Gallery', 'gallery'], ['Doodle', 'doodle'], ['Contact', 'contact']];
+// Order matches the order of the sections down the page.
+const navItems = [['About', 'about'], ['Education', 'education'], ['Career', 'career'], ['Skills', 'skills'], ['Projects', 'projects'], ['Doodle', 'doodle'], ['Contact', 'contact']];
 
 // Lives in /public so it is served straight from the site rather than depending
 // on an external host. PUBLIC_URL keeps it correct under the GitHub Pages path.
@@ -50,15 +51,10 @@ function Navigation({parentToChild, modeChange}: any) {
     };
   }, []);
 
+  /** Where it stops is set by scroll-margin-top on the targets, in index.scss,
+   *  so the landing point stays right without an offset hardcoded here. */
   const scrollToSection = (section: string) => {
-    console.log(section)
-    const expertiseElement = document.getElementById(section);
-    if (expertiseElement) {
-      expertiseElement.scrollIntoView({ behavior: 'smooth' });
-      console.log('Scrolling to:', expertiseElement);  // Debugging: Ensure the element is found
-    } else {
-      console.error('Element with id "expertise" not found');  // Debugging: Log error if element is not found
-    }
+    document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const drawer = (

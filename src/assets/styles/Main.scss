@@ -10,8 +10,23 @@
     justify-content: flex-start;
     align-items: center;
     width: 100%;
-    padding: 0px 15%;
-    min-height: 700px;
+    /* border-box so both values below mean what they look like. Without it the
+       padding was added on top of `width: 100%`, making the hero 130% of the
+       page wide, and min-height described only the content box - so the real
+       height had to be worked out by hand, which is how it ended up a screenful
+       short. */
+    box-sizing: border-box;
+    /* Top is the fixed navbar's clearance, moved here off the shared .container
+       rule so only the hero pays for it. Bottom matches a normal section's
+       padding, so the hero-to-About boundary is the same size as every other. */
+    padding: 64px 15% $section-pad-y;
+    /* One screenful, padding included. Anything shorter leaves the next
+       section's heading in view along the bottom edge - hidden at first only
+       because its reveal animation has not fired, then plainly there once you
+       have scrolled down and come back up.
+       dvh second, so mobile browsers measure it without the address bar. */
+    min-height: 100vh;
+    min-height: 100dvh;
     background-image: url("../images/bg-dark.png");
     background-repeat: no-repeat;
     background-size: cover;

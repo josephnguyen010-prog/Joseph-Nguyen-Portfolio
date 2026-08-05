@@ -1,5 +1,6 @@
 import React from "react";
 import Reveal from './Reveal';
+import HokieRun from './HokieRun';
 import vtLogo from '../assets/images/logos/virginia-tech.svg';
 import '../assets/styles/Education.scss';
 
@@ -41,6 +42,13 @@ function Education() {
                     <p className="education-concentration">
                         Concentration in Decision Support Systems
                     </p>
+
+                    {/* Inside the card, directly under the concentration line,
+                        so it reads as part of the degree rather than a stray
+                        control floating in the section. Fills the room under a
+                        single-card section with something worth stopping for,
+                        rather than with more credentials. */}
+                    <HokieRun/>
                 </Reveal>
             </div>
         </div>

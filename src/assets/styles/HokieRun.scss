@@ -1,0 +1,210 @@
+@use './variables' as *;
+
+/* Tighter than a section gap: it now sits inside the education card, a couple
+   of lines under the concentration. */
+.hokie-run {
+    margin-top: 22px;
+}
+
+/* The closed state: one line, so the section stays compact for anyone who came
+   here to read a degree rather than play a game. */
+.hokie-teaser {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 24px;
+    border: 1px dashed rgba($accent-bright, 0.5);
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.03);
+    /* Explicit, not `inherit`. index.scss sets `button { color: white }`, but a
+       class selector outranks it, so inheriting resolved all the way up to the
+       browser default - black text on a black page. */
+    color: #fff;
+    font-family: 'Courier Prime', source-code-pro, monospace;
+    font-size: 0.9rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: border-color 220ms ease,
+                background-color 220ms ease,
+                transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hokie-teaser:hover,
+.hokie-teaser:focus-visible {
+    border-style: solid;
+    border-color: $accent-bright;
+    background-color: rgba($accent-bright, 0.12);
+    transform: translateY(-2px);
+    outline: none;
+}
+
+.hokie-teaser-mark {
+    color: $accent-bright;
+}
+
+/* Stated rather than left to the blanket `.light-mode button` rule, so the pair
+   is visible together and neither can drift. */
+.light-mode .hokie-teaser {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-color: rgba($accent, 0.55);
+    color: #0d1116;
+}
+
+.light-mode .hokie-teaser:hover,
+.light-mode .hokie-teaser:focus-visible {
+    border-color: $accent;
+    background-color: rgba($accent, 0.1);
+}
+
+.light-mode .hokie-teaser-mark {
+    color: $accent;
+}
+
+/* The cabinet arriving. Scaled from the top edge so it reads as unfolding out
+   of the button rather than dropping in from nowhere. */
+.hokie-cabinet {
+    animation: hokieUnfold 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform-origin: top center;
+}
+
+@keyframes hokieUnfold {
+    from { opacity: 0; transform: translateY(-10px) scaleY(0.94); }
+    to   { opacity: 1; transform: none; }
+}
+
+.hokie-footer {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.hokie-hide {
+    padding: 0;
+    border: none;
+    background: none;
+    color: #fff;
+    font-family: 'Courier Prime', source-code-pro, monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: underline;
+    opacity: 0.45;
+    cursor: pointer;
+    transition: opacity 200ms ease, color 200ms ease;
+}
+
+.hokie-hide:hover,
+.hokie-hide:focus-visible {
+    opacity: 1;
+    color: $accent-bright;
+    outline: none;
+}
+
+.light-mode .hokie-hide {
+    color: #0d1116;
+}
+
+.light-mode .hokie-hide:hover,
+.light-mode .hokie-hide:focus-visible {
+    color: $accent;
+}
+
+/* The arcade screen stays dark in both modes, so its prompt has to keep light
+   text - the blanket `.light-mode button` rule would otherwise turn it dark on
+   a dark panel. */
+.light-mode .hokie-prompt {
+    color: #fff;
+}
+
+.light-mode .hokie-prompt:hover,
+.light-mode .hokie-prompt:focus-visible {
+    color: $accent-bright;
+}
+
+/* An arcade screen: dark bezel, inset shadow, faint glow. Kept dark in both
+   colour modes for the same reason the doodle cabinet is - it is a screen, and
+   screens are not white. */
+.hokie-cabinet {
+    position: relative;
+    border-radius: 12px;
+    padding: 10px;
+    background: linear-gradient(180deg, #1b1f2a, #10131a);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4),
+                inset 0 0 0 2px rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+}
+
+.hokie-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    /* The whole point: the canvas is 600px wide and gets scaled up, so this is
+       what keeps the pixels square instead of smoothly interpolated. */
+    image-rendering: pixelated;
+    cursor: pointer;
+    touch-action: manipulation; /* no double-tap zoom while jumping */
+}
+
+.hokie-canvas:focus-visible {
+    outline: 2px solid $accent-bright;
+    outline-offset: 3px;
+}
+
+/* Sits over the screen while idle or dead. A real button rather than canvas
+   text, so it is focusable and readable to a screen reader. */
+.hokie-prompt {
+    position: absolute;
+    inset: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: none;
+    border-radius: 6px;
+    background-color: rgba(12, 14, 19, 0.55);
+    color: #fff;
+    font-family: 'Courier Prime', source-code-pro, monospace;
+    font-size: clamp(0.85rem, 2.2vw, 1.15rem);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 200ms ease, color 200ms ease;
+}
+
+.hokie-prompt:hover,
+.hokie-prompt:focus-visible {
+    background-color: rgba(12, 14, 19, 0.35);
+    color: $accent-bright;
+    outline: none;
+}
+
+.hokie-blink {
+    color: $accent-bright;
+    animation: hokieBlink 1s steps(1, end) infinite;
+}
+
+@keyframes hokieBlink {
+    0%, 55% { opacity: 1; }
+    56%, 100% { opacity: 0.15; }
+}
+
+.hokie-hint {
+    margin: 12px 0 0;
+    font-size: 0.85rem;
+    opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* The game itself is started deliberately, so it stays. The attract-screen
+       blink and the unfold are decoration and do not. */
+    .hokie-blink { animation: none; }
+
+    .hokie-cabinet { animation: none; }
+
+    .hokie-teaser:hover,
+    .hokie-teaser:focus-visible { transform: none; }
+}
