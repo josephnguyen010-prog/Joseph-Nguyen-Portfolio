@@ -1,86 +1,64 @@
-# Developer Portfolio Template 🚀
+# Joseph Nguyen — Portfolio
 
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![Node.js](https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white) ![npm](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white) ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E) ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white) ![Sass](https://img.shields.io/badge/Sass-CC6699?style=for-the-badge&logo=sass&logoColor=white)
+My personal portfolio site. Business Information Technology student at Virginia Tech, building things in data, tech risk, and product.
 
-## What is this?
+**[View the live site →](https://josephnguyen010-prog.github.io/Joseph-Nguyen-Portfolio-)**
 
-This simple portfolio template is designed to showcase your past projects, career history, skill sets, and more.
+![Screenshot of the portfolio homepage](./src/assets/images/screenshot.png)
 
-View the [Demo](https://yujisatojr.github.io/react-portfolio-template/).
+## What's on it
 
-**This template is free to use, and no attribution is required.** You can fork or download this repository to customize it for your own use. Please don't forget to leave a ⭐ if you like this portfolio!
+| Section | |
+|---|---|
+| **About** | Short bio and an auto-advancing photo carousel with a full-size lightbox |
+| **Education** | Virginia Tech, BBA in Business Information Technology (Decision Support Systems) — plus a playable HokieBird runner tucked into the card |
+| **Career** | Vertical timeline of roles, from Venus to RSM |
+| **Skills** | Data & analytics, business analysis & tech risk, product & engineering |
+| **Projects** | Selected work with live links |
+| **Doodle** | A drawing canvas — draw something and send it straight to my inbox |
+| **Contact** | Message form wired to real email delivery |
 
-![screenshot](./src/assets//images/screenshot.png)
+Dark and light modes, responsive down to mobile, and every animation respects `prefers-reduced-motion`.
 
-## Features
+## Built with
 
-✅ Open source (free to use, no attribution required)  
-✅ Responsive design & mobile-friendly  
-✅ Supports both dark and light modes  
-✅ Highly customizable multi-component layout  
-✅ Built with modern technologies (React, TypeScript, JavaScript, and SCSS)  
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![Sass](https://img.shields.io/badge/Sass-CC6699?style=for-the-badge&logo=sass&logoColor=white) ![MUI](https://img.shields.io/badge/MUI-007FFF?style=for-the-badge&logo=mui&logoColor=white) ![Node.js](https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 
-## Quick Setup
+React 18 + TypeScript on Create React App, styled with SCSS and MUI. The contact form and doodle sender run on [EmailJS](https://www.emailjs.com/), with doodle images hosted on [Cloudinary](https://cloudinary.com/). Deployed to GitHub Pages via `gh-pages`.
 
-1. Ensure you have [Node.js](https://nodejs.org/) installed. Check your installation by running:
+## Running it locally
 
-    ```bash
-    node -v
-    ```
+```bash
+npm install
+npm start
+```
 
-2. In the project directory, install dependencies:
+Then open [http://localhost:3000](http://localhost:3000).
 
-    ```bash
-    npm install
-    ```
+The contact form and doodle sender need credentials to actually deliver mail. Copy `.env.example` to `.env.local` and fill in the values — that file documents where each one comes from and how to lock it down:
 
-3. Start the development server:
+```bash
+cp .env.example .env.local
+```
 
-    ```bash
-    npm start
-    ```
+Without them the site runs fine; the send buttons just fall back to a mailto link. Restart `npm start` after editing `.env.local`.
 
-4. Open [http://localhost:3000](http://localhost:3000) to view the app in the browser.
+Tests:
 
-5. Customize the template by navigating to the `/src/components` directory. Modify texts, pictures, and other information as needed.
+```bash
+npm test
+```
 
-The page will reload if you make edits, and you will see any lint errors in the console.
+## Deploying
 
-If you are interested in creating a mockup image like the ones from the personal projects section, I recommend [Genmoo](https://gemoo.com/tools/browser-mockup-generator/). This website lets you generate sleek looking browser mockups for free.
+`.env.local` is gitignored, so the keys are only baked in when I build locally:
 
-## Deployment
+```bash
+npm run deploy
+```
 
-You can choose your preferred service (e.g., [Netlify](https://www.netlify.com/), [Render](https://render.com/), [Heroku](https://www.heroku.com/)) for deployment. One of the easiest ways to host this portfolio is using GitHub Pages. Follow the instructions below for a production deploy.
+That builds and pushes to the `gh-pages` branch, publishing to the `homepage` URL in [package.json](package.json).
 
-1. **Set Up GitHub Repository**
+## Credits
 
-    Create a new repository on GitHub for your portfolio app.
-
-2. **Configure `package.json`**
-
-    Edit the following properties in your `package.json` file:
-
-    ```json
-    {
-        "homepage": "https://yourusername.github.io/your-repo-name",
-        "scripts": {
-            "predeploy": "npm run build",
-            "deploy": "gh-pages -d build",
-            ...
-        }
-    }
-    ```
-
-    Replace `yourusername` with your GitHub username and `your-repo-name` with the name of your GitHub repository.
-
-3. **Deploy to GitHub Pages**
-
-    Run the following command to deploy your app:
-
-    ```bash
-    npm run deploy
-    ```
-
-4. **Access Your Deployed App**
-
-    After successfully deploying, you can access your app at `https://yourusername.github.io/your-repo-name`.
+Built on the [react-portfolio-template](https://github.com/yujisatojr/react-portfolio-template) by [@yujisatojr](https://github.com/yujisatojr), MIT licensed. The layout has since been rebuilt substantially, but the original scaffolding was a great starting point.
