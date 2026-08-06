@@ -12,16 +12,17 @@ const resumeUrl = `${process.env.PUBLIC_URL}/Joseph_Nguyen_Resume.pdf`;
 const GREETINGS = ["Hi there!", "Howdy!", "What's up!", "How's it going?"];
 
 /**
- * The two lines after the greeting are the same every time, so one pass through
- * this array is four runs of the same three beats, each opening differently.
+ * Two stanzas per cycle: the greeting and the name share the screen, one line
+ * above the other, then both clear and the welcome arrives on its own. One pass
+ * through this array is four cycles, each opening differently.
+ *
  * Built once at module scope rather than inline in the JSX: Typewriter keys its
  * timer effect on this array, so a fresh one on every render would tear the
  * pending timer down and rebuild it on each typed character.
  */
-const HERO_PHRASES = GREETINGS.flatMap((greeting) => [
-  greeting,
-  "I'm Joseph Nguyen",
-  "Welcome to my personal portfolio",
+const HERO_STANZAS = GREETINGS.flatMap((greeting) => [
+  [greeting, "I'm Joseph Nguyen"],
+  ["Welcome to my personal portfolio"],
 ]);
 
 interface Props {
@@ -49,12 +50,13 @@ function Main({ started = true }: Props) {
                 the page. Reduced motion gets the whole thought at once instead,
                 since a greeting on its own says nothing. */}
             <Typewriter
-              phrases={HERO_PHRASES}
+              stanzas={HERO_STANZAS}
               start={started}
               typeSpeed={110}
+              holdBetweenLines={1500}
               holdAfterType={2600}
-              fitToWidth
-              staticText="I'm Joseph Nguyen"
+              fitLines
+              staticLines={["Hi there!", "I'm Joseph Nguyen"]}
             />
           </h1>
               

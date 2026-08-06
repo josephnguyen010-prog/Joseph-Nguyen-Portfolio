@@ -37,11 +37,9 @@
 .about-section .content {
     text-align: left;
     z-index: 2;
-    /* Takes the rest of the row rather than sizing to its own text. The
-       typewriter measures this column to decide how big a phrase can be, so a
-       width derived from that same text is circular - each measurement shrank
-       the column, which shrank the next measurement, and the heading spiralled
-       down to a few pixels. min-width lets it shrink below the longest word. */
+    /* Takes the rest of the row rather than sizing to its own text, so the
+       width the heading wraps at is the same whichever stanza is on screen.
+       min-width lets it shrink below its longest word on narrow screens. */
     flex: 1;
     min-width: 0;
 
@@ -80,31 +78,25 @@
 
 /* ---- Typewriter -------------------------------------------------------- */
 
+/* Grid rather than flow, so every stanza and the live text all occupy the one
+   cell. The box is then as tall as the tallest stanza automatically, with no
+   measuring and nothing absolutely positioned. */
 .typewriter {
-    position: relative;
-    display: inline-block;
+    display: grid;
 }
 
-/* Fitted mode sizes each phrase to one line, so there is no ghost holding the
-   box open and the span has to claim the heading's full width itself for the
-   absolutely positioned text to have something to span. Its height is set
-   inline, from the measured heading size. */
-.typewriter.is-fitted {
-    display: block;
-    width: 100%;
+.typewriter > * {
+    grid-area: 1 / 1;
 }
 
-/* Invisible full-length copy that holds the final box open. */
+/* Invisible full-length copies that hold the final box open. */
 .typewriter-ghost {
     visibility: hidden;
 }
 
-.typewriter-text {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+/* Each line of a stanza sits on its own row of the heading. */
+.typewriter-line {
+    display: block;
 }
 
 .typewriter-caret {
