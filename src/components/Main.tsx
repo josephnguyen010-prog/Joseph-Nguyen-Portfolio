@@ -9,7 +9,7 @@ import avatar from '../assets/images/avatar.jpg';
 const resumeUrl = `${process.env.PUBLIC_URL}/Joseph_Nguyen_Resume.pdf`;
 
 /** Rotated so the greeting is different each time the hero comes back around. */
-const GREETINGS = ["Hi there!", "Howdy!", "What's up?", "How's it going?"];
+const GREETINGS = ["Hi there!", "Howdy!", "What's up!", "How's it going?"];
 
 /**
  * The two lines after the greeting are the same every time, so one pass through
