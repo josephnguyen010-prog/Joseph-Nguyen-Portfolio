@@ -15,6 +15,13 @@ interface Props {
   holdAfterDelete?: number;
   /** When false, stops on the final phrase instead of cycling back. */
   loop?: boolean;
+  /**
+   * What anyone with reduced motion sees instead of the animation. Defaults to
+   * the first phrase, which is right when the phrases are interchangeable. When
+   * they are beats of one sentence, the first is a fragment on its own - pass
+   * the whole thought here instead.
+   */
+  staticText?: string;
 }
 
 const prefersReducedMotion = (): boolean =>
@@ -29,6 +36,7 @@ export default function Typewriter({
   holdAfterType = 3800,
   holdAfterDelete = 700,
   loop = true,
+  staticText,
 }: Props) {
   const reduced = useRef(prefersReducedMotion()).current;
   const [index, setIndex] = useState(0);
@@ -64,10 +72,16 @@ export default function Typewriter({
     typeSpeed, deleteSpeed, holdAfterType, holdAfterDelete, loop,
   ]);
 
-  // Reserve the box using the longest phrase so the surrounding layout never
-  // reflows as text is typed or wiped.
-  const longest = phrases.reduce((a, b) => (b.length > a.length ? b : a), "");
-  const shown = reduced ? phrases[0] ?? "" : (phrases[index] ?? "").slice(0, count);
+  const resting = staticText ?? phrases[0] ?? "";
+
+  // Reserve the box using the longest thing that can appear, so the surrounding
+  // layout never reflows as text is typed or wiped. Only one mode's text is
+  // ever reachable, so reserving for both would leave whichever mode has the
+  // shorter text sitting under an empty reserved line.
+  const longest = reduced
+    ? resting
+    : phrases.reduce((a, b) => (b.length > a.length ? b : a), "");
+  const shown = reduced ? resting : (phrases[index] ?? "").slice(0, count);
 
   return (
     <span className="typewriter" aria-hidden="true">
