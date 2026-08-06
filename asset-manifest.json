@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/Joseph-Nguyen-Portfolio-/static/css/main.86cf6859.css",
-    "main.js": "/Joseph-Nguyen-Portfolio-/static/js/main.1550b522.js",
+    "main.js": "/Joseph-Nguyen-Portfolio-/static/js/main.da9b9ba7.js",
     "static/js/453.b05d8aa5.chunk.js": "/Joseph-Nguyen-Portfolio-/static/js/453.b05d8aa5.chunk.js",
     "static/media/mock10.png": "/Joseph-Nguyen-Portfolio-/static/media/mock10.2d05b02ba569a430a255.png",
     "static/media/mock09.png": "/Joseph-Nguyen-Portfolio-/static/media/mock09.e18677ccfc932e52d754.png",
@@ -28,11 +28,11 @@
     "index.html": "/Joseph-Nguyen-Portfolio-/index.html",
     "static/media/virginia-tech.svg": "/Joseph-Nguyen-Portfolio-/static/media/virginia-tech.6949aa9cec7639318918d8888b571d77.svg",
     "main.86cf6859.css.map": "/Joseph-Nguyen-Portfolio-/static/css/main.86cf6859.css.map",
-    "main.1550b522.js.map": "/Joseph-Nguyen-Portfolio-/static/js/main.1550b522.js.map",
+    "main.da9b9ba7.js.map": "/Joseph-Nguyen-Portfolio-/static/js/main.da9b9ba7.js.map",
     "453.b05d8aa5.chunk.js.map": "/Joseph-Nguyen-Portfolio-/static/js/453.b05d8aa5.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.86cf6859.css",
-    "static/js/main.1550b522.js"
+    "static/js/main.da9b9ba7.js"
   ]
 }
