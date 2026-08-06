@@ -384,9 +384,20 @@ interface Hurdle { x: number; count: number; fall: number; }
 
 type Phase = 'idle' | 'running' | 'over';
 
+/** The two halves of the "GAME OVER" blink, matching the @keyframes hokieBlink
+ *  split used by the prompt: a one second cycle, lit for rather more of it. */
+const LIT_MS = 550;
+const DARK_MS = 450;
+
 function HokieRun() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const promptRef = useRef<HTMLButtonElement | null>(null);
+  /**
+   * Whether "GAME OVER" is in the lit half of its blink. A ref rather than
+   * state: `draw` closes over this, and a state change would give `draw` a new
+   * identity, which the running-loop effect depends on and would restart.
+   */
+  const gameOverLit = useRef(true);
   /** The cabinet stays folded away until someone asks for it. */
   const [revealed, setRevealed] = useState(false);
   const [phase, setPhase] = useState<Phase>('idle');
@@ -496,7 +507,7 @@ function HokieRun() {
     ctx.fillStyle = '#3f3a30';
     ctx.fillText(String(Math.floor(g.dist)).padStart(5, '0'), W - 12, 20);
 
-    if (phaseNow === 'over') {
+    if (phaseNow === 'over' && gameOverLit.current) {
       ctx.textAlign = 'center';
       ctx.fillStyle = MAROON;
       ctx.fillText('G A M E   O V E R', W / 2, 60);
@@ -507,6 +518,31 @@ function HokieRun() {
   // is never blank behind the prompt.
   useEffect(() => {
     if (phase !== 'running') draw(phase);
+  }, [phase, draw]);
+
+  /**
+   * Blink "GAME OVER" once the run has ended, on the same 1s cadence as the
+   * arcade prompt below the canvas - lit a little longer than it is dark, so it
+   * reads as a sign flickering rather than a strobe. Held steady for anyone who
+   * asked for reduced motion, matching what the stylesheet does to `.hokie-blink`.
+   */
+  useEffect(() => {
+    if (phase !== 'over') return;
+    gameOverLit.current = true;
+
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+    let timer = window.setTimeout(function flip() {
+      gameOverLit.current = !gameOverLit.current;
+      draw('over');
+      timer = window.setTimeout(flip, gameOverLit.current ? LIT_MS : DARK_MS);
+    }, LIT_MS);
+
+    // Leave it lit, so the next thing drawn is not a half-blinked frame.
+    return () => {
+      window.clearTimeout(timer);
+      gameOverLit.current = true;
+    };
   }, [phase, draw]);
 
   useEffect(() => {
