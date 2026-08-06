@@ -13,9 +13,10 @@
   button {
     background-color: white;
     color: #050f0b;
-    /* Stops the button stretching to the row's height when the address beside
-       it wraps to two lines. */
-    align-self: center;
+    /* Keeps its natural width when the address beside it is long. Vertical
+       centring comes from the row's align-items, deliberately not from an
+       align-self here - that would also override the row's alignment in the
+       stacked mobile layout and pull the button back to the centre. */
     flex-shrink: 0;
   }
 
