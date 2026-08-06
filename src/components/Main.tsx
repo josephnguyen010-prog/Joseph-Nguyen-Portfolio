@@ -53,7 +53,8 @@ function Main({ started = true }: Props) {
               start={started}
               typeSpeed={110}
               holdAfterType={2600}
-              staticText="I'm Joseph Nguyen — welcome to my personal portfolio"
+              fitToWidth
+              staticText="I'm Joseph Nguyen"
             />
           </h1>
               

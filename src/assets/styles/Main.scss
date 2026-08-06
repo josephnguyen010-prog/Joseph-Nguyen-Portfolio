@@ -37,6 +37,13 @@
 .about-section .content {
     text-align: left;
     z-index: 2;
+    /* Takes the rest of the row rather than sizing to its own text. The
+       typewriter measures this column to decide how big a phrase can be, so a
+       width derived from that same text is circular - each measurement shrank
+       the column, which shrank the next measurement, and the heading spiralled
+       down to a few pixels. min-width lets it shrink below the longest word. */
+    flex: 1;
+    min-width: 0;
 
     .social_icons {
         display: flex;
@@ -76,6 +83,15 @@
 .typewriter {
     position: relative;
     display: inline-block;
+}
+
+/* Fitted mode sizes each phrase to one line, so there is no ghost holding the
+   box open and the span has to claim the heading's full width itself for the
+   absolutely positioned text to have something to span. Its height is set
+   inline, from the measured heading size. */
+.typewriter.is-fitted {
+    display: block;
+    width: 100%;
 }
 
 /* Invisible full-length copy that holds the final box open. */

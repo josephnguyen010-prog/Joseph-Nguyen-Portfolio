@@ -41,3 +41,27 @@ Object.defineProperty(window, 'IntersectionObserver', {
   writable: true,
   value: MockIntersectionObserver,
 });
+
+class MockResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+/** Typewriter watches the heading's width to size each phrase to one line. */
+Object.defineProperty(window, 'ResizeObserver', {
+  writable: true,
+  value: MockResizeObserver,
+});
+
+/**
+ * jsdom has no canvas backend and logs a long "not implemented" error the first
+ * time anything asks for a 2D context. Typewriter measures text against one to
+ * decide how large a phrase can be, and already treats a missing context as
+ * "cannot measure, leave the CSS size alone" - so return null quietly rather
+ * than let that path print a stack trace on every run.
+ */
+Object.defineProperty(window.HTMLCanvasElement.prototype, 'getContext', {
+  writable: true,
+  value: () => null,
+});
