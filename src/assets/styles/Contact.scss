@@ -11,9 +11,12 @@
   width: 100% !important;
 
   button {
-    float: right;
     background-color: white;
     color: #050f0b;
+    /* Stops the button stretching to the row's height when the address beside
+       it wraps to two lines. */
+    align-self: center;
+    flex-shrink: 0;
   }
 
   button:hover {
@@ -92,11 +95,21 @@
   margin-bottom: 15px !important;
 }
 
+/* ---- Actions ----------------------------------------------------------- */
+
+/* The email fallback and the Send button, on one line. Centred against each
+   other rather than baseline-aligned: the button's padding makes it much taller
+   than the text, and matching baselines would sit the text low against it. */
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
 /* ---- Status ------------------------------------------------------------ */
 
-/* Sits under the floated Send button, so it needs its own line. */
 .form-status {
-  clear: both;
   margin: 0;
   padding-top: 14px;
   font-size: 0.95rem;
@@ -118,11 +131,11 @@
 
 /* ---- Email fallback ---------------------------------------------------- */
 
-/* Quiet and below the form: present for anyone who wants the address, without
-   pulling attention away from the field the form wants filled in. */
+/* Quiet: present for anyone who wants the address, without pulling attention
+   away from the button it shares a line with. Margin comes from the row's gap,
+   so it carries none of its own. */
 .contact-alt {
-  clear: both;
-  margin: 22px 0 0;
+  margin: 0;
   font-size: 0.9rem;
   opacity: 0.65;
 
@@ -150,6 +163,19 @@
 
     .form-flex .field {
       margin-bottom: 15px;
+    }
+
+    /* Not enough width left for the address and the button side by side, so
+       they stack. Reversed to keep the button above, where it has been on
+       every other width, with the address demoted underneath it. */
+    .form-actions {
+      flex-direction: column-reverse;
+      align-items: flex-end;
+      gap: 14px;
+    }
+
+    .contact-alt {
+      align-self: flex-start;
     }
   }
 }

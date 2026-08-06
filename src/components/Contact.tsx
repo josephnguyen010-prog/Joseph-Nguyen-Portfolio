@@ -114,14 +114,30 @@ function Contact() {
               />
             </div>
 
-            <Button
-              type="submit"
-              variant="contained"
-              endIcon={<SendIcon />}
-              disabled={status === 'sending'}
-            >
-              {status === 'sending' ? 'Sending...' : 'Send'}
-            </Button>
+            {/* The address shares this row with the button rather than sitting
+                on its own line underneath. On its own it was flush left with
+                nothing beside it, across a wide gap from the right-aligned
+                button, so it read as unmoored. Paired here it lines up with the
+                button and the gap between them is doing work. */}
+            <div className="form-actions">
+              {/* Kept visible rather than only surfacing in the error state:
+                  anyone wanting to attach a job spec, CC someone, or keep a
+                  copy in their own sent folder needs the address itself, and
+                  the form cannot give them any of that. Quiet enough that it
+                  does not compete with the button for the same click. */}
+              <p className="contact-alt">
+                Prefer email? <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+              </p>
+
+              <Button
+                type="submit"
+                variant="contained"
+                endIcon={<SendIcon />}
+                disabled={status === 'sending'}
+              >
+                {status === 'sending' ? 'Sending...' : 'Send'}
+              </Button>
+            </div>
 
             {/* aria-live so the outcome is announced, not just shown. */}
             <p className={`form-status is-${status}`} role="status" aria-live="polite">
@@ -134,15 +150,6 @@ function Contact() {
               )}
             </p>
           </Box>
-
-          {/* Kept, but demoted below the form so the two are not competing for
-              the same click. Worth keeping visible rather than only surfacing in
-              the error state: anyone wanting to attach a job spec, CC someone,
-              or keep a copy in their own sent folder needs the address itself,
-              and the form cannot give them any of that. */}
-          <p className="contact-alt">
-            Prefer email? <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
-          </p>
         </div>
       </div>
     </div>
