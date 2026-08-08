@@ -143,21 +143,27 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .billboard{
   position:relative;padding:clamp(110px,17vh,190px) var(--pad) clamp(30px,6vw,70px);
   min-height:min(84vh,720px);display:flex;align-items:center;
-  /* swap this one URL to change the billboard artwork */
-  background-image:
+  background:var(--bg);overflow:hidden;
+}
+/* one layer per show; only the active one is opaque */
+.bb-slides{position:absolute;inset:0;z-index:0}
+.bb-slides i{
+  position:absolute;inset:0;display:block;
+  background-position:center 18%;background-size:cover;background-repeat:no-repeat;
+  opacity:0;transition:opacity 1.2s ease;
+}
+.bb-slides i.is-on{opacity:1}
+.bb-scrim{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
     linear-gradient(90deg,rgba(20,20,20,.97) 0%,rgba(20,20,20,.78) 42%,rgba(20,20,20,.34) 100%),
-    linear-gradient(180deg,rgba(20,20,20,.72) 0%,rgba(20,20,20,0) 32%),
-    url("img/billboard.jpg");
-  background-size:cover,cover,cover;
-  background-position:center,center,center 18%;
-  background-repeat:no-repeat;
-  background-color:var(--bg);
+    linear-gradient(180deg,rgba(20,20,20,.72) 0%,rgba(20,20,20,0) 32%);
 }
 .billboard::after{
-  content:"";position:absolute;left:0;right:0;bottom:0;height:36%;
+  content:"";position:absolute;left:0;right:0;bottom:0;height:36%;z-index:1;
   background:linear-gradient(180deg,transparent,var(--bg));pointer-events:none;
 }
-.billboard-inner{position:relative;z-index:1;max-width:min(680px,100%)}
+.billboard-inner{position:relative;z-index:2;max-width:min(680px,100%)}
 .eyebrow{
   display:flex;align-items:center;gap:9px;
   color:var(--ink-2);font-size:clamp(.66rem,1.5vw,.8rem);
@@ -418,6 +424,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   </header>
 
   <section class="billboard">
+    <div class="bb-slides" id="bbSlides" aria-hidden="true"></div>
+    <div class="bb-scrim" aria-hidden="true"></div>
     <div class="billboard-inner">
       <p class="eyebrow"><b>N</b> Case Study</p>
       <h2>Anatomy of a<br>Subscription Business</h2>
@@ -1254,6 +1262,57 @@ Array.prototype.forEach.call(document.querySelectorAll("[data-enter]"), function
     window.setTimeout(function(){ playIntro(revealShell); }, 260);
   });
 });
+
+/* ----------------------------------------------------- billboard carousel */
+// The billboard sits behind the profile gate and the ident for the first few
+// seconds, so none of this needs to be on the critical path: slide one is
+// attached on load and the rest stream in afterwards.
+var BILLBOARDS = [
+  "img/billboard/breaking-bad.jpg",
+  "img/billboard/stranger-things.jpg",
+  "img/billboard/squid-game.jpg",
+  "img/billboard/the-witcher.jpg",
+  "img/billboard/wednesday.jpg"
+];
+
+(function billboardCarousel(){
+  var wrap = document.getElementById("bbSlides");
+  if(!wrap) return;
+
+  var slides = BILLBOARDS.map(function(src, i){
+    var el = document.createElement("i");
+    if(i === 0){
+      el.style.backgroundImage = "url(" + src + ")";
+      el.className = "is-on";
+    }
+    wrap.appendChild(el);
+    return el;
+  });
+
+  if(slides.length < 2) return;
+
+  var loaded = false;
+  function loadRest(){
+    if(loaded) return;
+    loaded = true;
+    for(var i = 1; i < slides.length; i++){
+      slides[i].style.backgroundImage = "url(" + BILLBOARDS[i] + ")";
+    }
+  }
+  window.setTimeout(loadRest, 2500);
+
+  // a still image is the right answer for anyone who asked for less motion
+  if(reduced) return;
+
+  var at = 0;
+  window.setInterval(function(){
+    if(document.hidden) return;      // don't cycle in a background tab
+    loadRest();
+    slides[at].classList.remove("is-on");
+    at = (at + 1) % slides.length;
+    slides[at].classList.add("is-on");
+  }, 7000);
+})();
 
 /* topbar background once scrolled */
 var topbar = document.getElementById("topbar");
