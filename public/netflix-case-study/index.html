@@ -255,7 +255,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;
   color:var(--ink-2);margin-bottom:5px;
 }
-.card-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--red)}
+/* a watch-progress bar: the track spans the card, the red fill grows with
+   how far through the nine chapters this one sits */
+.card-bar{
+  position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:rgba(255,255,255,.22);
+}
+.card-bar span{display:block;height:100%;background:var(--red)}
 
 /* slate cards carry no stat, so the title sits alone at the foot */
 .card-poster{background-position:center 22%}
@@ -1021,6 +1027,14 @@ var ROW_ORDER = ["Start Here","Market Forces","Product & Pricing",
                  "The Q4 2021 Slate","The Numbers","Risks & Recommendations","More Like This"];
 var rowsEl = document.getElementById("rows");
 
+// The nine numbered chapters are the analysis. Everything else (the show
+// cards, the colophon) is furniture, and is skipped by Play and by Next.
+function isChapter(s){ return /^Chapter \d+$/.test(s.chapter); }
+
+var CHAPTERS = SECTIONS.filter(isChapter);
+
+function chapterAt(s){ return CHAPTERS.indexOf(s); }   // 0-based, -1 if not one
+
 function cardHTML(s){
   if(s.kind === "title"){
     return '<button class="card card-poster" type="button" data-open="'+s.id+'" '+
@@ -1028,17 +1042,21 @@ function cardHTML(s){
              '<span class="card-art">'+
                '<span><span class="card-chapter">'+s.chapter+'</span>'+
                '<span class="card-name">'+s.name+'</span></span>'+
-             '</span>'+
-             '<span class="card-bar"></span></button>';
+             '</span></button>';
   }
+  // watch progress: how far through the nine this chapter leaves you
+  var n = chapterAt(s);
+  var bar = n === -1 ? "" :
+    '<span class="card-bar"><span style="width:'+
+    Math.round((n + 1) / CHAPTERS.length * 100)+'%"></span></span>';
+
   return '<button class="card" type="button" data-open="'+s.id+'" '+
            'style="background-image:url('+s.art+')">'+
            '<span class="card-art">'+
              '<span><span class="card-chapter">'+s.chapter+'</span>'+
              '<span class="card-stat">'+s.stat+'<small>'+s.statLabel+'</small></span></span>'+
              '<span class="card-name">'+s.name+'</span>'+
-           '</span>'+
-           '<span class="card-bar"></span></button>';
+           '</span>'+ bar + '</button>';
 }
 
 ROW_ORDER.forEach(function(rowName){
@@ -1056,8 +1074,7 @@ ROW_ORDER.forEach(function(rowName){
          'style="background-image:url(img/breaking-bad-couch.jpg);text-decoration:none">'+
            '<span class="card-art"><span><span class="card-chapter">Portfolio</span>'+
            '<span class="card-stat">&larr;<small>go back</small></span></span>'+
-           '<span class="card-name">Joseph Nguyen</span></span>'+
-           '<span class="card-bar"></span></a>';
+           '<span class="card-name">Joseph Nguyen</span></span></a>';
   }
 
   h += '</div><button class="arrow arrow-next" type="button" aria-label="Scroll right" hidden>&#8250;</button></div>';
@@ -1087,6 +1104,7 @@ var scrim = document.getElementById("scrim");
 var sheet = document.getElementById("sheet");
 var hero  = document.getElementById("sheetHero");
 var current = -1;
+var nextTarget = -1;
 var lastFocus = null;
 
 function byId(id){
@@ -1152,7 +1170,9 @@ function openAt(i){
   var s = SECTIONS[i];
   current = i;
 
-  document.getElementById("sheetChapter").innerHTML = s.chapter;
+  var ch = chapterAt(s);
+  document.getElementById("sheetChapter").innerHTML =
+    ch === -1 ? s.chapter : s.chapter + " of " + CHAPTERS.length;
   document.getElementById("sheetTitle").innerHTML = s.name;
   document.getElementById("sheetFacts").innerHTML = s.facts.join("");
   document.getElementById("sheetBody").innerHTML = s.body;
@@ -1161,10 +1181,20 @@ function openAt(i){
   // heroes use the larger copies in img/hero/, fetched only when opened
   hero.style.backgroundImage = "url(" + s.art.replace("img/", "img/hero/") + ")";
 
+  // Next walks the chapters only. On a show card there is no sequence to
+  // continue, so the button is hidden rather than jumping somewhere random.
   var nextBtn = document.getElementById("next");
-  nextBtn.innerHTML = (i === SECTIONS.length - 1)
-    ? "Back to start &#9664;"
-    : "Next: " + SECTIONS[i+1].name + " &#9654;";
+  if(ch === -1){
+    nextBtn.hidden = true;
+    nextTarget = -1;
+  }else{
+    var wrap = (ch + 1) % CHAPTERS.length;
+    nextBtn.hidden = false;
+    nextBtn.innerHTML = (ch === CHAPTERS.length - 1)
+      ? "Back to start &#9664;"
+      : "Next: " + CHAPTERS[wrap].name + " &#9654;";
+    nextTarget = SECTIONS.indexOf(CHAPTERS[wrap]);
+  }
 
   wireTableToggle();
 
@@ -1202,9 +1232,12 @@ document.addEventListener("click", function(e){
 document.getElementById("close").addEventListener("click", closeSheet);
 scrim.addEventListener("click", function(e){ if(e.target === scrim) closeSheet(); });
 document.getElementById("next").addEventListener("click", function(){
-  openAt(current >= SECTIONS.length - 1 ? 0 : current + 1);
+  if(nextTarget !== -1) openAt(nextTarget);
 });
-document.getElementById("play").addEventListener("click", function(){ openAt(0); });
+// Play starts the analysis, not the catalogue
+document.getElementById("play").addEventListener("click", function(){
+  openAt(SECTIONS.indexOf(CHAPTERS[0]));
+});
 
 document.addEventListener("keydown", function(e){
   if(scrim.hidden) return;
