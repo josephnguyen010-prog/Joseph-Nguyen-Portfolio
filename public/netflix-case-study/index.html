@@ -1108,6 +1108,45 @@ function wireTableToggle(){
   });
 }
 
+/* The artwork fills the top of the panel, so the analysis starts below the
+   fold. Once a chapter opens, ease down to the text on the reader's behalf.
+   Any input at all cancels it, so it never fights someone who is already
+   scrolling. */
+var autoTimer = 0, autoRaf = 0;
+
+function cancelAuto(){
+  if(autoTimer){ window.clearTimeout(autoTimer); autoTimer = 0; }
+  if(autoRaf){ window.cancelAnimationFrame(autoRaf); autoRaf = 0; }
+}
+
+function revealBody(){
+  cancelAuto();
+  autoTimer = window.setTimeout(function(){
+    autoTimer = 0;
+    var body = document.getElementById("sheetBody");
+    if(!body) return;
+
+    var from = scrim.scrollTop;
+    var top = body.getBoundingClientRect().top -
+              scrim.getBoundingClientRect().top + from;
+    var max = Math.max(0, scrim.scrollHeight - scrim.clientHeight);
+    var to = Math.min(Math.max(0, top - 76), max);
+    if(to - from < 24) return;          // already visible, leave it alone
+    if(reduced){ scrim.scrollTop = to; return; }
+
+    var start = 0, dur = 950;
+    function step(ts){
+      if(!start) start = ts;
+      var k = Math.min(1, (ts - start) / dur);
+      // easeInOutCubic, so it starts and lands gently
+      var e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      scrim.scrollTop = from + (to - from) * e;
+      autoRaf = k < 1 ? window.requestAnimationFrame(step) : 0;
+    }
+    autoRaf = window.requestAnimationFrame(step);
+  }, 850);
+}
+
 function openAt(i){
   if(i < 0 || i >= SECTIONS.length) return;
   var s = SECTIONS[i];
@@ -1137,10 +1176,17 @@ function openAt(i){
   }
   sheet.scrollTop = 0;
   scrim.scrollTop = 0;
+  revealBody();
   document.getElementById("close").focus();
 }
 
+// any sign the reader is driving stops the assisted scroll immediately
+["wheel", "touchstart", "keydown", "mousedown"].forEach(function(ev){
+  scrim.addEventListener(ev, cancelAuto, {passive: true});
+});
+
 function closeSheet(){
+  cancelAuto();
   scrim.classList.remove("is-open");
   document.body.classList.remove("is-locked");
   window.setTimeout(function(){ scrim.hidden = true; }, 280);
