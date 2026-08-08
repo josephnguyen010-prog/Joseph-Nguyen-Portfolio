@@ -494,12 +494,16 @@ var reduced = window.matchMedia &&
               window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* --------------------------------------------------------------- data */
-// Netflix reported revenue by region, FY2021-FY2024, US$ billions.
+// Netflix reported streaming revenue by region, US$ billions.
+// FY2021-FY2023 from the FY2023 10-K segment tables; FY2024 from the four
+// quarters in the Q4 2024 shareholder letter, which sum to $39,001M.
+// Streaming only: the legacy DVD segment, wound down in 2023, is excluded,
+// so 2021-2023 columns fall a little short of total company revenue.
 var REGIONS = [
-  {name:"UCAN",  full:"US & Canada",       v:[12.97,14.08,14.90,17.36]},
-  {name:"EMEA",  full:"Europe, ME, Africa",v:[ 9.70, 9.75,10.59,12.31]},
-  {name:"LATAM", full:"Latin America",     v:[ 3.58, 4.06, 4.30, 4.84]},
-  {name:"APAC",  full:"Asia-Pacific",      v:[ 3.45, 3.73, 3.93, 4.49]}
+  {name:"UCAN",  full:"US & Canada",       v:[12.97,14.08,14.87,17.36]},
+  {name:"EMEA",  full:"Europe, ME, Africa",v:[ 9.70, 9.75,10.56,12.39]},
+  {name:"LATAM", full:"Latin America",     v:[ 3.58, 4.07, 4.45, 4.84]},
+  {name:"APAC",  full:"Asia-Pacific",      v:[ 3.27, 3.57, 3.76, 4.42]}
 ];
 var YEARS = ["FY21","FY22","FY23","FY24"];
 
@@ -535,12 +539,16 @@ function renderChart(){
   });
 
   html += '</div>';
-  html += '<p class="chart-note">Shared vertical scale across all four panels, so heights are directly comparable. Values in US$ billions.</p>';
+  html += '<p class="chart-note">Shared vertical scale across all four panels, so heights are directly comparable. ' +
+          'Values in US$ billions, streaming only: the legacy DVD segment, wound down in 2023, is excluded. ' +
+          'Source: Netflix FY2023 Form 10-K and the Q4 2024 shareholder letter.</p>';
   return html;
 }
 
 function renderTable(){
-  var h = '<div class="tbl-scroll"><table class="tbl"><caption>Netflix revenue by region, US$ billions</caption><thead><tr><th>Region</th>';
+  var h = '<div class="tbl-scroll"><table class="tbl"><caption>Netflix streaming revenue by region, US$ billions. ' +
+          'Excludes the legacy DVD segment, so totals sit just under company revenue before 2024.</caption>' +
+          '<thead><tr><th>Region</th>';
   YEARS.forEach(function(y){ h += '<th>'+y+'</th>'; });
   h += '<th>Change</th></tr></thead><tbody>';
   REGIONS.forEach(function(r){
@@ -551,7 +559,7 @@ function renderTable(){
   var tot = YEARS.map(function(_,i){
     return REGIONS.reduce(function(s,r){ return s+r.v[i]; },0);
   });
-  h += '<tr><td class="hi">Total</td>';
+  h += '<tr><td class="hi">Streaming total</td>';
   tot.forEach(function(t){ h += '<td class="hi">'+t.toFixed(2)+'</td>'; });
   h += '<td class="hi">+'+((tot[3]/tot[0]-1)*100).toFixed(0)+'%</td></tr>';
   return h + '</tbody></table></div>';
@@ -648,8 +656,8 @@ var SECTIONS = [
   facts:['<span class="score">94% Match</span>','<span>Geography</span>','<span class="pill">FY2024</span>'],
   body:
     '<p>Netflix streams in more than <strong>190 countries</strong>. In FY2024 UCAN produced '+
-    '<strong>$17.4B</strong> of revenue, EMEA <strong>$12.3B</strong>, LATAM <strong>$4.8B</strong> '+
-    'and APAC <strong>$4.5B</strong>.</p>'+
+    '<strong>$17.4B</strong> of revenue, EMEA <strong>$12.4B</strong>, LATAM <strong>$4.8B</strong> '+
+    'and APAC <strong>$4.4B</strong>.</p>'+
     '<p>That means roughly <strong>55% of revenue now comes from outside the United States and '+
     'Canada</strong>, which is both the growth story and a currency exposure.</p>'+
     '<h4>Why it matters</h4><ul>'+
@@ -868,7 +876,7 @@ var SECTIONS = [
     '</div>'+
     '<p>Revenue is diversifying away from the United States and Canada. UCAN is still the largest '+
     'single region, but every region grew, and LATAM and APAC together now add about $9.3B.</p>'+
-    '<div class="chart-head"><span class="chart-title">Revenue by region, FY2021&ndash;FY2024</span>'+
+    '<div class="chart-head"><span class="chart-title">Streaming revenue by region, FY2021&ndash;FY2024</span>'+
     '<button class="toggle" type="button" id="tblToggle" aria-expanded="false">Show as table</button></div>'+
     '<div id="chartView">'+renderChart()+'</div>'+
     '<div id="tableView" hidden>'+renderTable()+'</div>'
