@@ -1,0 +1,1267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Netflix: Anatomy of a Subscription Business: Case Study by Joseph Nguyen</title>
+<meta name="description" content="An interactive business analysis of Netflix as a subscription product, presented as a streaming catalogue. Independent case study by Joseph Nguyen.">
+<!-- Red N on black, drawn as polygons rather than text so it renders the same
+     everywhere. Inline so the page stays self-contained. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23141414'/%3E%3Cpath d='M15 8h11v48H15z' fill='%23e50914'/%3E%3Cpath d='M38 8h11v48H38z' fill='%23e50914'/%3E%3Cpath d='M15 8h11l23 48H38z' fill='%23b81d24'/%3E%3C/svg%3E">
+<style>
+:root{
+  --red:#e50914;
+  --red-dark:#b81d24;
+  --bg:#141414;
+  --bg-raise:#1c1c1c;
+  --bg-card:#232323;
+  --ink:#f5f5f1;
+  --ink-2:#d2d2d2;
+  --ink-3:#8c8c8c;
+  --line:#2f2f2f;
+  --row-gap:clamp(28px,4vw,52px);
+  --pad:clamp(16px,4vw,60px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Helvetica Neue",Helvetica,Arial,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+body.is-locked{overflow:hidden}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:3px}
+[hidden]{display:none !important}
+
+/* ---------------------------------------------------------- profile gate */
+.gate{
+  position:fixed;inset:0;z-index:900;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;
+  transition:opacity .5s ease,visibility .5s ease;
+}
+.gate.is-gone{opacity:0;visibility:hidden;pointer-events:none}
+.gate-inner{padding:var(--pad);width:min(1000px,100%)}
+.gate h1{
+  font-size:clamp(1.5rem,4.6vw,3.2rem);
+  font-weight:400;margin:0 0 clamp(24px,4vw,48px);letter-spacing:-.01em;
+}
+.profiles{
+  display:flex;flex-wrap:wrap;gap:clamp(14px,3vw,32px);
+  justify-content:center;list-style:none;margin:0;padding:0;
+}
+.profile{width:clamp(96px,17vw,150px)}
+.profile button{display:block;width:100%}
+.profile .avatar{
+  width:100%;aspect-ratio:1;border-radius:6px;
+  display:grid;place-items:center;
+  font-size:clamp(1.6rem,4.5vw,3rem);font-weight:800;
+  color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.45);
+  border:3px solid transparent;
+  transition:border-color .2s ease,transform .2s ease;
+}
+.profile button:hover .avatar,.profile button:focus-visible .avatar{
+  border-color:var(--ink);transform:scale(1.04);
+}
+.profile .profile-name{
+  display:block;margin-top:10px;color:var(--ink-3);
+  font-size:clamp(.8rem,1.6vw,1rem);
+  transition:color .2s ease;
+}
+.profile button:hover .profile-name,
+.profile button:focus-visible .profile-name{color:var(--ink)}
+.gate-note{margin-top:clamp(28px,5vw,56px);color:var(--ink-3);font-size:.82rem;line-height:1.6}
+.sound-toggle{
+  margin-top:18px;color:var(--ink-3);font-size:.8rem;
+  border:1px solid var(--line);border-radius:999px;padding:6px 15px;
+  transition:color .2s ease,border-color .2s ease;
+}
+.sound-toggle:hover{color:var(--ink);border-color:var(--ink-3)}
+
+/* --------------------------------------------------------- intro ident */
+.intro{
+  position:fixed;inset:0;z-index:1000;background:#000;
+  display:grid;place-items:center;
+  transition:opacity .6s ease;
+}
+.intro.is-out{opacity:0}
+.stage{position:relative;width:min(76vw,760px);height:clamp(70px,15vw,170px)}
+.ident{
+  position:absolute;inset:0;display:grid;place-items:center;
+  color:var(--red);font-weight:800;
+  font-size:clamp(2.1rem,8.2vw,6.2rem);letter-spacing:.16em;
+  text-shadow:0 0 46px rgba(229,9,20,.65);
+  opacity:0;transform:scale(.86);
+  animation:identIn .9s cubic-bezier(.16,1,.3,1) forwards .15s,
+            identPush .95s ease-in forwards 1.5s;
+}
+@keyframes identIn{to{opacity:1;transform:scale(1)}}
+@keyframes identPush{to{transform:scale(1.13);opacity:0}}
+.intro-skip{
+  position:absolute;right:clamp(14px,3vw,34px);bottom:clamp(14px,3vw,34px);
+  color:var(--ink-3);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid var(--line);border-radius:3px;padding:7px 14px;
+}
+.intro-skip:hover{color:var(--ink);border-color:var(--ink-3)}
+
+/* ---------------------------------------------------------------- shell */
+.shell{opacity:0;transition:opacity .6s ease}
+.shell.is-live{opacity:1}
+
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:400;
+  display:flex;align-items:center;gap:clamp(10px,2vw,26px);
+  padding:14px var(--pad);
+  background:linear-gradient(180deg,rgba(0,0,0,.85),rgba(0,0,0,0));
+  transition:background-color .3s ease;
+}
+.topbar.is-stuck{background:var(--bg)}
+.wordmark{
+  color:var(--red);font-weight:800;
+  font-size:clamp(1.05rem,2.6vw,1.75rem);
+  letter-spacing:.14em;line-height:1;white-space:nowrap;
+}
+.lockup{
+  color:var(--ink-3);font-size:clamp(.55rem,1.3vw,.7rem);
+  letter-spacing:.28em;text-transform:uppercase;
+  padding-left:clamp(8px,1.6vw,14px);
+  border-left:1px solid var(--line);white-space:nowrap;
+}
+.topbar-spacer{flex:1}
+.topbar-link{
+  color:var(--ink-2);font-size:clamp(.72rem,1.5vw,.85rem);
+  text-decoration:none;white-space:nowrap;
+}
+.topbar-link:hover{color:var(--ink)}
+
+/* ------------------------------------------------------------ billboard */
+.billboard{
+  position:relative;padding:clamp(110px,17vh,190px) var(--pad) clamp(30px,6vw,70px);
+  min-height:min(84vh,720px);display:flex;align-items:center;
+  /* swap this one URL to change the billboard artwork */
+  background-image:
+    linear-gradient(90deg,rgba(20,20,20,.97) 0%,rgba(20,20,20,.78) 42%,rgba(20,20,20,.34) 100%),
+    linear-gradient(180deg,rgba(20,20,20,.72) 0%,rgba(20,20,20,0) 32%),
+    url("img/billboard.jpg");
+  background-size:cover,cover,cover;
+  background-position:center,center,center 18%;
+  background-repeat:no-repeat;
+  background-color:var(--bg);
+}
+.billboard::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:36%;
+  background:linear-gradient(180deg,transparent,var(--bg));pointer-events:none;
+}
+.billboard-inner{position:relative;z-index:1;max-width:min(680px,100%)}
+.eyebrow{
+  display:flex;align-items:center;gap:9px;
+  color:var(--ink-2);font-size:clamp(.66rem,1.5vw,.8rem);
+  letter-spacing:.3em;text-transform:uppercase;margin-bottom:14px;
+}
+.eyebrow b{color:var(--red);font-size:1.25em;letter-spacing:0}
+.billboard h2{
+  margin:0 0 18px;font-size:clamp(1.9rem,6.4vw,4.1rem);
+  line-height:1.04;letter-spacing:-.02em;font-weight:800;
+}
+.facts{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+  margin-bottom:16px;font-size:clamp(.76rem,1.6vw,.92rem);color:var(--ink-2);
+}
+.score{color:#4bcc6a;font-weight:700}
+.pill{border:1px solid var(--ink-3);border-radius:3px;padding:1px 7px;font-size:.76em;color:var(--ink-2)}
+.synopsis{
+  margin:0 0 26px;font-size:clamp(.9rem,1.9vw,1.1rem);
+  line-height:1.55;color:var(--ink-2);text-shadow:0 1px 12px rgba(0,0,0,.7);
+}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px}
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:11px clamp(18px,3vw,30px);border-radius:4px;
+  font-size:clamp(.85rem,1.8vw,1.05rem);font-weight:700;
+  transition:opacity .18s ease,background-color .18s ease;
+  text-decoration:none;
+}
+.btn-play{background:var(--ink);color:#000}
+.btn-play:hover{opacity:.78}
+.btn-info{background:rgba(109,109,110,.7);color:var(--ink)}
+.btn-info:hover{background:rgba(109,109,110,.45)}
+
+/* ----------------------------------------------------------------- rows */
+.rows{position:relative;z-index:2;margin-top:calc(var(--row-gap) * -1);padding-bottom:40px}
+.row{margin-bottom:var(--row-gap)}
+.row h3{
+  margin:0 0 12px;padding:0 var(--pad);
+  font-size:clamp(1rem,2.3vw,1.4rem);font-weight:700;letter-spacing:-.01em;
+}
+.rail-wrap{position:relative}
+.rail{
+  display:flex;gap:9px;padding:22px var(--pad);margin:-22px 0;
+  overflow-x:auto;scroll-behavior:smooth;
+  scroll-snap-type:x proximity;
+  /* without this the first card snaps past the rail's own padding and clips */
+  scroll-padding-left:var(--pad);
+  scrollbar-width:none;
+}
+.rail::-webkit-scrollbar{display:none}
+.arrow{
+  position:absolute;top:0;bottom:0;width:clamp(34px,4vw,56px);z-index:5;
+  background:rgba(0,0,0,.55);color:var(--ink);font-size:1.5rem;
+  display:grid;place-items:center;opacity:0;transition:opacity .2s ease;
+}
+.rail-wrap:hover .arrow,.arrow:focus-visible{opacity:1}
+.arrow-prev{left:0}
+.arrow-next{right:0}
+
+.card{
+  position:relative;flex:0 0 auto;scroll-snap-align:start;
+  width:clamp(180px,23vw,268px);aspect-ratio:16/10;
+  border-radius:5px;overflow:hidden;text-align:left;
+  background:var(--bg-card) center 26%/cover no-repeat;
+  transition:transform .32s cubic-bezier(.16,1,.3,1),box-shadow .32s ease;
+}
+.card:hover,.card:focus-visible{
+  transform:scale(1.09);z-index:6;
+  box-shadow:0 14px 34px rgba(0,0,0,.7);
+}
+/* every card sits on artwork now, so the scrim is what keeps text readable */
+.card-art{
+  position:absolute;inset:0;padding:14px 15px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  background:linear-gradient(180deg,rgba(0,0,0,.76) 0%,rgba(0,0,0,.46) 44%,rgba(0,0,0,.94) 100%);
+  /* artwork underneath is busy, so every label needs its own lift */
+  text-shadow:0 1px 9px rgba(0,0,0,.95);
+}
+.card-stat{
+  display:block;
+  font-size:clamp(1.35rem,3.1vw,2.1rem);font-weight:800;line-height:1;
+  letter-spacing:-.02em;
+}
+.card-stat small{display:block;font-size:.38em;font-weight:600;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-2);margin-top:7px}
+.card-name{font-size:clamp(.8rem,1.7vw,.95rem);font-weight:700;line-height:1.25}
+.card-chapter{
+  display:block;
+  font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ink-2);margin-bottom:5px;
+}
+.card-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--red)}
+
+/* slate cards carry no stat, so the title sits alone at the foot */
+.card-poster{background-position:center 22%}
+.card-poster .card-art{
+  background:linear-gradient(180deg,rgba(0,0,0,.15) 0%,rgba(0,0,0,.35) 45%,rgba(0,0,0,.92) 100%);
+  justify-content:flex-end;
+}
+.card-poster .card-chapter{color:var(--ink-2);margin-bottom:3px}
+.card-poster .card-name{font-size:clamp(.85rem,1.8vw,1.05rem);text-shadow:0 2px 10px rgba(0,0,0,.9)}
+
+/* ---------------------------------------------------------------- modal */
+.scrim{
+  position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.8);
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:clamp(20px,6vh,70px) 16px;overflow-y:auto;
+  opacity:0;visibility:hidden;transition:opacity .28s ease,visibility .28s ease;
+}
+.scrim.is-open{opacity:1;visibility:visible}
+.sheet{
+  position:relative;width:min(880px,100%);
+  background:var(--bg-raise);border-radius:7px;overflow:hidden;
+  transform:scale(.96);transition:transform .28s cubic-bezier(.16,1,.3,1);
+  box-shadow:0 24px 70px rgba(0,0,0,.8);
+}
+.scrim.is-open .sheet{transform:scale(1)}
+/* 16:9 like a real title panel, so the artwork is actually visible rather
+   than cropped to a letterbox strip. Text sits over a bottom fade. */
+.sheet-hero{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  min-height:190px;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:clamp(22px,4vw,42px);
+  background:var(--bg-card) center/cover no-repeat;
+  border-bottom:1px solid var(--line);
+}
+/* NB: never pair aspect-ratio with max-height here - clamping the height
+   shrinks the width to keep the ratio, which leaves a gap beside the art.
+   Shorten the ratio on shallow viewports instead. */
+@media (max-height:820px){ .sheet-hero{aspect-ratio:2/1} }
+@media (max-height:640px){ .sheet-hero{aspect-ratio:5/2} }
+.sheet-hero::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,
+    rgba(20,20,20,.12) 0%,rgba(20,20,20,.42) 48%,rgba(20,20,20,.97) 100%);
+}
+.sheet-hero > *{position:relative}
+.sheet-hero h2{margin:8px 0 14px;font-size:clamp(1.3rem,3.6vw,2.2rem);line-height:1.12;letter-spacing:-.015em}
+.close{
+  position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;
+  background:var(--bg);display:grid;place-items:center;font-size:1.25rem;line-height:1;z-index:2;
+}
+.close:hover{background:#000}
+.sheet-body{padding:clamp(22px,4.5vw,40px);font-size:clamp(.88rem,1.7vw,1rem);line-height:1.68;color:var(--ink-2)}
+.sheet-body h4{
+  margin:26px 0 10px;color:var(--ink);font-size:.72rem;
+  letter-spacing:.2em;text-transform:uppercase;
+}
+.sheet-body h4:first-child{margin-top:0}
+.sheet-body p{margin:0 0 14px}
+.sheet-body ul{margin:0 0 16px;padding-left:20px}
+.sheet-body li{margin-bottom:9px}
+.sheet-body strong{color:var(--ink)}
+.sheet-foot{
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;
+  padding:16px clamp(22px,4.5vw,40px);border-top:1px solid var(--line);
+  font-size:.78rem;color:var(--ink-3);
+}
+.nextbtn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--red);color:#fff;font-weight:700;
+  padding:9px 18px;border-radius:4px;font-size:.85rem;
+}
+.nextbtn:hover{background:var(--red-dark)}
+
+/* --------------------------------------------------------------- tables */
+.tbl{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:.86em}
+.tbl caption{text-align:left;color:var(--ink-3);font-size:.85em;padding-bottom:8px}
+.tbl th,.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl thead th{color:var(--ink);font-weight:700;border-bottom-color:var(--ink-3)}
+.tbl tbody tr:hover{background:rgba(255,255,255,.03)}
+.hi{color:var(--ink);font-weight:700}
+.tbl-scroll{overflow-x:auto}
+
+/* ---------------------------------------------------------------- stats */
+.stats{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin:0 0 22px}
+.stat{background:var(--bg-card);border-radius:5px;padding:14px 16px;border-left:3px solid var(--red)}
+.stat b{display:block;font-size:clamp(1.15rem,3vw,1.6rem);color:var(--ink);line-height:1.1;letter-spacing:-.02em}
+.stat span{display:block;margin-top:5px;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.stat em{display:block;margin-top:6px;font-style:normal;font-size:.78rem;color:var(--ink-2)}
+
+/* ---------------------------------------------------------------- chart */
+.chart-head{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.chart-title{color:var(--ink);font-weight:700;font-size:.95em}
+.toggle{font-size:.76rem;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px}
+.toggle:hover{color:var(--ink)}
+.panels{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));margin:10px 0 6px}
+.panel-cap{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-bottom:2px}
+.panel-sub{font-size:.7rem;color:var(--ink-3);margin-bottom:6px}
+.panel svg{display:block;width:100%;height:auto;overflow:visible}
+.bar{fill:var(--red);transition:fill .15s ease}
+.bar:hover{fill:#ff2d38}
+.axis{stroke:var(--line);stroke-width:1}
+.tick{fill:var(--ink-3);font-size:9px}
+.val{fill:var(--ink);font-size:10px;font-weight:700}
+.chart-note{font-size:.76rem;color:var(--ink-3);margin:8px 0 0}
+
+/* --------------------------------------------------------------- footer */
+.foot{
+  border-top:1px solid var(--line);margin-top:20px;
+  padding:34px var(--pad) 56px;color:var(--ink-3);font-size:.78rem;line-height:1.7;
+}
+.foot a{color:var(--ink-2)}
+.foot p{margin:0 0 10px;max-width:75ch}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;transition-duration:.001ms !important}
+  .rail{scroll-behavior:auto}
+  .card:hover,.card:focus-visible{transform:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ gate -->
+<div class="gate" id="gate">
+  <div class="gate-inner">
+    <h1>Who&rsquo;s watching?</h1>
+    <ul class="profiles">
+      <li class="profile"><button type="button" data-enter>
+        <span class="avatar" style="background:linear-gradient(145deg,#e50914,#7f1418)">S</span>
+        <span class="profile-name">The Strategist</span></button></li>
+      <li class="profile"><button type="button" data-enter>
+        <span class="avatar" style="background:linear-gradient(145deg,#2d6cdf,#16305f)">O</span>
+        <span class="profile-name">The Operator</span></button></li>
+      <li class="profile"><button type="button" data-enter>
+        <span class="avatar" style="background:linear-gradient(145deg,#f0a500,#7a5300)">I</span>
+        <span class="profile-name">The Investor</span></button></li>
+      <li class="profile"><button type="button" data-enter>
+        <span class="avatar" style="background:linear-gradient(145deg,#3fa66a,#1b4a30)">F</span>
+        <span class="profile-name">The Fan</span></button></li>
+    </ul>
+    <p><button class="sound-toggle" type="button" id="soundBtn" aria-pressed="true"></button></p>
+    <p class="gate-note">An independent business-analysis case study by Joseph Nguyen.<br>Not affiliated with Netflix,&nbsp;Inc.</p>
+  </div>
+</div>
+
+<!-- =========================================================== intro -->
+<div class="intro" id="intro" hidden aria-hidden="true">
+  <div class="stage">
+    <div class="ident">NETFLIX</div>
+  </div>
+  <button class="intro-skip" type="button" id="introSkip">Skip</button>
+</div>
+
+<!-- =========================================================== shell -->
+<div class="shell" id="shell" aria-hidden="true">
+
+  <header class="topbar" id="topbar">
+    <span class="wordmark">NETFLIX</span>
+    <span class="lockup">Case&nbsp;Study</span>
+    <span class="topbar-spacer"></span>
+    <a class="topbar-link" href="../">&larr; Portfolio</a>
+  </header>
+
+  <section class="billboard">
+    <div class="billboard-inner">
+      <p class="eyebrow"><b>N</b> Case Study</p>
+      <h2>Anatomy of a<br>Subscription Business</h2>
+      <p class="facts">
+        <span class="score">98% Match</span>
+        <span>2026</span>
+        <span class="pill">FY2021&ndash;FY2024</span>
+        <span>9 Chapters</span>
+        <span class="pill">HD</span>
+      </p>
+      <p class="synopsis">
+        Netflix turned a maturing market into a margin story. This analysis walks the
+        whole business: competitive position, pricing ladder, regional revenue,
+        content operations, and the risks underneath it. All of it built from public reporting.
+      </p>
+      <div class="cta-row">
+        <button class="btn btn-play" type="button" id="play">&#9654;&nbsp; Play</button>
+        <button class="btn btn-info" type="button" data-open="brief">&#9432;&nbsp; More Info</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="rows" id="rows"></main>
+
+  <footer class="foot">
+    <p><strong style="color:var(--ink-2)">Independent case study by Joseph Nguyen.</strong>
+      This page is a portfolio exercise presented as an homage to the Netflix browse
+      interface. It is not affiliated with, authorised by, or endorsed by Netflix,&nbsp;Inc.
+      The Netflix name, marks and title artwork belong to their respective owners and are
+      used here for illustration in a non-commercial student case study.</p>
+    <p>Figures are drawn from Netflix&rsquo;s public reporting for FY2021&ndash;FY2024 and
+      publicly announced US pricing as of January 2025. Competitor subscriber counts are
+      approximate and taken from each company&rsquo;s own disclosures.</p>
+    <p><a href="../">Back to portfolio</a></p>
+  </footer>
+</div>
+
+<!-- =========================================================== modal -->
+<div class="scrim" id="scrim" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+  <div class="sheet" id="sheet">
+    <button class="close" type="button" id="close" aria-label="Close">&times;</button>
+    <div class="sheet-hero" id="sheetHero">
+      <p class="eyebrow" id="sheetChapter"></p>
+      <h2 id="sheetTitle"></h2>
+      <p class="facts" id="sheetFacts"></p>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+    <div class="sheet-foot">
+      <span id="sheetTags"></span>
+      <button class="nextbtn" type="button" id="next"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var reduced = window.matchMedia &&
+              window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* --------------------------------------------------------------- data */
+// Netflix reported revenue by region, FY2021-FY2024, US$ billions.
+var REGIONS = [
+  {name:"UCAN",  full:"US & Canada",       v:[12.97,14.08,14.90,17.36]},
+  {name:"EMEA",  full:"Europe, ME, Africa",v:[ 9.70, 9.75,10.59,12.31]},
+  {name:"LATAM", full:"Latin America",     v:[ 3.58, 4.06, 4.30, 4.84]},
+  {name:"APAC",  full:"Asia-Pacific",      v:[ 3.45, 3.73, 3.93, 4.49]}
+];
+var YEARS = ["FY21","FY22","FY23","FY24"];
+
+function money(n){ return "$" + n.toFixed(2) + "B"; }
+
+/* Small multiples on a SHARED scale: one panel per region, one hue.
+   Position carries identity, so no categorical palette is needed - a
+   4-step red ramp fails normal-vision separation (dE 9.0 < 15). */
+function renderChart(){
+  var max = 18, W = 150, H = 96, PAD_B = 18, PAD_T = 14;
+  var plotH = H - PAD_B - PAD_T;
+  var bw = 22, gap = 10;
+  var html = '<div class="panels">';
+
+  REGIONS.forEach(function(r){
+    var growth = ((r.v[3]/r.v[0]-1)*100).toFixed(0);
+    html += '<div class="panel">';
+    html += '<div class="panel-cap">'+r.name+'</div>';
+    html += '<div class="panel-sub">'+r.full+' &middot; +'+growth+'%</div>';
+    html += '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+r.full+
+            ' revenue rose from '+money(r.v[0])+' in FY2021 to '+money(r.v[3])+' in FY2024.">';
+    r.v.forEach(function(val,i){
+      var h = Math.max(2, val/max*plotH);
+      var x = i*(bw+gap)+4;
+      var y = PAD_T + plotH - h;
+      html += '<rect class="bar" x="'+x+'" y="'+y+'" width="'+bw+'" height="'+h+
+              '" rx="3"><title>'+r.full+' '+YEARS[i]+': '+money(val)+'</title></rect>';
+      if(i===3) html += '<text class="val" x="'+(x+bw/2)+'" y="'+(y-4)+'" text-anchor="middle">'+val.toFixed(1)+'</text>';
+      html += '<text class="tick" x="'+(x+bw/2)+'" y="'+(H-5)+'" text-anchor="middle">'+YEARS[i]+'</text>';
+    });
+    html += '<line class="axis" x1="0" y1="'+(PAD_T+plotH)+'" x2="'+W+'" y2="'+(PAD_T+plotH)+'"/>';
+    html += '</svg></div>';
+  });
+
+  html += '</div>';
+  html += '<p class="chart-note">Shared vertical scale across all four panels, so heights are directly comparable. Values in US$ billions.</p>';
+  return html;
+}
+
+function renderTable(){
+  var h = '<div class="tbl-scroll"><table class="tbl"><caption>Netflix revenue by region, US$ billions</caption><thead><tr><th>Region</th>';
+  YEARS.forEach(function(y){ h += '<th>'+y+'</th>'; });
+  h += '<th>Change</th></tr></thead><tbody>';
+  REGIONS.forEach(function(r){
+    h += '<tr><td>'+r.name+'</td>';
+    r.v.forEach(function(v){ h += '<td>'+v.toFixed(2)+'</td>'; });
+    h += '<td class="hi">+'+((r.v[3]/r.v[0]-1)*100).toFixed(0)+'%</td></tr>';
+  });
+  var tot = YEARS.map(function(_,i){
+    return REGIONS.reduce(function(s,r){ return s+r.v[i]; },0);
+  });
+  h += '<tr><td class="hi">Total</td>';
+  tot.forEach(function(t){ h += '<td class="hi">'+t.toFixed(2)+'</td>'; });
+  h += '<td class="hi">+'+((tot[3]/tot[0]-1)*100).toFixed(0)+'%</td></tr>';
+  return h + '</tbody></table></div>';
+}
+
+/* ----------------------------------------------------------- chapters */
+var SECTIONS = [
+/* --- Start Here ------------------------------------------------------ */
+{
+  id:"brief", row:"Start Here", chapter:"Chapter 1",
+  name:"The Brief", stat:"$39.0B", statLabel:"FY2024 revenue",
+  art:"img/stranger-things.jpg",
+  tags:"Overview &middot; Problem framing",
+  facts:['<span class="score">98% Match</span>','<span>Overview</span>','<span class="pill">5 min</span>'],
+  body:
+    '<h4>Client</h4><p>Netflix is a global subscription streaming platform, and one of the '+
+    'clearest examples of a SaaS-style recurring revenue business operating at consumer scale.</p>'+
+    '<h4>The problem</h4><ul>'+
+    '<li>Increasing competition from streaming platforms like Disney+, HBO Max, and Amazon Prime Video.</li>'+
+    '<li>High content production and licensing costs affecting profitability.</li>'+
+    '<li>Shifting consumer preferences toward short-form and interactive content.</li>'+
+    '</ul><h4>The proposed solution</h4><ul>'+
+    '<li>Invest in original, exclusive content to reduce dependency on third-party licensing.</li>'+
+    '<li>Personalise the user experience with advanced recommendations to improve retention.</li>'+
+    '<li>Explore ad-supported tiers and regional pricing to reach new subscribers.</li>'+
+    '</ul><p style="color:var(--ink-3);font-size:.86em">This framing is the original author&rsquo;s; '+
+    'the chapters that follow test it against the reported numbers.</p>'
+},
+{
+  id:"summary", row:"Start Here", chapter:"Chapter 2",
+  name:"Executive Summary", stat:"4", statLabel:"Findings",
+  art:"img/squid-game.jpg",
+  tags:"Overview &middot; Synthesis",
+  facts:['<span class="score">96% Match</span>','<span>Synthesis</span>','<span class="pill">3 min</span>'],
+  body:
+    '<h4>Market position</h4><p>Netflix leads a maturing streaming market, but growth now depends '+
+    'on pricing and advertising rather than subscriber adds.</p>'+
+    '<h4>Product &amp; pricing</h4><p>A four-tier ladder from ad-supported to 4K Premium lets one '+
+    'catalogue serve very different levels of willingness to pay.</p>'+
+    '<h4>Content economics</h4><p>Content is the core cost driver, and originals trade higher upfront '+
+    'risk for owned assets that keep earning long after release.</p>'+
+    '<h4>Risks &amp; outlook</h4><p>Competition, content inflation and paid-sharing saturation are the '+
+    'main threats to further margin expansion after FY2024.</p>'
+},
+{
+  id:"wednesday", row:"Start Here", chapter:"Netflix Original", kind:"title",
+  name:"Wednesday", art:"img/wednesday.jpg",
+  tags:"Original &middot; Owned IP",
+  facts:['<span class="score">93% Match</span>','<span>Original</span>','<span class="pill">Franchise</span>'],
+  body:
+    '<p>An original built on borrowed familiarity: an existing character, told new. It is a reminder that <strong>original</strong> need not mean unknown: the cheapest audience to acquire is one that already exists.</p>'
+},
+{
+  id:"queensgambit", row:"Start Here", chapter:"Netflix Original", kind:"title",
+  name:"The Queen&rsquo;s Gambit", art:"img/queens-gambit.jpg",
+  tags:"Original &middot; Limited series",
+  facts:['<span class="score">91% Match</span>','<span>Original</span>','<span class="pill">Limited</span>'],
+  body:
+    '<p>A limited series with no second season to fund. It shows a quieter part of the content strategy: a title can be finished, keep earning indefinitely, and never appear in a future cost line again.</p>'
+},
+{
+  id:"sandman", row:"Start Here", chapter:"Netflix Original", kind:"title",
+  name:"The Sandman", art:"img/the-sandman.jpg",
+  tags:"Original, adaptation",
+  facts:['<span class="score">92% Match</span>','<span>Netflix Original</span>','<span class="pill">Comics</span>'],
+  body:
+    '<p>A long-unfilmable comic finally adapted at streaming scale. It shows what the budget of a large service buys: the ability to attempt projects other buyers had passed on for decades.</p>'
+},
+{
+  id:"market", row:"Market Forces", chapter:"Chapter 3",
+  name:"Market Position", stat:"301.6M", statLabel:"Paid memberships",
+  art:"img/narcos.jpg",
+  tags:"Market &middot; Competition",
+  facts:['<span class="score">97% Match</span>','<span>Market</span>','<span class="pill">FY2024</span>'],
+  body:
+    '<div class="stats">'+
+      '<div class="stat"><b>$39.0B</b><span>FY2024 revenue</span><em>up 15.6% YoY</em></div>'+
+      '<div class="stat"><b>26.7%</b><span>Operating margin</span><em>up from 20.6%</em></div>'+
+      '<div class="stat"><b>301.6M</b><span>Paid memberships</span><em>end of FY2024</em></div>'+
+    '</div>'+
+    '<p>Streaming has shifted from a land grab for subscribers to a contest over engagement, '+
+    'pricing power and content efficiency.</p>'+
+    '<p>Netflix ended FY2024 with <strong>301.6M paid memberships</strong> and <strong>$39.0B</strong> '+
+    'of revenue, up 15.6% year over year, at a <strong>26.7% operating margin</strong>.</p>'+
+    '<p>Scale matters because content is largely a fixed cost that amortises across the member base. '+
+    'From Q1 2025 Netflix <strong>stopped disclosing quarterly membership counts</strong>, '+
+    'signalling that revenue and margin, not subscriber adds, are the metrics management wants to be judged on.</p>'
+},
+{
+  id:"footprint", row:"Market Forces", chapter:"Chapter 4",
+  name:"Global Footprint", stat:"190+", statLabel:"Countries",
+  art:"img/tribes-of-europa.jpg",
+  tags:"Market &middot; Geography",
+  facts:['<span class="score">94% Match</span>','<span>Geography</span>','<span class="pill">FY2024</span>'],
+  body:
+    '<p>Netflix streams in more than <strong>190 countries</strong>. In FY2024 UCAN produced '+
+    '<strong>$17.4B</strong> of revenue, EMEA <strong>$12.3B</strong>, LATAM <strong>$4.8B</strong> '+
+    'and APAC <strong>$4.5B</strong>.</p>'+
+    '<p>That means roughly <strong>55% of revenue now comes from outside the United States and '+
+    'Canada</strong>, which is both the growth story and a currency exposure.</p>'+
+    '<h4>Why it matters</h4><ul>'+
+    '<li>International markets carry lower average revenue per member, so growth in members does '+
+    'not translate one-for-one into revenue.</li>'+
+    '<li>A single content slate serves every market, which is what makes the geographic spread '+
+    'economically attractive in the first place.</li>'+
+    '<li>Mainland China remains unserved, and service in Russia was suspended in 2022.</li>'+
+    '</ul>'
+},
+
+/* --- Product & Pricing ----------------------------------------------- */
+{
+  id:"ozark", row:"Market Forces", chapter:"Netflix Original", kind:"title",
+  name:"Ozark", art:"img/ozark.jpg",
+  tags:"Original &middot; Retention",
+  facts:['<span class="score">92% Match</span>','<span>Original</span>','<span class="pill">Multi-season</span>'],
+  body:
+    '<p>A multi-season original that ran to a planned end. Long-running series are how a service turns a single sign-up into years of renewals, the thing every competitor is trying to build and few manage to sustain.</p>'
+},
+{
+  id:"elite", row:"Market Forces", chapter:"Netflix Original", kind:"title",
+  name:"Elite", art:"img/elite.jpg",
+  tags:"Original, Spain",
+  facts:['<span class="score">89% Match</span>','<span>Netflix Original</span>','<span class="pill">Spain</span>'],
+  body:
+    '<p>A Spanish original with a young international audience. Local-language production is how Netflix competes in markets where a purely American catalogue would not be enough.</p>'
+},
+{
+  id:"aliceborderland", row:"Market Forces", chapter:"Netflix Original", kind:"title",
+  name:"Alice in Borderland", art:"img/alice-in-borderland.jpg",
+  tags:"Original, Japan",
+  facts:['<span class="score">91% Match</span>','<span>Netflix Original</span>','<span class="pill">Japan</span>'],
+  body:
+    '<p>A Japanese original that charted worldwide. Titles like this are why the international share of revenue keeps climbing: the audience is global even when the production is not.</p>'
+},
+{
+  id:"pricing", row:"Product & Pricing", chapter:"Chapter 5",
+  name:"The Pricing Ladder", stat:"$7.99", statLabel:"Entry tier",
+  art:"img/old-guard.jpg",
+  tags:"Product &middot; Monetisation",
+  facts:['<span class="score">99% Match</span>','<span>Product</span>','<span class="pill">Jan 2025</span>'],
+  body:
+    '<p>US pricing after the January 2025 increase. The <strong>$7.99 ad tier is the strategic '+
+    'lever</strong>: it cuts the entry price 56% against Standard while opening an entirely '+
+    'second revenue line.</p>'+
+    '<div class="tbl-scroll"><table class="tbl"><caption>US plans, January 2025</caption><thead><tr>'+
+    '<th>Plan</th><th>Price</th><th>Resolution</th><th>Devices</th></tr></thead><tbody>'+
+    '<tr><td class="hi">With ads</td><td class="hi">$7.99</td><td>1080p</td><td>2</td></tr>'+
+    '<tr><td>Basic <span style="color:var(--ink-3)">(legacy)</span></td><td>$11.99</td><td>720p</td><td>1</td></tr>'+
+    '<tr><td>Standard</td><td>$17.99</td><td>1080p</td><td>2</td></tr>'+
+    '<tr><td>Premium</td><td>$24.99</td><td>4K HDR</td><td>4</td></tr>'+
+    '</tbody></table></div>'+
+    '<p>Basic is closed to new US sign-ups and appears here only because legacy members still sit on it.</p>'+
+    '<p>Premium carries the 4K and four-stream features that make it the natural landing place for '+
+    'households that used to share passwords. The paid-sharing change and the price ladder '+
+    'are the same strategy viewed from two ends.</p>'
+},
+{
+  id:"cadence", row:"Product & Pricing", chapter:"Chapter 6",
+  name:"Release Cadence", stat:"~1/wk", statLabel:"Tentpole rhythm",
+  art:"img/the-rain.jpg",
+  tags:"Operations &middot; Content",
+  facts:['<span class="score">91% Match</span>','<span>Operations</span>','<span class="pill">Q4 2021</span>'],
+  body:
+    '<p>A single quarter shows the operating pattern clearly. Netflix&rsquo;s Q4 2021 slate placed a '+
+    'tentpole roughly <strong>every week</strong>, clustered into November and December when '+
+    'competitive attention and gift-season sign-ups peak.</p>'+
+    '<div class="tbl-scroll"><table class="tbl"><caption>Q4 2021 tentpole releases</caption><thead><tr>'+
+    '<th>Date</th><th>Title</th></tr></thead><tbody>'+
+    '<tr><td>Nov 6</td><td>Arcane</td></tr>'+
+    '<tr><td>Nov 12</td><td>Red Notice</td></tr>'+
+    '<tr><td>Nov 19</td><td>Cowboy Bebop</td></tr>'+
+    '<tr><td>Dec 1</td><td>Lost in Space (S3)</td></tr>'+
+    '<tr><td>Dec 17</td><td>The Witcher (S2)</td></tr>'+
+    '<tr><td>Dec 31</td><td>Cobra Kai (S4)</td></tr>'+
+    '</tbody></table></div>'+
+    '<p>Staggering releases keeps weekly engagement <strong>level rather than spiky</strong>. '+
+    'A member who finds something to watch every week does not reach the cancel screen. '+
+    'Browse the slate itself in the row below.</p>'
+},
+
+/* --- The Q4 2021 Slate (real titles from the deck) -------------------- */
+{
+  id:"bridgerton", row:"Product & Pricing", chapter:"Netflix Original", kind:"title",
+  name:"Bridgerton", art:"img/bridgerton.jpg",
+  tags:"Original &middot; Universe",
+  facts:['<span class="score">90% Match</span>','<span>Original</span>','<span class="pill">Spin-offs</span>'],
+  body:
+    '<p>An original that became a universe, with spin-offs extending the same production investment. It belongs to the pricing conversation because franchise depth is what makes a subscription feel worth renewing at a higher price.</p>'
+},
+{
+  id:"onepiece", row:"Product & Pricing", chapter:"Netflix Original", kind:"title",
+  name:"One Piece", art:"img/one-piece.jpg",
+  tags:"Original, adaptation",
+  facts:['<span class="score">90% Match</span>','<span>Netflix Original</span>','<span class="pill">Live action</span>'],
+  body:
+    '<p>A live-action adaptation of an enormous existing manga readership. The audience arrives already assembled, which lowers the marketing cost of a launch considerably.</p>'
+},
+{
+  id:"lucifer", row:"Product & Pricing", chapter:"Netflix Original", kind:"title",
+  name:"Lucifer", art:"img/lucifer.jpg",
+  tags:"Rescued, then owned",
+  facts:['<span class="score">88% Match</span>','<span>Netflix Original</span>','<span class="pill">Revived</span>'],
+  body:
+    '<p>Cancelled by another network and revived by Netflix for three further seasons. A cheap way to acquire a proven audience: the expensive work of building it had already been done.</p>'
+},
+{
+  id:"arcane", row:"The Q4 2021 Slate", chapter:"6 Nov 2021", kind:"title",
+  name:"Arcane", art:"img/arcane.jpg",
+  tags:"Original series &middot; Animation",
+  facts:['<span class="score">99% Match</span>','<span>2021</span>','<span class="pill">Original</span>'],
+  body:
+    '<p>An animated series built from an existing game property, and the clearest example in the '+
+    'quarter of an <strong>owned original</strong> doing work a licensing deal could not.</p>'+
+    '<h4>Its role in the analysis</h4><ul>'+
+    '<li>Opened the quarter, setting the engagement floor the rest of the slate built on.</li>'+
+    '<li>Adapted an audience that already existed elsewhere: acquisition at low marketing cost.</li>'+
+    '<li>Critically acclaimed, which matters for the brand argument that Netflix originals are not '+
+    'merely volume.</li>'+
+    '</ul>'
+},
+{
+  id:"rednotice", row:"The Q4 2021 Slate", chapter:"12 Nov 2021", kind:"title",
+  name:"Red Notice", art:"img/red-notice.jpg",
+  tags:"Original film &middot; Star vehicle",
+  facts:['<span class="score">95% Match</span>','<span>2021</span>','<span class="pill">Film</span>'],
+  body:
+    '<p>A high-budget star vehicle released straight to the service: the strategy of buying '+
+    'attention outright rather than accumulating it.</p>'+
+    '<h4>Its role in the analysis</h4><ul>'+
+    '<li>Demonstrates the upper bound of content spend on a single title.</li>'+
+    '<li>Films deliver a sharp engagement spike but little residual weekly pull, which is exactly '+
+    'why they are spaced between serialised releases.</li>'+
+    '<li>The economics only work at Netflix&rsquo;s scale, where the cost spreads across the '+
+    'entire global base at once.</li>'+
+    '</ul>'
+},
+{
+  id:"bebop", row:"The Q4 2021 Slate", chapter:"19 Nov 2021", kind:"title",
+  name:"Cowboy Bebop", art:"img/cowboy-bebop.jpg",
+  tags:"Adaptation &middot; Cancelled",
+  facts:['<span class="score">78% Match</span>','<span>2021</span>','<span class="pill">One season</span>'],
+  body:
+    '<p>A live-action adaptation of a well-known animated property. It was cancelled after a single '+
+    'season, and it belongs in this analysis precisely because it did not work.</p>'+
+    '<h4>Its role in the analysis</h4><ul>'+
+    '<li>Originals carry real failure risk: the cost is committed long before any signal '+
+    'about demand arrives.</li>'+
+    '<li>Fast cancellation is the portfolio discipline that makes the risk survivable: stop funding '+
+    'what the engagement data does not support.</li>'+
+    '<li>A slate is a portfolio, not a set of independent bets. It is expected that some entries '+
+    'lose money.</li>'+
+    '</ul>'
+},
+{
+  id:"lostinspace", row:"The Q4 2021 Slate", chapter:"1 Dec 2021", kind:"title",
+  name:"Lost in Space", art:"img/lost-in-space.jpg",
+  tags:"Returning series &middot; Final season",
+  facts:['<span class="score">88% Match</span>','<span>2021</span>','<span class="pill">Season 3</span>'],
+  body:
+    '<p>A third and final season, a returning title with a known audience, released to open '+
+    'December.</p>'+
+    '<h4>Its role in the analysis</h4><ul>'+
+    '<li>Returning seasons are the cheapest reliable engagement available: the audience is already '+
+    'identified and needs no re-acquisition.</li>'+
+    '<li>Planned endings let a slate retire titles deliberately rather than letting them decay.</li>'+
+    '<li>This is the low-risk ballast that makes room for expensive bets elsewhere in the quarter.</li>'+
+    '</ul>'
+},
+{
+  id:"witcher", row:"The Q4 2021 Slate", chapter:"17 Dec 2021", kind:"title",
+  name:"The Witcher", art:"img/the-witcher.jpg",
+  tags:"Flagship &middot; Franchise",
+  facts:['<span class="score">97% Match</span>','<span>2021</span>','<span class="pill">Season 2</span>'],
+  body:
+    '<p>The quarter&rsquo;s flagship, positioned immediately before the holiday week when sign-ups '+
+    'and viewing both peak.</p>'+
+    '<h4>Its role in the analysis</h4><ul>'+
+    '<li>Franchise properties justify sustained investment because each season compounds the value '+
+    'of every previous one.</li>'+
+    '<li>Placement is deliberate: the strongest title lands where the acquisition opportunity is '+
+    'largest, not where the calendar happens to be empty.</li>'+
+    '<li>It anchors the argument that Netflix competes on owned franchises rather than catalogue breadth.</li>'+
+    '</ul>'
+},
+{
+  id:"cobrakai", row:"The Q4 2021 Slate", chapter:"31 Dec 2021", kind:"title",
+  name:"Cobra Kai", art:"img/cobra-kai.jpg",
+  tags:"Acquired &middot; Holiday close",
+  facts:['<span class="score">94% Match</span>','<span>2021</span>','<span class="pill">Season 4</span>'],
+  body:
+    '<p>Originally made for another service and acquired by Netflix, released on the final day of '+
+    'the year to hold members through the holiday window.</p>'+
+    '<h4>Its role in the analysis</h4><ul>'+
+    '<li>Shows the third content route: not made in-house, not merely licensed, but acquired '+
+    'outright and continued.</li>'+
+    '<li>Closing the quarter on a proven title protects the January renewal cycle, when cancellations '+
+    'concentrate.</li>'+
+    '<li>Evidence that the slate is engineered around billing behaviour, not only around taste.</li>'+
+    '</ul>'
+},
+
+/* --- The Numbers ----------------------------------------------------- */
+{
+  id:"revenue", row:"The Numbers", chapter:"Chapter 7",
+  name:"Revenue by Region", stat:"+31%", statLabel:"FY21 to FY24",
+  art:"img/money-heist-1.jpg",
+  tags:"Revenue &middot; Data",
+  facts:['<span class="score">99% Match</span>','<span>Revenue</span>','<span class="pill">FY21&ndash;FY24</span>'],
+  body:
+    '<div class="stats">'+
+      '<div class="stat"><b>$39.0B</b><span>FY2024 revenue</span><em>from $29.7B in FY2021</em></div>'+
+      '<div class="stat"><b>26.7%</b><span>Operating margin</span><em>up from 20.6% in FY2023</em></div>'+
+      '<div class="stat"><b>~55%</b><span>Outside UCAN</span><em>share of revenue</em></div>'+
+    '</div>'+
+    '<p>Revenue is diversifying away from the United States and Canada. UCAN is still the largest '+
+    'single region, but every region grew, and LATAM and APAC together now add about $9.3B.</p>'+
+    '<div class="chart-head"><span class="chart-title">Revenue by region, FY2021&ndash;FY2024</span>'+
+    '<button class="toggle" type="button" id="tblToggle" aria-expanded="false">Show as table</button></div>'+
+    '<div id="chartView">'+renderChart()+'</div>'+
+    '<div id="tableView" hidden>'+renderTable()+'</div>'
+},
+{
+  id:"dark", row:"The Numbers", chapter:"Netflix Original", kind:"title",
+  name:"Dark", art:"img/dark.jpg",
+  tags:"Original &middot; Non-English",
+  facts:['<span class="score">94% Match</span>','<span>Original</span>','<span class="pill">Germany</span>'],
+  body:
+    '<p>A German-language original that found its audience far outside Germany. It is the clearest single argument for the international revenue mix: produce locally, distribute globally, carry the cost once.</p>'
+},
+{
+  id:"moneyheist", row:"The Numbers", chapter:"Netflix Original", kind:"title",
+  name:"Money Heist", art:"img/money-heist-2.jpg",
+  tags:"Original, Spain",
+  facts:['<span class="score">95% Match</span>','<span>Netflix Original</span>','<span class="pill">Spain</span>'],
+  body:
+    '<p>The Spanish series that proved a non-English title could become a worldwide phenomenon. It reset what Netflix was willing to spend outside the United States.</p>'
+},
+{
+  id:"daredevil", row:"The Numbers", chapter:"Netflix Original", kind:"title",
+  name:"Daredevil", art:"img/daredevil.jpg",
+  tags:"Original, licensed IP",
+  facts:['<span class="score">87% Match</span>','<span>Netflix Original</span>','<span class="pill">Marvel</span>'],
+  body:
+    '<p>Made with licensed characters, which is why it eventually left. A reminder that borrowed IP can be withdrawn when the owner launches a competing service, and owned IP cannot.</p>'
+},
+{
+  id:"deadwind", row:"The Numbers", chapter:"On Netflix", kind:"title",
+  name:"Deadwind", art:"img/deadwind.jpg",
+  tags:"Acquired, distributed globally",
+  facts:['<span class="score">84% Match</span>','<span>On Netflix</span>','<span class="pill">Finland</span>'],
+  body:
+    '<p>A Finnish crime drama Netflix picked up for worldwide distribution. Acquiring finished local content is the cheapest way to fill a catalogue in a market it does not yet produce in.</p>'
+},
+{
+  id:"risks", row:"Risks & Recommendations", chapter:"Chapter 8",
+  name:"Risks", stat:"3", statLabel:"Risk classes",
+  art:"img/breaking-bad-lab.jpg",
+  tags:"Risk &middot; Outlook",
+  facts:['<span class="score">93% Match</span>','<span>Risk</span>','<span class="pill">Forward view</span>'],
+  body:
+    '<h4>Competitive</h4><ul>'+
+    '<li>Disney+, Max, Prime Video and YouTube all compete for the same living-room hours.</li>'+
+    '<li>YouTube and short-form video are the underrated threat: they compete on attention, '+
+    'not catalogue.</li>'+
+    '</ul><h4>Financial</h4><ul>'+
+    '<li>Content spend is largely committed years ahead and hard to cut without weakening the slate.</li>'+
+    '<li>Further price rises carry churn risk once paid-sharing gains are absorbed.</li>'+
+    '<li>Currency moves hit the ~55% of revenue earned outside UCAN.</li>'+
+    '</ul><h4>Structural</h4><ul>'+
+    '<li>Advertising is still small next to subscription revenue and depends on a soft ad market.</li>'+
+    '<li>Ending quarterly membership disclosure reduces outside visibility into growth: '+
+    'good for management, harder for analysts.</li>'+
+    '</ul>'
+},
+{
+  id:"recs", row:"Risks & Recommendations", chapter:"Chapter 9",
+  name:"Recommendations", stat:"ARPU", statLabel:"The metric that matters",
+  art:"img/breaking-bad-smoke.jpg",
+  tags:"Strategy &middot; Actions",
+  facts:['<span class="score">95% Match</span>','<span>Strategy</span>','<span class="pill">Actionable</span>'],
+  body:
+    '<h4>Priority</h4><p><strong>Grow revenue per member, not member count.</strong> The end of '+
+    'quarterly membership disclosure already concedes this; the operating plan should follow it.</p>'+
+    '<h4>Actions</h4><ul>'+
+    '<li>Push ad-tier reach and fill rate: it is the only new revenue line already at scale.</li>'+
+    '<li>Time price increases to markets where engagement per member is already rising.</li>'+
+    '<li>Use live events to create appointment viewing the catalogue cannot replicate.</li>'+
+    '</ul><h4>Measure by</h4><ul>'+
+    '<li>Revenue per membership by region, tracked against FY2024 baselines.</li>'+
+    '<li>Operating margin, targeting expansion beyond FY2024&rsquo;s 26.7%.</li>'+
+    '<li>Retention of ad-tier members through their first price change.</li>'+
+    '</ul>'
+},
+{
+  id:"edgerunners", row:"Risks & Recommendations", chapter:"Netflix Original", kind:"title",
+  name:"Cyberpunk: Edgerunners", art:"img/edgerunners.jpg",
+  tags:"Original &middot; Category bet",
+  facts:['<span class="score">92% Match</span>','<span>Original</span>','<span class="pill">Anime</span>'],
+  body:
+    '<p>A Netflix original anime, made with a Japanese studio and set inside an existing game world. It stands for the category bet: anime travels across borders better than almost any other format, and reaches a younger audience that arrives through fandom rather than marketing spend.</p>'+
+    '<p>It also cuts against the idea that content value stops at the platform edge: the series measurably revived interest in the game it was based on, which is the kind of return a licensing deal could never have captured.</p>'
+},
+{
+  id:"umbrella", row:"Risks & Recommendations", chapter:"Netflix Original", kind:"title",
+  name:"The Umbrella Academy", art:"img/umbrella-academy.jpg",
+  tags:"Original &middot; Portfolio bet",
+  facts:['<span class="score">88% Match</span>','<span>Original</span>','<span class="pill">Adaptation</span>'],
+  body:
+    '<p>Another comics adaptation, another multi-season run. The counterweight to Cowboy Bebop: the same kind of bet, placed repeatedly, is what turns individual content risk into a survivable portfolio.</p>'
+},
+{
+  id:"irregulars", row:"Risks & Recommendations", chapter:"Netflix Original", kind:"title",
+  name:"The Irregulars", art:"img/irregulars.jpg",
+  tags:"Original, cancelled",
+  facts:['<span class="score">80% Match</span>','<span>Netflix Original</span>','<span class="pill">One season</span>'],
+  body:
+    '<p>Cancelled after a single season. Alongside Cowboy Bebop it is the honest half of the originals strategy: the slate is a portfolio, and some of it is written off.</p>'
+},
+{
+  id:"build", row:"More Like This", chapter:"Colophon",
+  name:"About This Build", stat:"0", statLabel:"Dependencies",
+  art:"img/breaking-bad-car.jpg",
+  tags:"Build notes &middot; Front end",
+  facts:['<span class="score">100% Match</span>','<span>Colophon</span>','<span class="pill">Nerdy</span>'],
+  body:
+    '<p>This page is a single hand-written HTML file. No framework, no build step, no libraries, '+
+    'no external requests. It works offline and loads in one round trip.</p>'+
+    '<h4>Notable decisions</h4><ul>'+
+    '<li>The revenue chart is <strong>inline SVG small multiples</strong>, not a stacked bar. A '+
+    'four-step Netflix-red ramp fails colour-vision separation testing: <code>#E50914</code> '+
+    'and <code>#B81D24</code> differ by only &Delta;E&nbsp;9 for normal vision, against a floor of 15. '+
+    'Using one red and letting position carry region identity keeps the palette on-brand and still readable.</li>'+
+    '<li>A table view of the same data sits behind a toggle, so nothing depends on colour alone.</li>'+
+    '<li>The modal traps focus, closes on Escape, and the whole page honours '+
+    '<code>prefers-reduced-motion</code>, which also skips the intro animation.</li>'+
+    '<li>The intro sound is synthesised with the Web Audio API rather than shipped as a file, and '+
+    'can be turned off before you enter.</li>'+
+    '</ul>'+
+    '<h4>Where the artwork came from</h4>'+
+    '<p>The six title images were extracted programmatically from the original PowerPoint with '+
+    '<code>python-pptx</code>, matched to their release labels by position on the slide, then '+
+    'resized and recompressed. All six together come to under 170&nbsp;KB.</p>'
+},
+{
+  id:"blackmirror", row:"More Like This", chapter:"Netflix Original", kind:"title",
+  name:"Black Mirror", art:"img/black-mirror.jpg",
+  tags:"Original &middot; Acquired then owned",
+  facts:['<span class="score">91% Match</span>','<span>Original</span>','<span class="pill">Anthology</span>'],
+  body:
+    '<p>A British series Netflix picked up and then produced itself. It marks the shift from buying finished shows to commissioning them, the exact move this analysis argues is the foundation of the cost structure.</p>'+
+    '<p>Its anthology format is quietly efficient too: no returning cast to re-sign, no continuity to maintain, and every episode is a fresh entry point for a new member.</p>'
+},
+{
+  id:"lupin", row:"More Like This", chapter:"Netflix Original", kind:"title",
+  name:"Lupin", art:"img/lupin.jpg",
+  tags:"Original &middot; Local production",
+  facts:['<span class="score">90% Match</span>','<span>Original</span>','<span class="pill">France</span>'],
+  body:
+    '<p>A French original that became a global hit. Alongside <strong>Dark</strong> and <strong>Money Heist</strong>, it is the pattern behind the international revenue mix: commission in one market, distribute in all of them, carry the production cost once.</p>'
+},
+{
+  id:"thecrown", row:"More Like This", chapter:"Netflix Original", kind:"title",
+  name:"The Crown", art:"img/the-crown.jpg",
+  tags:"Original &middot; Prestige",
+  facts:['<span class="score">90% Match</span>','<span>Original</span>','<span class="pill">Prestige</span>'],
+  body:
+    '<p>A prestige original at the top of the cost range. Awards and reputation are not directly monetisable, but they are what let a service raise prices without members feeling they have been downgraded.</p>'
+},
+];
+
+/* ---------------------------------------------------------------- rows */
+var ROW_ORDER = ["Start Here","Market Forces","Product & Pricing",
+                 "The Q4 2021 Slate","The Numbers","Risks & Recommendations","More Like This"];
+var rowsEl = document.getElementById("rows");
+
+function cardHTML(s){
+  if(s.kind === "title"){
+    return '<button class="card card-poster" type="button" data-open="'+s.id+'" '+
+             'style="background-image:url('+s.art+')">'+
+             '<span class="card-art">'+
+               '<span><span class="card-chapter">'+s.chapter+'</span>'+
+               '<span class="card-name">'+s.name+'</span></span>'+
+             '</span>'+
+             '<span class="card-bar"></span></button>';
+  }
+  return '<button class="card" type="button" data-open="'+s.id+'" '+
+           'style="background-image:url('+s.art+')">'+
+           '<span class="card-art">'+
+             '<span><span class="card-chapter">'+s.chapter+'</span>'+
+             '<span class="card-stat">'+s.stat+'<small>'+s.statLabel+'</small></span></span>'+
+             '<span class="card-name">'+s.name+'</span>'+
+           '</span>'+
+           '<span class="card-bar"></span></button>';
+}
+
+ROW_ORDER.forEach(function(rowName){
+  var items = SECTIONS.filter(function(s){ return s.row === rowName; });
+  var sec = document.createElement("section");
+  sec.className = "row";
+
+  var h = '<h3>'+rowName+'</h3><div class="rail-wrap">'+
+          '<button class="arrow arrow-prev" type="button" aria-label="Scroll left" hidden>&#8249;</button>'+
+          '<div class="rail">';
+  items.forEach(function(s){ h += cardHTML(s); });
+
+  if(rowName === "More Like This"){
+    h += '<a class="card" href="../" '+
+         'style="background-image:url(img/breaking-bad-couch.jpg);text-decoration:none">'+
+           '<span class="card-art"><span><span class="card-chapter">Portfolio</span>'+
+           '<span class="card-stat">&larr;<small>go back</small></span></span>'+
+           '<span class="card-name">Joseph Nguyen</span></span>'+
+           '<span class="card-bar"></span></a>';
+  }
+
+  h += '</div><button class="arrow arrow-next" type="button" aria-label="Scroll right" hidden>&#8250;</button></div>';
+  sec.innerHTML = h;
+  rowsEl.appendChild(sec);
+});
+
+/* rail arrows */
+Array.prototype.forEach.call(document.querySelectorAll(".rail-wrap"), function(wrap){
+  var rail = wrap.querySelector(".rail");
+  var prev = wrap.querySelector(".arrow-prev");
+  var next = wrap.querySelector(".arrow-next");
+  function sync(){
+    var over = rail.scrollWidth - rail.clientWidth;
+    prev.hidden = rail.scrollLeft < 12;
+    next.hidden = over < 12 || rail.scrollLeft > over - 12;
+  }
+  prev.addEventListener("click", function(){ rail.scrollBy({left:-rail.clientWidth*0.85, behavior:"smooth"}); });
+  next.addEventListener("click", function(){ rail.scrollBy({left: rail.clientWidth*0.85, behavior:"smooth"}); });
+  rail.addEventListener("scroll", sync, {passive:true});
+  window.addEventListener("resize", sync);
+  sync();
+});
+
+/* --------------------------------------------------------------- modal */
+var scrim = document.getElementById("scrim");
+var sheet = document.getElementById("sheet");
+var hero  = document.getElementById("sheetHero");
+var current = -1;
+var lastFocus = null;
+
+function byId(id){
+  for(var i=0;i<SECTIONS.length;i++){ if(SECTIONS[i].id===id) return i; }
+  return -1;
+}
+
+function wireTableToggle(){
+  var btn = document.getElementById("tblToggle");
+  if(!btn) return;
+  btn.addEventListener("click", function(){
+    var chart = document.getElementById("chartView");
+    var table = document.getElementById("tableView");
+    var showTable = chart.hidden === false;
+    chart.hidden = showTable;
+    table.hidden = !showTable;
+    btn.textContent = showTable ? "Show as chart" : "Show as table";
+    btn.setAttribute("aria-expanded", showTable ? "true" : "false");
+  });
+}
+
+function openAt(i){
+  if(i < 0 || i >= SECTIONS.length) return;
+  var s = SECTIONS[i];
+  current = i;
+
+  document.getElementById("sheetChapter").innerHTML = s.chapter;
+  document.getElementById("sheetTitle").innerHTML = s.name;
+  document.getElementById("sheetFacts").innerHTML = s.facts.join("");
+  document.getElementById("sheetBody").innerHTML = s.body;
+  document.getElementById("sheetTags").innerHTML = s.tags;
+
+  // heroes use the larger copies in img/hero/, fetched only when opened
+  hero.style.backgroundImage = "url(" + s.art.replace("img/", "img/hero/") + ")";
+
+  var nextBtn = document.getElementById("next");
+  nextBtn.innerHTML = (i === SECTIONS.length - 1)
+    ? "Back to start &#9664;"
+    : "Next: " + SECTIONS[i+1].name + " &#9654;";
+
+  wireTableToggle();
+
+  if(scrim.hidden){
+    lastFocus = document.activeElement;
+    scrim.hidden = false;
+    requestAnimationFrame(function(){ scrim.classList.add("is-open"); });
+    document.body.classList.add("is-locked");
+  }
+  sheet.scrollTop = 0;
+  scrim.scrollTop = 0;
+  document.getElementById("close").focus();
+}
+
+function closeSheet(){
+  scrim.classList.remove("is-open");
+  document.body.classList.remove("is-locked");
+  window.setTimeout(function(){ scrim.hidden = true; }, 280);
+  if(lastFocus && lastFocus.focus) lastFocus.focus();
+  current = -1;
+}
+
+document.addEventListener("click", function(e){
+  var opener = e.target.closest ? e.target.closest("[data-open]") : null;
+  if(opener){ e.preventDefault(); openAt(byId(opener.getAttribute("data-open"))); }
+});
+
+document.getElementById("close").addEventListener("click", closeSheet);
+scrim.addEventListener("click", function(e){ if(e.target === scrim) closeSheet(); });
+document.getElementById("next").addEventListener("click", function(){
+  openAt(current >= SECTIONS.length - 1 ? 0 : current + 1);
+});
+document.getElementById("play").addEventListener("click", function(){ openAt(0); });
+
+document.addEventListener("keydown", function(e){
+  if(scrim.hidden) return;
+  if(e.key === "Escape"){ closeSheet(); return; }
+  if(e.key === "Tab"){
+    var f = sheet.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
+    if(!f.length) return;
+    var first = f[0], last = f[f.length-1];
+    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  }
+});
+
+/* ---------------------------------------------------------------- sound */
+var soundOn = true;
+try{
+  var stored = window.localStorage.getItem("ncs-sound");
+  if(stored !== null) soundOn = stored === "1";
+}catch(e){}
+
+var soundBtn = document.getElementById("soundBtn");
+function paintSound(){
+  soundBtn.innerHTML = soundOn ? "&#128266;&nbsp; Sound on" : "&#128263;&nbsp; Sound off";
+  soundBtn.setAttribute("aria-pressed", soundOn ? "true" : "false");
+}
+paintSound();
+soundBtn.addEventListener("click", function(){
+  soundOn = !soundOn;
+  try{ window.localStorage.setItem("ncs-sound", soundOn ? "1" : "0"); }catch(e){}
+  paintSound();
+});
+
+/* The ta-dum, synthesised - no audio file, and the click that triggers it
+   is a user gesture, so autoplay policy allows it. */
+function taDum(){
+  try{
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if(!Ctx) return;
+    var ac = new Ctx();
+    function hit(freq, at, dur, peak, type){
+      var o = ac.createOscillator(), g = ac.createGain();
+      o.type = type || "sine";
+      o.frequency.setValueAtTime(freq, ac.currentTime + at);
+      o.connect(g); g.connect(ac.destination);
+      var t0 = ac.currentTime + at;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + 0.014);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.start(t0); o.stop(t0 + dur + 0.06);
+    }
+    // "ta" - lands as the wordmark resolves
+    hit(146.83, 0.30, 0.30, 0.20);
+    hit(293.66, 0.30, 0.22, 0.075);
+    // "dum"
+    hit(110.00, 0.56, 0.85, 0.24);
+    hit(220.00, 0.56, 0.62, 0.10);
+    hit( 55.00, 0.56, 0.90, 0.16, "triangle");
+  }catch(e){}
+}
+
+/* ---------------------------------------------------------- intro ident */
+var intro = document.getElementById("intro");
+
+function playIntro(done){
+  if(reduced){ done(); return; }
+  intro.hidden = false;
+  intro.setAttribute("aria-hidden","false");
+  if(soundOn) taDum();
+
+  var timer = window.setTimeout(finish, 2450);
+  var fired = false;
+  function finish(){
+    if(fired) return;
+    fired = true;
+    window.clearTimeout(timer);
+    intro.classList.add("is-out");
+    window.setTimeout(function(){
+      intro.hidden = true;
+      intro.setAttribute("aria-hidden","true");
+      intro.classList.remove("is-out");
+      done();
+    }, 600);
+  }
+  document.getElementById("introSkip").onclick = finish;
+}
+
+/* ----------------------------------------------------------------- gate */
+var gate = document.getElementById("gate");
+var shell = document.getElementById("shell");
+
+function revealShell(){
+  shell.classList.add("is-live");
+  shell.setAttribute("aria-hidden","false");
+  gate.style.display = "none";
+}
+
+Array.prototype.forEach.call(document.querySelectorAll("[data-enter]"), function(b){
+  b.addEventListener("click", function(){
+    gate.classList.add("is-gone");
+    gate.setAttribute("aria-hidden","true");
+    window.setTimeout(function(){ playIntro(revealShell); }, 260);
+  });
+});
+
+/* topbar background once scrolled */
+var topbar = document.getElementById("topbar");
+window.addEventListener("scroll", function(){
+  topbar.classList.toggle("is-stuck", window.scrollY > 60);
+}, {passive:true});
+
+})();
+</script>
+</body>
+</html>

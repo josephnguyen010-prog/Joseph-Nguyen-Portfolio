@@ -1,5 +1,4 @@
 import React from "react";
-import mock01 from '../assets/images/mock01.png';
 import mock02 from '../assets/images/mock02.png';
 import mock03 from '../assets/images/mock03.png';
 import mock04 from '../assets/images/mock04.png';
@@ -9,8 +8,15 @@ import mock07 from '../assets/images/mock07.png';
 import mock08 from '../assets/images/mock08.png';
 import mock09 from '../assets/images/mock09.png';
 import mock10 from '../assets/images/mock10.png';
+// JPEG rather than PNG: it is a photographic screenshot, so PNG cost 1.7MB
+// against 215KB here for no visible difference.
+import netflixCaseStudy from '../assets/images/netflix-case-study.jpg';
 import Reveal from './Reveal';
 import '../assets/styles/Project.scss';
+
+// Served from public/, so it needs PUBLIC_URL to stay correct under the
+// GitHub Pages sub-path - same reason as the resume link in Navigation.
+const caseStudyUrl = `${process.env.PUBLIC_URL}/netflix-case-study/`;
 
 interface ProjectItem {
     image: string;
@@ -25,6 +31,12 @@ interface ProjectItem {
  * come from this one array, so nothing else needs touching.
  */
 const projects: ProjectItem[] = [
+    {
+        image: netflixCaseStudy,
+        title: "SaaS Subscription Business Analysis",
+        href: caseStudyUrl,
+        description: "An end-to-end business analysis of Netflix, built as an interactive browse interface instead of a slide deck: pick a profile, then open each chapter for the market position, pricing ladder, regional revenue, content operations, risks, and recommendations. Built from public FY2021-FY2024 reporting.",
+    },
     {
         image: mock10,
         title: "Filmate AI",
@@ -78,12 +90,6 @@ const projects: ProjectItem[] = [
         title: "Transfer Evaluation Matrix",
         href: "https://hookele.byuh.edu/transfer-evaluation-guidelines-and-matrix",
         description: "Created an interactive CSV table generator with Java, Handlebars, and LESS. This project helps transfer students to quickly identify eligible credits.",
-    },
-    {
-        image: mock01,
-        title: "Submeowrine",
-        href: "https://github.com/yujisatojr/submeowrine",
-        description: "Developed and released an Android mobile application using Java and Android Studio that runs a 2D shooting game.",
     },
 ];
 
