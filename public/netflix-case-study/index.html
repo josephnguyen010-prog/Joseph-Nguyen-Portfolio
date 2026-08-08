@@ -1104,6 +1104,7 @@ var scrim = document.getElementById("scrim");
 var sheet = document.getElementById("sheet");
 var hero  = document.getElementById("sheetHero");
 var current = -1;
+var FINISH = -2;            // sentinel: the run is over, close the panel
 var nextTarget = -1;
 var lastFocus = null;
 
@@ -1126,45 +1127,6 @@ function wireTableToggle(){
   });
 }
 
-/* The artwork fills the top of the panel, so the analysis starts below the
-   fold. Once a chapter opens, ease down to the text on the reader's behalf.
-   Any input at all cancels it, so it never fights someone who is already
-   scrolling. */
-var autoTimer = 0, autoRaf = 0;
-
-function cancelAuto(){
-  if(autoTimer){ window.clearTimeout(autoTimer); autoTimer = 0; }
-  if(autoRaf){ window.cancelAnimationFrame(autoRaf); autoRaf = 0; }
-}
-
-function revealBody(){
-  cancelAuto();
-  autoTimer = window.setTimeout(function(){
-    autoTimer = 0;
-    var body = document.getElementById("sheetBody");
-    if(!body) return;
-
-    var from = scrim.scrollTop;
-    var top = body.getBoundingClientRect().top -
-              scrim.getBoundingClientRect().top + from;
-    var max = Math.max(0, scrim.scrollHeight - scrim.clientHeight);
-    var to = Math.min(Math.max(0, top - 76), max);
-    if(to - from < 24) return;          // already visible, leave it alone
-    if(reduced){ scrim.scrollTop = to; return; }
-
-    var start = 0, dur = 950;
-    function step(ts){
-      if(!start) start = ts;
-      var k = Math.min(1, (ts - start) / dur);
-      // easeInOutCubic, so it starts and lands gently
-      var e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-      scrim.scrollTop = from + (to - from) * e;
-      autoRaf = k < 1 ? window.requestAnimationFrame(step) : 0;
-    }
-    autoRaf = window.requestAnimationFrame(step);
-  }, 850);
-}
-
 function openAt(i){
   if(i < 0 || i >= SECTIONS.length) return;
   var s = SECTIONS[i];
@@ -1183,17 +1145,19 @@ function openAt(i){
 
   // Next walks the chapters only. On a show card there is no sequence to
   // continue, so the button is hidden rather than jumping somewhere random.
+  // The last chapter ends the run instead of looping back to the first.
   var nextBtn = document.getElementById("next");
   if(ch === -1){
     nextBtn.hidden = true;
     nextTarget = -1;
-  }else{
-    var wrap = (ch + 1) % CHAPTERS.length;
+  }else if(ch === CHAPTERS.length - 1){
     nextBtn.hidden = false;
-    nextBtn.innerHTML = (ch === CHAPTERS.length - 1)
-      ? "Back to start &#9664;"
-      : "Next: " + CHAPTERS[wrap].name + " &#9654;";
-    nextTarget = SECTIONS.indexOf(CHAPTERS[wrap]);
+    nextBtn.innerHTML = "Finish &#10003;";
+    nextTarget = FINISH;
+  }else{
+    nextBtn.hidden = false;
+    nextBtn.innerHTML = "Next: " + CHAPTERS[ch + 1].name + " &#9654;";
+    nextTarget = SECTIONS.indexOf(CHAPTERS[ch + 1]);
   }
 
   wireTableToggle();
@@ -1206,17 +1170,11 @@ function openAt(i){
   }
   sheet.scrollTop = 0;
   scrim.scrollTop = 0;
-  revealBody();
   document.getElementById("close").focus();
 }
 
-// any sign the reader is driving stops the assisted scroll immediately
-["wheel", "touchstart", "keydown", "mousedown"].forEach(function(ev){
-  scrim.addEventListener(ev, cancelAuto, {passive: true});
-});
-
 function closeSheet(){
-  cancelAuto();
+  if(scrim.hidden) return;   // the panel stays clickable through the fade
   scrim.classList.remove("is-open");
   document.body.classList.remove("is-locked");
   window.setTimeout(function(){ scrim.hidden = true; }, 280);
@@ -1232,7 +1190,8 @@ document.addEventListener("click", function(e){
 document.getElementById("close").addEventListener("click", closeSheet);
 scrim.addEventListener("click", function(e){ if(e.target === scrim) closeSheet(); });
 document.getElementById("next").addEventListener("click", function(){
-  if(nextTarget !== -1) openAt(nextTarget);
+  if(nextTarget === FINISH) closeSheet();
+  else if(nextTarget !== -1) openAt(nextTarget);
 });
 // Play starts the analysis, not the catalogue
 document.getElementById("play").addEventListener("click", function(){
