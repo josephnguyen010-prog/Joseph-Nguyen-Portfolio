@@ -11,6 +11,8 @@ import mock10 from '../assets/images/mock10.png';
 // JPEG rather than PNG: it is a photographic screenshot, so PNG cost 1.7MB
 // against 215KB here for no visible difference.
 import netflixCaseStudy from '../assets/images/netflix-case-study.jpg';
+// Same reasoning - the device mockup is 878KB as a PNG, 186KB here.
+import venus from '../assets/images/venus.jpg';
 import Reveal from './Reveal';
 import '../assets/styles/Project.scss';
 
@@ -31,6 +33,12 @@ interface ProjectItem {
  * come from this one array, so nothing else needs touching.
  */
 const projects: ProjectItem[] = [
+    {
+        image: venus,
+        title: "Venus: Blind Dating, Gamified",
+        href: "https://joinvenusapp.com",
+        description: "An iOS blind dating app for college students, built and shipped end to end. You get matched anonymously on Monday, trade daily doodles and personality clues through the week, then use a proximity finder on Friday night to find each other at a surprise venue - both check in before anyone sees a face. React, Supabase, and Capacitor, with the Claude API scoring compatibility and writing the clues.",
+    },
     {
         image: netflixCaseStudy,
         title: "SaaS Subscription Business Analysis",
