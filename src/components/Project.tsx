@@ -4,12 +4,16 @@ import React from "react";
 import netflixCaseStudy from '../assets/images/netflix-case-study.jpg';
 // Same reasoning - the device mockup is 878KB as a PNG, 186KB here.
 import venus from '../assets/images/venus.jpg';
+// Same again - a screenshot of the app itself.
+import postmark from '../assets/images/postmark.jpg';
 import Reveal from './Reveal';
 import '../assets/styles/Project.scss';
 
 // Served from public/, so it needs PUBLIC_URL to stay correct under the
 // GitHub Pages sub-path - same reason as the resume link in Navigation.
 const caseStudyUrl = `${process.env.PUBLIC_URL}/netflix-case-study/`;
+// Postmark routes on the hash, so it survives a refresh under this sub-path.
+const postmarkUrl = `${process.env.PUBLIC_URL}/postmark/`;
 
 interface ProjectItem {
     image: string;
@@ -26,6 +30,12 @@ const projects: ProjectItem[] = [
         title: "Venus: Blind Dating - Gamified",
         href: "https://joinvenusapp.com",
         description: "An iOS blind dating app for college students, built and shipped end to end. You get matched anonymously on Monday, trade daily doodles and personality clues through the week, then use a proximity finder on Friday night to find each other at a surprise venue - both check in before anyone sees a face. React, Supabase, and Capacitor, with the Claude API scoring compatibility and writing the clues. Live on the App Store - the link here opens an interactive demo you can walk through in a browser, no signup.",
+    },
+    {
+        image: postmark,
+        title: "Postmark: Letterboxd for Cities",
+        href: postmarkUrl,
+        description: "A place to log the cities you have been to, rate them out of five, and keep a ranking that is built rather than guessed. Give a city the same rating as one you have already logged and it asks which of the two you preferred, then places it by binary search - so an eight-city band costs three questions, not eight. You rate the city but log the trip, because cities get visited a few times a year rather than a hundred, and the Passport screen shows every visit in order. React, TypeScript and Vite, with the ranking logic kept as pure functions under test. The link opens the working app - your log saves to your own browser.",
     },
     {
         image: netflixCaseStudy,
