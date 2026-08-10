@@ -1244,6 +1244,11 @@ function taDum(){
     var Ctx = window.AudioContext || window.webkitAudioContext;
     if(!Ctx) return;
     var ac = new Ctx();
+    // A context created inside a setTimeout can come up suspended even though
+    // a click started the chain. Without this it schedules everything and
+    // plays nothing.
+    if(ac.state === "suspended" && ac.resume) ac.resume();
+
     function hit(freq, at, dur, peak, type){
       var o = ac.createOscillator(), g = ac.createGain();
       o.type = type || "sine";
@@ -1255,13 +1260,24 @@ function taDum(){
       g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
       o.start(t0); o.stop(t0 + dur + 0.06);
     }
+    // Most of the earlier version sat at 55-110Hz, which laptop speakers
+    // barely reproduce at all - it measured louder but could not be heard.
+    // The weight now sits in the 220-660Hz band that small speakers actually
+    // put out, with triangle fundamentals for extra harmonics and the deep
+    // notes kept lower in the mix for headphones.
+    //
+    // Oscillators in a cluster share a start time, so their envelopes peak
+    // together and the sum of the peaks is the true worst case: 0.62 for
+    // "ta", 0.88 for "dum". Both under 1.0, so this cannot clip.
     // "ta" - lands as the wordmark resolves
-    hit(146.83, 0.30, 0.30, 0.20);
-    hit(293.66, 0.30, 0.22, 0.075);
+    hit(146.83, 0.30, 0.30, 0.26, "triangle");
+    hit(293.66, 0.30, 0.26, 0.24);
+    hit(440.00, 0.30, 0.20, 0.12);
     // "dum"
-    hit(110.00, 0.56, 0.85, 0.24);
-    hit(220.00, 0.56, 0.62, 0.10);
-    hit( 55.00, 0.56, 0.90, 0.16, "triangle");
+    hit(110.00, 0.56, 0.85, 0.28, "triangle");
+    hit(220.00, 0.56, 0.70, 0.30);
+    hit(330.00, 0.56, 0.55, 0.20);
+    hit(660.00, 0.56, 0.30, 0.10);
   }catch(e){}
 }
 
