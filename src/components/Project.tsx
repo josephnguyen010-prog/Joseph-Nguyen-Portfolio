@@ -35,7 +35,7 @@ const projects: ProjectItem[] = [
         image: arrivals,
         title: "Arrivals: Letterboxd for Cities",
         href: arrivalsUrl,
-        description: "A place to log the cities you have been to, rate them out of five, and keep a ranking that is built rather than guessed. Give a city the same rating as one you have already logged and it asks which of the two you preferred, then places it by binary search - so an eight-city band costs three questions, not eight. You rate the city but log the trip, because cities get visited a few times a year rather than a hundred, and the MyPassport screen shows every visit in order. React, TypeScript and Vite, with the ranking logic kept as pure functions under test. The link opens the working app - your log saves to your own browser.",
+        description: "Log the cities you have been to and rate them out of five. Give one the same rating as a city you have already logged and it asks which you preferred, then places it by binary search - so an eight-city band costs three questions, not eight. You rate the city but log the trip, and MyPassport lists every visit in order. React, TypeScript and Vite. The link opens the working app.",
     },
     {
         image: netflixCaseStudy,
