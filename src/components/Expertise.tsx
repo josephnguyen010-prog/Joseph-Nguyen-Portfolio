@@ -21,7 +21,7 @@ const labelsSecond = [
     "Requirements Gathering",
     "Risk Assessments",
     "Access Controls",
-    "AI Governance",
+    "Change Management",
     "Agile",
     "Jira",
     "Miro",

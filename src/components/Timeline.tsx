@@ -44,9 +44,10 @@ const ROLES: Role[] = [
     logo: rsmLogo,
     fullBleed: true,
     blurb:
-      "Supported the AI governance team across client engagements, tested 50+ application " +
-      "access controls for provisioning and terminated-access exceptions, and documented " +
-      "6 process walkthroughs to map current-state workflows.",
+      "Reviewed change management processes across 3 client engagements, documenting how " +
+      "system changes are requested, approved, and deployed. Tested 50+ application access " +
+      "controls for provisioning and terminated-access exceptions, and documented 6 process " +
+      "walkthroughs to map current-state workflows.",
   },
   {
     title: "Digital Solutions Intern",
