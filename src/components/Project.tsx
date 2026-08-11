@@ -29,19 +29,19 @@ const projects: ProjectItem[] = [
         image: venus,
         title: "Venus: Blind Dating - Gamified",
         href: "https://joinvenusapp.com",
-        description: "An iOS blind dating app for college students, built and shipped end to end. You get matched anonymously on Monday, trade daily doodles and personality clues through the week, then use a proximity finder on Friday night to find each other at a surprise venue - both check in before anyone sees a face. React, Supabase, and Capacitor, with the Claude API scoring compatibility and writing the clues. Live on the App Store - the link here opens an interactive demo you can walk through in a browser, no signup.",
+        description: "An iOS blind dating app for college students, built and shipped end to end. You match anonymously on Monday, trade doodles and clues through the week, then find each other at a surprise venue on Friday night - nobody sees a face until both people check in. React, Supabase and Capacitor, with the Claude API scoring compatibility; the link opens an interactive demo, no signup.",
     },
     {
         image: arrivals,
         title: "Arrivals: Letterboxd for Cities",
         href: arrivalsUrl,
-        description: "Log the cities you have been to and rate them out of five. Give one the same rating as a city you have already logged and it asks which you preferred, then places it by binary search - so an eight-city band costs three questions, not eight. You rate the city but log the trip, and MyPassport lists every visit in order. React, TypeScript and Vite. The link opens the working app.",
+        description: "Log the cities you have been to and rate them out of five. Ties are settled by asking which one you preferred, so a new city lands by binary search - three questions for an eight-city band, not eight. React, TypeScript and Vite; the link opens the working app.",
     },
     {
         image: netflixCaseStudy,
         title: "SaaS Subscription Business Analysis",
         href: caseStudyUrl,
-        description: "An end-to-end business analysis of Netflix, built as an interactive browse interface instead of a slide deck: pick a profile, then open each chapter for the market position, pricing ladder, regional revenue, content operations, risks, and recommendations. Built from public FY2021-FY2024 reporting.",
+        description: "An end-to-end business analysis of Netflix, built as a browse interface instead of a slide deck - pick a profile, then open a chapter for market position, pricing, regional revenue, content operations, risks and recommendations. Built from public FY2021-FY2024 reporting.",
     },
 ];
 

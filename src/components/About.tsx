@@ -125,18 +125,22 @@ function About() {
                 as a mistake. */}
             <p className="about-bio">
               I'm a student at Virginia Tech studying Business Information
-              Technology. I really passionate 
-              
-              
+              Technology. I'm really passionate about problem solving and creating
+              things that solve some sort of problem in my life or creating things
+              that I think it would be really cool to share. Check out down below for
+              some projects that showcase my passion for building and problem solving.
             </p>
             {/* Second paragraph is also what gives this column enough height to
                 sit alongside the carousel rather than trailing off halfway up. */}
             <p className="about-bio">
-              Outside of class I enjoy playing video games with my friends, 
-              traveling , some really good southeast asian food,
-              and probably should get more into reading more books and maybe pickleball or golf
-              (P.S: Please send me some books recommendations below).
-        
+              Outside of class I play video games with my friends, travel
+              whenever I can, and eat a lot of very good Southeast Asian food. I
+              keep telling myself I'll read more books and finally pick up
+              pickleball or golf{' '}
+              {/* Held on one line: split across a line break it reads as two
+                  stray fragments rather than an aside. Kept short enough to
+                  still fit the narrow mobile column unbroken. */}
+              <span className="about-ps">(P.S. send me book recs below)</span>.
             </p>
           </Reveal>
 

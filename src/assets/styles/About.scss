@@ -33,6 +33,12 @@
     margin-top: 1.1em;
 }
 
+/* The book-recommendation aside reads as one unit, so it wraps as one unit -
+   it moves to the next line whole rather than breaking across two. */
+.about-ps {
+    white-space: nowrap;
+}
+
 /* ---- Carousel ---------------------------------------------------------- */
 
 .carousel {
