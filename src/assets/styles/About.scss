@@ -27,6 +27,14 @@
     max-width: 60ch;
     line-height: 1.8;
     opacity: 0.85;
+    /* Both edges flush against the carousel beside it. Hyphenation comes with
+       it rather than as a flourish: justifying a column this narrow without it
+       stretches the word spacing on unlucky lines far enough to leave white
+       channels running down the paragraph. */
+    text-align: justify;
+    /* Prefixed for Safari, which still needs it. */
+    -webkit-hyphens: auto;
+    hyphens: auto;
 }
 
 .about-bio + .about-bio {
@@ -280,6 +288,14 @@
         .about-container {
             padding-left: 5%;
             padding-right: 5%;
+        }
+
+        /* Back to ragged right on a phone. There is nothing alongside the text
+           to line up with once the columns stack, and a justified line this
+           short has too few word gaps to absorb the slack - it comes out
+           visibly gappy instead of tidy. */
+        .about-bio {
+            text-align: left;
         }
 
         /* Nothing hovers on a touch screen, so hover-only controls and captions
