@@ -1012,6 +1012,12 @@ var SECTIONS = [
     'one copy&rsquo;s width, which lands on a pixel-identical view, so the rail never reaches an end '+
     'and the seam is not visible. The copies are removed from layout entirely on a screen wide enough '+
     'to show a whole row at once, where they would only read as duplicates.</p>'+
+    '<p>The arrows move whole cards rather than a fixed fraction of the rail, and the last page of a '+
+    'lap is short rather than overshooting. One lap therefore ends exactly where it began, with the '+
+    'chapters leading the row again. Card width is a <code>clamp()</code> on a viewport unit and so '+
+    'is usually fractional, which is why the measurements here are taken from layout rectangles: '+
+    'rounding each card to a whole pixel would put the end of a lap a visible step away from its '+
+    'start.</p>'+
     '<p>There are more than sixty cards before those copies, so artwork is attached only as a card '+
     'comes within a screen of the viewport. Rows below the fold cost nothing until you reach them, '+
     'repeated cards share one request, and a card that has not painted yet still reads, because the '+
@@ -1434,7 +1440,7 @@ Array.prototype.forEach.call(document.querySelectorAll(".rail-wrap"), function(w
   var card = 0;              // one card plus the gap after it
   var W = 0;                 // one copy's width, 0 while the row is not looping
   var at = 0;                // which card is currently flush against the left
-  var busy = 0;              // timer id: a scroll we started is still running
+  var mine = false;          // the scroll now running is one the arrows started
 
   function jump(x){
     var was = rail.style.scrollBehavior;
@@ -1449,12 +1455,17 @@ Array.prototype.forEach.call(document.querySelectorAll(".rail-wrap"), function(w
     var cs = window.getComputedStyle(rail);
     var inner = rail.clientWidth - (parseFloat(cs.paddingLeft) || 0)
                                  - (parseFloat(cs.paddingRight) || 0);
-    var gap = card - real[0].offsetWidth;
-    return Math.max(1, Math.floor((inner + gap) / card));
+    var gap = card - real[0].getBoundingClientRect().width;
+    return Math.max(1, Math.floor((inner + gap + 0.5) / card));
   }
 
   function measure(){
-    card = n > 1 ? real[1].offsetLeft - real[0].offsetLeft : real[0].offsetWidth;
+    // Rects, not offsetLeft. Card width is a clamp() of a vw unit, so at most
+    // viewport sizes it is fractional, and offsetLeft rounds to whole pixels.
+    // Multiplied by the card count that rounding becomes several pixels of
+    // drift at the wrap, which is exactly the seam this is meant to hide.
+    var r0 = real[0].getBoundingClientRect();
+    card = n > 1 ? real[1].getBoundingClientRect().left - r0.left : r0.width;
     // Looping is only honest when one copy is wider than the rail. Below that
     // the second copy would be visible beside the first.
     var loops = n * card > rail.clientWidth + 1;
@@ -1471,11 +1482,24 @@ Array.prototype.forEach.call(document.querySelectorAll(".rail-wrap"), function(w
   // it began rather than a few pixels into the last card.
   function place(i){ return i * card; }
 
-  // Keep the viewport inside the middle copy, and remember which card the eye
-  // is against. Called once a free scroll has come to rest, never mid
-  // animation, so it is invisible.
+  // Where card `at` sits when it is flush left in the middle copy. This is the
+  // one true position, and every rest lands on it.
+  function home(){ return W + at * card; }
+
+  // After one of our own scrolls: take the exact position back. Card width is
+  // clamp()ed off a vw unit, so it is usually fractional, and a scroll offset
+  // that has been rounded to whole pixels a few times over drifts about a
+  // pixel away from the card edge. Correcting a sub-pixel amount cannot be
+  // seen; leaving it means a lap does not quite end where it started.
+  function align(){
+    if(!W) return;
+    if(Math.abs(rail.scrollLeft - home()) > 0.5) jump(home());
+  }
+
+  // After somebody else's scroll: keep the viewport inside the middle copy and
+  // read off which card the eye is now against.
   function recentre(){
-    if(!W || busy) return;
+    if(!W) return;
     var x = rail.scrollLeft, guard = 8;
     while(x >= 2 * W && guard--) x -= W;
     while(x < W && guard--) x += W;
@@ -1512,16 +1536,22 @@ Array.prototype.forEach.call(document.querySelectorAll(".rail-wrap"), function(w
     while(x + d < 0 && guard--) x += W;
     if(x !== cur) jump(x);
 
-    window.clearTimeout(busy);
-    busy = window.setTimeout(function(){ busy = 0; }, 700);
+    mine = true;
     rail.scrollBy({left: d, behavior: reduced ? "auto" : "smooth"});
   }
 
   var settle;
   rail.addEventListener("scroll", function(){
     window.clearTimeout(settle);
-    settle = window.setTimeout(recentre, 140);
+    settle = window.setTimeout(function(){
+      if(mine){ mine = false; align(); } else { recentre(); }
+    }, 140);
   }, {passive:true});
+
+  // A scroll of their own, part way through one of ours, is theirs.
+  ["wheel","touchstart","pointerdown","keydown"].forEach(function(ev){
+    rail.addEventListener(ev, function(){ mine = false; }, {passive:true});
+  });
 
   prev.addEventListener("click", function(){ page(-1); });
   next.addEventListener("click", function(){ page(1); });
