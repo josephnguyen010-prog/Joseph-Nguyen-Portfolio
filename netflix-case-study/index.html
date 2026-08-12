@@ -214,6 +214,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   scrollbar-width:none;
 }
 .rail::-webkit-scrollbar{display:none}
+/* The repeated copies that make a rail loop. They only earn their place
+   once one copy is wider than the rail, so until then they take no space. */
+.rail:not(.is-looping) > [data-clone]{display:none}
 .arrow{
   position:absolute;top:0;bottom:0;width:clamp(34px,4vw,56px);z-index:5;
   background:rgba(0,0,0,.55);color:var(--ink);font-size:1.5rem;
@@ -1001,13 +1004,18 @@ var SECTIONS = [
     '<h4>Where the artwork came from</h4>'+
     '<p>The Q4 2021 slate images were extracted programmatically from the original PowerPoint with '+
     '<code>python-pptx</code>, matched to their release labels by position on the slide, then '+
-    'resized and recompressed. Everything added later, including every title in the last three rows, '+
-    'came from TMDB and was cut to the same two sizes: 480&nbsp;px for cards, 900&nbsp;px for the '+
-    'panel behind a chapter.</p>'+
-    '<p>There are now more than sixty cards, so artwork is attached only as a card comes within a '+
-    'screen of the viewport. The rows below the fold cost nothing until you reach them, and a card '+
-    'that has not painted yet still reads, because the fallback is a solid colour rather than an '+
-    'empty box.</p>'+
+    'resized and recompressed. Everything added later came from TMDB and was cut to the same two '+
+    'sizes: 480&nbsp;px for cards, 900&nbsp;px for the panel behind a chapter.</p>'+
+    '<h4>How the rails loop</h4>'+
+    '<p>Every row carries two further copies of its own cards, hidden from assistive technology and '+
+    'from the tab order. Scroll into the third copy and the scroll position is moved back by exactly '+
+    'one copy&rsquo;s width, which lands on a pixel-identical view, so the rail never reaches an end '+
+    'and the seam is not visible. The copies are removed from layout entirely on a screen wide enough '+
+    'to show a whole row at once, where they would only read as duplicates.</p>'+
+    '<p>There are more than sixty cards before those copies, so artwork is attached only as a card '+
+    'comes within a screen of the viewport. Rows below the fold cost nothing until you reach them, '+
+    'repeated cards share one request, and a card that has not painted yet still reads, because the '+
+    'fallback is a solid colour rather than an empty box.</p>'+
     '<p style="color:var(--ink-3);font-size:.86em">This product uses the TMDB API but is not endorsed '+
     'or certified by TMDB.</p>'
 },
@@ -1037,12 +1045,13 @@ var SECTIONS = [
     '<p>A prestige original at the top of the cost range. Awards and reputation are not directly monetisable, but they are what let a service raise prices without members feeling they have been downgraded.</p>'
 },
 
-/* --- The Competition -------------------------------------------------- *
+/* --- Rival services ---------------------------------------------------- *
  * Everything below this line is on somebody else's service. It is here     *
  * because the risk chapter names these rivals in the abstract, and a name  *
- * is easier to argue with when you can see what it actually ships.         */
+ * is easier to argue with when you can see what it actually ships. These   *
+ * extend the existing rails rather than forming rows of their own.         */
 {
-  id:"mandalorian", row:"The Competition", chapter:"Disney+", kind:"title",
+  id:"mandalorian", row:"Market Forces", chapter:"Disney+", kind:"title",
   name:"The Mandalorian", art:"img/mandalorian.jpg",
   tags:"Disney+ &middot; Franchise entry",
   facts:['<span class="score">96% Match</span>','<span>Disney+</span>','<span class="pill">2019</span>'],
@@ -1053,7 +1062,7 @@ var SECTIONS = [
     'catalogue depth to enter the market, only one title people are unwilling to wait for.</p>'
 },
 {
-  id:"lastofus", row:"The Competition", chapter:"HBO Max", kind:"title",
+  id:"lastofus", row:"Market Forces", chapter:"HBO Max", kind:"title",
   name:"The Last of Us", art:"img/the-last-of-us.jpg",
   tags:"HBO Max &middot; Weekly release",
   facts:['<span class="score">95% Match</span>','<span>HBO Max</span>','<span class="pill">2023</span>'],
@@ -1064,7 +1073,7 @@ var SECTIONS = [
     'cadence chapter solves by staggering a whole slate.</p>'
 },
 {
-  id:"theboys", row:"The Competition", chapter:"Prime Video", kind:"title",
+  id:"theboys", row:"Market Forces", chapter:"Prime Video", kind:"title",
   name:"The Boys", art:"img/the-boys.jpg",
   tags:"Prime Video &middot; Bundled",
   facts:['<span class="score">93% Match</span>','<span>Prime Video</span>','<span class="pill">2019</span>'],
@@ -1075,7 +1084,7 @@ var SECTIONS = [
     'base at all, and does not need the subscription to pay for the content.</p>'
 },
 {
-  id:"severance", row:"The Competition", chapter:"Apple TV+", kind:"title",
+  id:"severance", row:"Market Forces", chapter:"Apple TV+", kind:"title",
   name:"Severance", art:"img/severance.jpg",
   tags:"Apple TV+ &middot; Small catalogue",
   facts:['<span class="score">94% Match</span>','<span>Apple TV+</span>','<span class="pill">2022</span>'],
@@ -1086,7 +1095,7 @@ var SECTIONS = [
     'alone. It is only affordable because the service does not have to fund itself.</p>'
 },
 {
-  id:"hotd", row:"The Competition", chapter:"HBO Max", kind:"title",
+  id:"hotd", row:"Market Forces", chapter:"HBO Max", kind:"title",
   name:"House of the Dragon", art:"img/house-of-the-dragon.jpg",
   tags:"HBO Max &middot; Owned library",
   facts:['<span class="score">92% Match</span>','<span>HBO Max</span>','<span class="pill">2022</span>'],
@@ -1097,7 +1106,7 @@ var SECTIONS = [
     'from the other side of the table.</p>'
 },
 {
-  id:"shogun", row:"The Competition", chapter:"Hulu / FX", kind:"title",
+  id:"shogun", row:"Risks & Recommendations", chapter:"Hulu / FX", kind:"title",
   name:"Sh&#333;gun", art:"img/shogun.jpg",
   tags:"Hulu &middot; Bundled with Disney+",
   facts:['<span class="score">93% Match</span>','<span>Hulu</span>','<span class="pill">2024</span>'],
@@ -1108,7 +1117,7 @@ var SECTIONS = [
     'a direct pressure on every rung of the pricing ladder.</p>'
 },
 {
-  id:"thebear", row:"The Competition", chapter:"Hulu", kind:"title",
+  id:"thebear", row:"Risks & Recommendations", chapter:"Hulu", kind:"title",
   name:"The Bear", art:"img/the-bear.jpg",
   tags:"Hulu &middot; Same playbook",
   facts:['<span class="score">90% Match</span>','<span>Hulu</span>','<span class="pill">2022</span>'],
@@ -1118,7 +1127,7 @@ var SECTIONS = [
     'Disney+ matters more than either service does on its own.</p>'
 },
 {
-  id:"fallout", row:"The Competition", chapter:"Prime Video", kind:"title",
+  id:"fallout", row:"Risks & Recommendations", chapter:"Prime Video", kind:"title",
   name:"Fallout", art:"img/fallout.jpg",
   tags:"Prime Video &middot; Content inflation",
   facts:['<span class="score">91% Match</span>','<span>Prime Video</span>','<span class="pill">2024</span>'],
@@ -1129,7 +1138,7 @@ var SECTIONS = [
     'chapter, it is this.</p>'
 },
 {
-  id:"tedlasso", row:"The Competition", chapter:"Apple TV+", kind:"title",
+  id:"tedlasso", row:"Risks & Recommendations", chapter:"Apple TV+", kind:"title",
   name:"Ted Lasso", art:"img/ted-lasso.jpg",
   tags:"Apple TV+ &middot; Strategic loss leader",
   facts:['<span class="score">89% Match</span>','<span>Apple TV+</span>','<span class="pill">2020</span>'],
@@ -1139,7 +1148,7 @@ var SECTIONS = [
     'ecosystem, a return Netflix has no equivalent of and cannot bid against.</p>'
 },
 {
-  id:"andor", row:"The Competition", chapter:"Disney+", kind:"title",
+  id:"andor", row:"Risks & Recommendations", chapter:"Disney+", kind:"title",
   name:"Andor", art:"img/andor.jpg",
   tags:"Disney+ &middot; Cross-subsidised",
   facts:['<span class="score">92% Match</span>','<span>Disney+</span>','<span class="pill">2022</span>'],
@@ -1150,12 +1159,12 @@ var SECTIONS = [
     'business does.</p>'
 },
 
-/* --- Licensed, Not Owned ---------------------------------------------- *
+/* --- Licensed, not owned ----------------------------------------------- *
  * The catalogue side of the same argument: titles that moved between       *
  * services because somebody else held the rights. Figures here are press   *
  * reports, not company disclosures, and are marked as such.                */
 {
-  id:"theoffice", row:"Licensed, Not Owned", chapter:"Left for Peacock, 2021", kind:"title",
+  id:"theoffice", row:"Start Here", chapter:"Left for Peacock, 2021", kind:"title",
   name:"The Office", art:"img/the-office.jpg",
   tags:"Licensed &middot; Withdrawn",
   facts:['<span class="score">98% Match</span>','<span>Licensed</span>','<span class="pill">Gone</span>'],
@@ -1166,7 +1175,7 @@ var SECTIONS = [
     'could be removed by its owner, and was.</p>'
 },
 {
-  id:"friends", row:"Licensed, Not Owned", chapter:"Left for HBO Max, 2020", kind:"title",
+  id:"friends", row:"Start Here", chapter:"Left for HBO Max, 2020", kind:"title",
   name:"Friends", art:"img/friends.jpg",
   tags:"Licensed &middot; Withdrawn",
   facts:['<span class="score">96% Match</span>','<span>Licensed</span>','<span class="pill">Gone</span>'],
@@ -1177,7 +1186,7 @@ var SECTIONS = [
     'and eventually the price is not a number at all.</p>'
 },
 {
-  id:"parksrec", row:"Licensed, Not Owned", chapter:"Left for Peacock, 2020", kind:"title",
+  id:"parksrec", row:"Start Here", chapter:"Left for Peacock, 2020", kind:"title",
   name:"Parks and Recreation", art:"img/parks-and-rec.jpg",
   tags:"Licensed &middot; Withdrawn",
   facts:['<span class="score">90% Match</span>','<span>Licensed</span>','<span class="pill">Gone</span>'],
@@ -1188,7 +1197,7 @@ var SECTIONS = [
     'licence fee saved.</p>'
 },
 {
-  id:"himym", row:"Licensed, Not Owned", chapter:"Moved to Hulu", kind:"title",
+  id:"himym", row:"The Numbers", chapter:"Moved to Hulu", kind:"title",
   name:"How I Met Your Mother", art:"img/himym.jpg",
   tags:"Licensed &middot; Withdrawn",
   facts:['<span class="score">87% Match</span>','<span>Licensed</span>','<span class="pill">Gone</span>'],
@@ -1199,7 +1208,7 @@ var SECTIONS = [
     'and all of it left at once.</p>'
 },
 {
-  id:"seinfeld", row:"Licensed, Not Owned", chapter:"Arrived 2021", kind:"title",
+  id:"seinfeld", row:"The Numbers", chapter:"Arrived 2021", kind:"title",
   name:"Seinfeld", art:"img/seinfeld.jpg",
   tags:"Licensed &middot; Acquired",
   facts:['<span class="score">91% Match</span>','<span>Licensed</span>','<span class="pill">Arrived</span>'],
@@ -1210,7 +1219,7 @@ var SECTIONS = [
     'a deal like this buys five years and then expires. An original does not.</p>'
 },
 {
-  id:"community", row:"Licensed, Not Owned", chapter:"Arrived 2020", kind:"title",
+  id:"community", row:"The Numbers", chapter:"Arrived 2020", kind:"title",
   name:"Community", art:"img/community.jpg",
   tags:"Licensed &middot; Acquired",
   facts:['<span class="score">86% Match</span>','<span>Licensed</span>','<span class="pill">Arrived</span>'],
@@ -1220,11 +1229,11 @@ var SECTIONS = [
     'already exists. It simply is not permanent, which is the whole argument.</p>'
 },
 
-/* --- Trending Now ----------------------------------------------------- *
- * Film economics, which is the part of the market a subscription service   *
- * fits into least comfortably.                                             */
+/* --- Film economics ---------------------------------------------------- *
+ * The part of the market a subscription service fits into least            *
+ * comfortably, and the counterweight to Red Notice.                        */
 {
-  id:"inception", row:"Trending Now", chapter:"Film &middot; 2010", kind:"title",
+  id:"inception", row:"Product & Pricing", chapter:"Film &middot; 2010", kind:"title",
   name:"Inception", art:"img/inception.jpg",
   tags:"Film &middot; Original blockbuster",
   facts:['<span class="score">94% Match</span>','<span>Film</span>','<span class="pill">2010</span>'],
@@ -1234,7 +1243,7 @@ var SECTIONS = [
     'amortise across a subscription instead of recovering in a single opening weekend.</p>'
 },
 {
-  id:"oppenheimer", row:"Trending Now", chapter:"Film &middot; 2023", kind:"title",
+  id:"oppenheimer", row:"The Q4 2021 Slate", chapter:"Film &middot; 2023", kind:"title",
   name:"Oppenheimer", art:"img/oppenheimer.jpg",
   tags:"Film &middot; Theatrical",
   facts:['<span class="score">95% Match</span>','<span>Film</span>','<span class="pill">2023</span>'],
@@ -1245,7 +1254,7 @@ var SECTIONS = [
     'of its content spend.</p>'
 },
 {
-  id:"dunetwo", row:"Trending Now", chapter:"Film &middot; 2024", kind:"title",
+  id:"dunetwo", row:"The Q4 2021 Slate", chapter:"Film &middot; 2024", kind:"title",
   name:"Dune: Part Two", art:"img/dune-part-two.jpg",
   tags:"Film &middot; Windowed release",
   facts:['<span class="score">93% Match</span>','<span>Film</span>','<span class="pill">2024</span>'],
@@ -1255,7 +1264,7 @@ var SECTIONS = [
     'the theatrical revenue, then use the same film a second time to hold subscribers.</p>'
 },
 {
-  id:"eeaao", row:"Trending Now", chapter:"Film &middot; 2022", kind:"title",
+  id:"eeaao", row:"Product & Pricing", chapter:"Film &middot; 2022", kind:"title",
   name:"Everything Everywhere All at Once", art:"img/everything-everywhere.jpg",
   tags:"Film &middot; Budget discipline",
   facts:['<span class="score">92% Match</span>','<span>Film</span>','<span class="pill">2022</span>'],
@@ -1266,7 +1275,7 @@ var SECTIONS = [
     'spending implies.</p>'
 },
 {
-  id:"maverick", row:"Trending Now", chapter:"Film &middot; 2022", kind:"title",
+  id:"maverick", row:"The Q4 2021 Slate", chapter:"Film &middot; 2022", kind:"title",
   name:"Top Gun: Maverick", art:"img/top-gun-maverick.jpg",
   tags:"Film &middot; The road not taken",
   facts:['<span class="score">94% Match</span>','<span>Film</span>','<span class="pill">2022</span>'],
@@ -1278,7 +1287,7 @@ var SECTIONS = [
     'have shown.</p>'
 },
 {
-  id:"parasite", row:"Trending Now", chapter:"Film &middot; 2019", kind:"title",
+  id:"parasite", row:"More Like This", chapter:"Film &middot; 2019", kind:"title",
   name:"Parasite", art:"img/parasite.jpg",
   tags:"Film &middot; Subtitles",
   facts:['<span class="score">96% Match</span>','<span>Film</span>','<span class="pill">2019</span>'],
@@ -1289,7 +1298,7 @@ var SECTIONS = [
     'could get. Every argument in this analysis about local production rests on that.</p>'
 },
 {
-  id:"spiderverse", row:"Trending Now", chapter:"Film &middot; 2018", kind:"title",
+  id:"spiderverse", row:"More Like This", chapter:"Film &middot; 2018", kind:"title",
   name:"Spider-Man: Into the Spider-Verse", art:"img/spider-verse.jpg",
   tags:"Film &middot; Distinctiveness",
   facts:['<span class="score">93% Match</span>','<span>Film</span>','<span class="pill">2018</span>'],
@@ -1299,7 +1308,7 @@ var SECTIONS = [
     'is buying volume, being unmistakable is the more defensible position.</p>'
 },
 {
-  id:"furyroad", row:"Trending Now", chapter:"Film &middot; 2015", kind:"title",
+  id:"furyroad", row:"More Like This", chapter:"Film &middot; 2015", kind:"title",
   name:"Mad Max: Fury Road", art:"img/fury-road.jpg",
   tags:"Film &middot; Travels without translation",
   facts:['<span class="score">91% Match</span>','<span>Film</span>','<span class="pill">2015</span>'],
@@ -1310,7 +1319,7 @@ var SECTIONS = [
     'to zero.</p>'
 },
 {
-  id:"br2049", row:"Trending Now", chapter:"Film &middot; 2017", kind:"title",
+  id:"br2049", row:"More Like This", chapter:"Film &middot; 2017", kind:"title",
   name:"Blade Runner 2049", art:"img/blade-runner-2049.jpg",
   tags:"Film &middot; The long tail",
   facts:['<span class="score">89% Match</span>','<span>Film</span>','<span class="pill">2017</span>'],
@@ -1320,7 +1329,7 @@ var SECTIONS = [
     'part of why the libraries were worth buying in the first place.</p>'
 },
 {
-  id:"whiplash", row:"Trending Now", chapter:"Film &middot; 2014", kind:"title",
+  id:"whiplash", row:"Product & Pricing", chapter:"Film &middot; 2014", kind:"title",
   name:"Whiplash", art:"img/whiplash.jpg",
   tags:"Film &middot; The floor of the range",
   facts:['<span class="score">90% Match</span>','<span>Film</span>','<span class="pill">2014</span>'],
@@ -1333,8 +1342,7 @@ var SECTIONS = [
 
 /* ---------------------------------------------------------------- rows */
 var ROW_ORDER = ["Start Here","Market Forces","Product & Pricing",
-                 "The Q4 2021 Slate","The Numbers","Risks & Recommendations",
-                 "The Competition","Licensed, Not Owned","Trending Now","More Like This"];
+                 "The Q4 2021 Slate","The Numbers","Risks & Recommendations","More Like This"];
 var rowsEl = document.getElementById("rows");
 
 // The nine numbered chapters are the analysis. Everything else (the show
@@ -1392,13 +1400,121 @@ ROW_ORDER.forEach(function(rowName){
   rowsEl.appendChild(sec);
 });
 
+/* ---------------------------------------------------------- rail loops */
+// Each rail carries two hidden copies of its cards after the real ones, so
+// scrolling right never reaches an end: the run of cards repeats, and the
+// scroll position is quietly moved back by exactly one copy's width when it
+// crosses into the third. Because the copies are identical, the jump lands
+// on a pixel-identical view and cannot be seen.
+//
+// The copies are display:none unless the row actually overflows. On a very
+// wide monitor a short row fits entirely on screen, and there the duplicates
+// would just read as duplicates.
+//
+// Clones are aria-hidden with their controls taken out of the tab order, so
+// keyboard and screen reader users still meet each card exactly once.
+Array.prototype.forEach.call(document.querySelectorAll(".rail-wrap"), function(wrap){
+  var rail = wrap.querySelector(".rail");
+  var prev = wrap.querySelector(".arrow-prev");
+  var next = wrap.querySelector(".arrow-next");
+  var real = Array.prototype.slice.call(rail.children);
+  if(!real.length) return;
+
+  for(var copy = 0; copy < 2; copy++){
+    real.forEach(function(card){
+      var c = card.cloneNode(true);
+      c.setAttribute("data-clone", "");
+      c.setAttribute("aria-hidden", "true");
+      c.setAttribute("tabindex", "-1");
+      rail.appendChild(c);
+    });
+  }
+
+  // Stride is one copy's worth of cards including the gap that follows it.
+  // Measured from the real cards, so it still works while the clones are
+  // display:none and contribute nothing to layout.
+  function stride(){
+    var first = real[0], last = real[real.length - 1];
+    var gap = real.length > 1
+      ? real[1].offsetLeft - (first.offsetLeft + first.offsetWidth)
+      : 0;
+    return (last.offsetLeft + last.offsetWidth) - first.offsetLeft + gap;
+  }
+
+  var W = 0;                 // one copy's width, 0 while the row is not looping
+  var busy = 0;              // timer id: a scroll we started is still running
+
+  function jump(x){
+    var was = rail.style.scrollBehavior;
+    rail.style.scrollBehavior = "auto";
+    rail.scrollLeft = x;
+    rail.style.scrollBehavior = was;
+  }
+
+  function measure(){
+    var s = stride();
+    // Looping is only honest when one copy is wider than the rail. Below
+    // that the second copy would be visible beside the first.
+    var loops = s > rail.clientWidth + 1;
+    rail.classList.toggle("is-looping", loops);
+    W = loops ? s : 0;
+    prev.hidden = next.hidden = !loops;
+    if(loops && rail.scrollLeft < W) jump(rail.scrollLeft + W);
+    if(!loops) jump(0);
+  }
+
+  // Keep the viewport inside the middle copy. Called once a free scroll has
+  // come to rest, never mid-animation, so it is invisible.
+  function recentre(){
+    if(!W || busy) return;
+    var x = rail.scrollLeft, guard = 8;
+    while(x >= 2 * W && guard--) x -= W;
+    while(x < W && guard--) x += W;
+    if(x !== rail.scrollLeft) jump(x);
+  }
+
+  // Before an arrow scroll, shift by whole copies until the move fits inside
+  // the scrollable range. Clamping at an edge is what would otherwise stop
+  // the loop dead.
+  function page(dir){
+    var step = rail.clientWidth * 0.85;
+    if(W){
+      var x = rail.scrollLeft, max = rail.scrollWidth - rail.clientWidth, guard = 8;
+      while(dir > 0 && x + step > max && guard--) x -= W;
+      while(dir < 0 && x - step < 0 && guard--) x += W;
+      if(x !== rail.scrollLeft) jump(x);
+      window.clearTimeout(busy);
+      busy = window.setTimeout(function(){ busy = 0; }, 700);
+    }
+    rail.scrollBy({left: dir * step, behavior: reduced ? "auto" : "smooth"});
+  }
+
+  var settle;
+  rail.addEventListener("scroll", function(){
+    window.clearTimeout(settle);
+    settle = window.setTimeout(recentre, 140);
+  }, {passive:true});
+
+  prev.addEventListener("click", function(){ page(-1); });
+  next.addEventListener("click", function(){ page(1); });
+
+  var resized;
+  window.addEventListener("resize", function(){
+    window.clearTimeout(resized);
+    resized = window.setTimeout(measure, 160);
+  });
+  measure();
+});
+
 /* -------------------------------------------------------- card artwork */
-// There are now more than sixty cards, and fetching all of that up front
-// would cost more than the rest of the page put together. Art is attached
-// when a card comes within a screen or so of the viewport instead. The
-// margin is generous because horizontal scrolling inside a rail moves
-// faster than the eye, and .card carries a solid fallback colour, so a card
-// that has not painted yet is still perfectly readable.
+// There are now more than sixty cards, three copies of each once the rails
+// loop, and fetching all of that up front would cost more than the rest of
+// the page put together. Art is attached when a card comes within a screen
+// or so of the viewport instead. The margin is generous because horizontal
+// scrolling inside a rail moves faster than the eye, and .card carries a
+// solid fallback colour, so a card that has not painted yet is still
+// perfectly readable. Duplicate URLs cost one request between them, so the
+// clones are close to free.
 (function lazyArt(){
   var cards = document.querySelectorAll("[data-art]");
 
@@ -1422,23 +1538,6 @@ ROW_ORDER.forEach(function(rowName){
 
   Array.prototype.forEach.call(cards, function(el){ io.observe(el); });
 })();
-
-/* rail arrows */
-Array.prototype.forEach.call(document.querySelectorAll(".rail-wrap"), function(wrap){
-  var rail = wrap.querySelector(".rail");
-  var prev = wrap.querySelector(".arrow-prev");
-  var next = wrap.querySelector(".arrow-next");
-  function sync(){
-    var over = rail.scrollWidth - rail.clientWidth;
-    prev.hidden = rail.scrollLeft < 12;
-    next.hidden = over < 12 || rail.scrollLeft > over - 12;
-  }
-  prev.addEventListener("click", function(){ rail.scrollBy({left:-rail.clientWidth*0.85, behavior:"smooth"}); });
-  next.addEventListener("click", function(){ rail.scrollBy({left: rail.clientWidth*0.85, behavior:"smooth"}); });
-  rail.addEventListener("scroll", sync, {passive:true});
-  window.addEventListener("resize", sync);
-  sync();
-});
 
 /* --------------------------------------------------------------- modal */
 var scrim = document.getElementById("scrim");
