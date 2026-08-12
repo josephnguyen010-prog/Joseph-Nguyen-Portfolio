@@ -1012,6 +1012,12 @@ var SECTIONS = [
     'one copy&rsquo;s width, which lands on a pixel-identical view, so the rail never reaches an end '+
     'and the seam is not visible. The copies are removed from layout entirely on a screen wide enough '+
     'to show a whole row at once, where they would only read as duplicates.</p>'+
+    '<p>The arrows move whole cards rather than a fixed fraction of the rail, and the last page of a '+
+    'lap is short rather than overshooting. One lap therefore ends exactly where it began, with the '+
+    'chapters leading the row again. Card width is a <code>clamp()</code> on a viewport unit and so '+
+    'is usually fractional, which is why the measurements here are taken from layout rectangles: '+
+    'rounding each card to a whole pixel would put the end of a lap a visible step away from its '+
+    'start.</p>'+
     '<p>There are more than sixty cards before those copies, so artwork is attached only as a card '+
     'comes within a screen of the viewport. Rows below the fold cost nothing until you reach them, '+
     'repeated cards share one request, and a card that has not painted yet still reads, because the '+
@@ -1430,19 +1436,11 @@ Array.prototype.forEach.call(document.querySelectorAll(".rail-wrap"), function(w
     });
   }
 
-  // Stride is one copy's worth of cards including the gap that follows it.
-  // Measured from the real cards, so it still works while the clones are
-  // display:none and contribute nothing to layout.
-  function stride(){
-    var first = real[0], last = real[real.length - 1];
-    var gap = real.length > 1
-      ? real[1].offsetLeft - (first.offsetLeft + first.offsetWidth)
-      : 0;
-    return (last.offsetLeft + last.offsetWidth) - first.offsetLeft + gap;
-  }
-
+  var n = real.length;
+  var card = 0;              // one card plus the gap after it
   var W = 0;                 // one copy's width, 0 while the row is not looping
-  var busy = 0;              // timer id: a scroll we started is still running
+  var at = 0;                // which card is currently flush against the left
+  var mine = false;          // the scroll now running is one the arrows started
 
   function jump(x){
     var was = rail.style.scrollBehavior;
@@ -1451,49 +1449,109 @@ Array.prototype.forEach.call(document.querySelectorAll(".rail-wrap"), function(w
     rail.style.scrollBehavior = was;
   }
 
-  function measure(){
-    var s = stride();
-    // Looping is only honest when one copy is wider than the rail. Below
-    // that the second copy would be visible beside the first.
-    var loops = s > rail.clientWidth + 1;
-    rail.classList.toggle("is-looping", loops);
-    W = loops ? s : 0;
-    prev.hidden = next.hidden = !loops;
-    if(loops && rail.scrollLeft < W) jump(rail.scrollLeft + W);
-    if(!loops) jump(0);
+  // How many cards fit without being cut off. k cards occupy k*card minus the
+  // trailing gap, and the rail's own padding is inside clientWidth.
+  function perPage(){
+    var cs = window.getComputedStyle(rail);
+    var inner = rail.clientWidth - (parseFloat(cs.paddingLeft) || 0)
+                                 - (parseFloat(cs.paddingRight) || 0);
+    var gap = card - real[0].getBoundingClientRect().width;
+    return Math.max(1, Math.floor((inner + gap + 0.5) / card));
   }
 
-  // Keep the viewport inside the middle copy. Called once a free scroll has
-  // come to rest, never mid-animation, so it is invisible.
+  function measure(){
+    // Rects, not offsetLeft. Card width is a clamp() of a vw unit, so at most
+    // viewport sizes it is fractional, and offsetLeft rounds to whole pixels.
+    // Multiplied by the card count that rounding becomes several pixels of
+    // drift at the wrap, which is exactly the seam this is meant to hide.
+    var r0 = real[0].getBoundingClientRect();
+    card = n > 1 ? real[1].getBoundingClientRect().left - r0.left : r0.width;
+    // Looping is only honest when one copy is wider than the rail. Below that
+    // the second copy would be visible beside the first.
+    var loops = n * card > rail.clientWidth + 1;
+    rail.classList.toggle("is-looping", loops);
+    W = loops ? n * card : 0;
+    prev.hidden = next.hidden = !loops;
+    at = 0;
+    jump(loops ? W : 0);
+  }
+
+  // Card i sits flush against the left edge at scrollLeft i*card, because at
+  // scrollLeft 0 card 0 already sits one padding in. Every position the arrows
+  // produce is one of those, which is what lets a full lap end exactly where
+  // it began rather than a few pixels into the last card.
+  function place(i){ return i * card; }
+
+  // Where card `at` sits when it is flush left in the middle copy. This is the
+  // one true position, and every rest lands on it.
+  function home(){ return W + at * card; }
+
+  // After one of our own scrolls: take the exact position back. Card width is
+  // clamp()ed off a vw unit, so it is usually fractional, and a scroll offset
+  // that has been rounded to whole pixels a few times over drifts about a
+  // pixel away from the card edge. Correcting a sub-pixel amount cannot be
+  // seen; leaving it means a lap does not quite end where it started.
+  function align(){
+    if(!W) return;
+    if(Math.abs(rail.scrollLeft - home()) > 0.5) jump(home());
+  }
+
+  // After somebody else's scroll: keep the viewport inside the middle copy and
+  // read off which card the eye is now against.
   function recentre(){
-    if(!W || busy) return;
+    if(!W) return;
     var x = rail.scrollLeft, guard = 8;
     while(x >= 2 * W && guard--) x -= W;
     while(x < W && guard--) x += W;
+    at = Math.round((x - W) / card) % n;
+    if(at < 0) at += n;
     if(x !== rail.scrollLeft) jump(x);
   }
 
-  // Before an arrow scroll, shift by whole copies until the move fits inside
-  // the scrollable range. Clamping at an edge is what would otherwise stop
-  // the loop dead.
+  // Paging moves whole cards. The last page of a lap is short rather than
+  // overshooting, so the row comes back to its own first card, and the
+  // chapters lead the rail again exactly as they did at the start.
   function page(dir){
-    var step = rail.clientWidth * 0.85;
-    if(W){
-      var x = rail.scrollLeft, max = rail.scrollWidth - rail.clientWidth, guard = 8;
-      while(dir > 0 && x + step > max && guard--) x -= W;
-      while(dir < 0 && x - step < 0 && guard--) x += W;
-      if(x !== rail.scrollLeft) jump(x);
-      window.clearTimeout(busy);
-      busy = window.setTimeout(function(){ busy = 0; }, 700);
+    if(!W){
+      rail.scrollBy({left: dir * rail.clientWidth * 0.85,
+                     behavior: reduced ? "auto" : "smooth"});
+      return;
     }
-    rail.scrollBy({left: dir * step, behavior: reduced ? "auto" : "smooth"});
+
+    var pp = perPage();
+    var last = Math.floor((n - 1) / pp) * pp;      // first card of the last page
+    if(dir > 0) at = (at + pp >= n) ? 0 : at + pp;
+    else        at = (at === 0) ? last : Math.max(0, at - pp);
+
+    // Travel the short way round in the direction asked for, then make room
+    // for it by shifting whole copies. Both are invisible: the copies are
+    // identical, so any multiple of W lands on the same picture.
+    var cur = rail.scrollLeft;
+    var d = (place(at) - cur) % W;
+    if(dir > 0 && d < 0) d += W;
+    if(dir < 0 && d > 0) d -= W;
+
+    var max = rail.scrollWidth - rail.clientWidth, guard = 8, x = cur;
+    while(x + d > max && guard--) x -= W;
+    while(x + d < 0 && guard--) x += W;
+    if(x !== cur) jump(x);
+
+    mine = true;
+    rail.scrollBy({left: d, behavior: reduced ? "auto" : "smooth"});
   }
 
   var settle;
   rail.addEventListener("scroll", function(){
     window.clearTimeout(settle);
-    settle = window.setTimeout(recentre, 140);
+    settle = window.setTimeout(function(){
+      if(mine){ mine = false; align(); } else { recentre(); }
+    }, 140);
   }, {passive:true});
+
+  // A scroll of their own, part way through one of ours, is theirs.
+  ["wheel","touchstart","pointerdown","keydown"].forEach(function(ev){
+    rail.addEventListener(ev, function(){ mine = false; }, {passive:true});
+  });
 
   prev.addEventListener("click", function(){ page(-1); });
   next.addEventListener("click", function(){ page(1); });
