@@ -999,9 +999,17 @@ var SECTIONS = [
     'can be turned off before you enter.</li>'+
     '</ul>'+
     '<h4>Where the artwork came from</h4>'+
-    '<p>The six title images were extracted programmatically from the original PowerPoint with '+
+    '<p>The Q4 2021 slate images were extracted programmatically from the original PowerPoint with '+
     '<code>python-pptx</code>, matched to their release labels by position on the slide, then '+
-    'resized and recompressed. All six together come to under 170&nbsp;KB.</p>'
+    'resized and recompressed. Everything added later, including every title in the last three rows, '+
+    'came from TMDB and was cut to the same two sizes: 480&nbsp;px for cards, 900&nbsp;px for the '+
+    'panel behind a chapter.</p>'+
+    '<p>There are now more than sixty cards, so artwork is attached only as a card comes within a '+
+    'screen of the viewport. The rows below the fold cost nothing until you reach them, and a card '+
+    'that has not painted yet still reads, because the fallback is a solid colour rather than an '+
+    'empty box.</p>'+
+    '<p style="color:var(--ink-3);font-size:.86em">This product uses the TMDB API but is not endorsed '+
+    'or certified by TMDB.</p>'
 },
 {
   id:"blackmirror", row:"More Like This", chapter:"Netflix Original", kind:"title",
@@ -1028,11 +1036,305 @@ var SECTIONS = [
   body:
     '<p>A prestige original at the top of the cost range. Awards and reputation are not directly monetisable, but they are what let a service raise prices without members feeling they have been downgraded.</p>'
 },
+
+/* --- The Competition -------------------------------------------------- *
+ * Everything below this line is on somebody else's service. It is here     *
+ * because the risk chapter names these rivals in the abstract, and a name  *
+ * is easier to argue with when you can see what it actually ships.         */
+{
+  id:"mandalorian", row:"The Competition", chapter:"Disney+", kind:"title",
+  name:"The Mandalorian", art:"img/mandalorian.jpg",
+  tags:"Disney+ &middot; Franchise entry",
+  facts:['<span class="score">96% Match</span>','<span>Disney+</span>','<span class="pill">2019</span>'],
+  body:
+    '<p>Disney+ launched in November 2019 with a thin catalogue and this one weekly series, and still '+
+    'took millions of sign-ups on day one.</p>'+
+    '<p>It is the sharpest version of the competitive risk: a rival holding franchise IP does not need '+
+    'catalogue depth to enter the market, only one title people are unwilling to wait for.</p>'
+},
+{
+  id:"lastofus", row:"The Competition", chapter:"HBO Max", kind:"title",
+  name:"The Last of Us", art:"img/the-last-of-us.jpg",
+  tags:"HBO Max &middot; Weekly release",
+  facts:['<span class="score">95% Match</span>','<span>HBO Max</span>','<span class="pill">2023</span>'],
+  body:
+    '<p>A prestige adaptation of a game, released one episode a week rather than all at once.</p>'+
+    '<p>The weekly drop is the direct competitive answer to bingeing: it stretches a single title across '+
+    'two months of billing instead of one weekend, which is the same retention problem the release '+
+    'cadence chapter solves by staggering a whole slate.</p>'
+},
+{
+  id:"theboys", row:"The Competition", chapter:"Prime Video", kind:"title",
+  name:"The Boys", art:"img/the-boys.jpg",
+  tags:"Prime Video &middot; Bundled",
+  facts:['<span class="score">93% Match</span>','<span>Prime Video</span>','<span class="pill">2019</span>'],
+  body:
+    '<p>Prime Video&rsquo;s flagship, on a service most of its viewers did not deliberately buy: they '+
+    'bought free shipping and the streaming came attached.</p>'+
+    '<p>A competitor who can bundle streaming into something else is not competing on the same cost '+
+    'base at all, and does not need the subscription to pay for the content.</p>'
+},
+{
+  id:"severance", row:"The Competition", chapter:"Apple TV+", kind:"title",
+  name:"Severance", art:"img/severance.jpg",
+  tags:"Apple TV+ &middot; Small catalogue",
+  facts:['<span class="score">94% Match</span>','<span>Apple TV+</span>','<span class="pill">2022</span>'],
+  body:
+    '<p>Apple TV+ runs the smallest catalogue of any major service and the highest critical hit rate '+
+    'per title.</p>'+
+    '<p>That is the opposite strategy to volume: a handful of shows, each expected to carry the brand '+
+    'alone. It is only affordable because the service does not have to fund itself.</p>'
+},
+{
+  id:"hotd", row:"The Competition", chapter:"HBO Max", kind:"title",
+  name:"House of the Dragon", art:"img/house-of-the-dragon.jpg",
+  tags:"HBO Max &middot; Owned library",
+  facts:['<span class="score">92% Match</span>','<span>HBO Max</span>','<span class="pill">2022</span>'],
+  body:
+    '<p>A prequel mining a franchise the owner already held.</p>'+
+    '<p>Warner&rsquo;s route into streaming was to stop licensing its library out to everyone else and '+
+    'start charging for it directly. That is the same decision that pulled Friends off Netflix, seen '+
+    'from the other side of the table.</p>'
+},
+{
+  id:"shogun", row:"The Competition", chapter:"Hulu / FX", kind:"title",
+  name:"Sh&#333;gun", art:"img/shogun.jpg",
+  tags:"Hulu &middot; Bundled with Disney+",
+  facts:['<span class="score">93% Match</span>','<span>Hulu</span>','<span class="pill">2024</span>'],
+  body:
+    '<p>A largely subtitled period drama that swept the 2024 Emmys, on a service most viewers reach '+
+    'through a Disney bundle rather than as a standalone purchase.</p>'+
+    '<p>Bundling is how a rival lowers the effective price without moving the sticker price, which is '+
+    'a direct pressure on every rung of the pricing ladder.</p>'
+},
+{
+  id:"thebear", row:"The Competition", chapter:"Hulu", kind:"title",
+  name:"The Bear", art:"img/the-bear.jpg",
+  tags:"Hulu &middot; Same playbook",
+  facts:['<span class="score">90% Match</span>','<span>Hulu</span>','<span class="pill">2022</span>'],
+  body:
+    '<p>Half-hour episodes, full seasons released at once, an audience that treats it as a binge.</p>'+
+    '<p>Hulu competes on precisely Netflix&rsquo;s terms, which is why Disney owning both it and '+
+    'Disney+ matters more than either service does on its own.</p>'
+},
+{
+  id:"fallout", row:"The Competition", chapter:"Prime Video", kind:"title",
+  name:"Fallout", art:"img/fallout.jpg",
+  tags:"Prime Video &middot; Content inflation",
+  facts:['<span class="score">91% Match</span>','<span>Prime Video</span>','<span class="pill">2024</span>'],
+  body:
+    '<p>Another game adaptation, arriving about a year after The Last of Us.</p>'+
+    '<p>When two well-funded rivals reach for the same kind of proven source material in the same '+
+    'window, the price of that material goes up. Content inflation is not an abstraction in the risk '+
+    'chapter, it is this.</p>'
+},
+{
+  id:"tedlasso", row:"The Competition", chapter:"Apple TV+", kind:"title",
+  name:"Ted Lasso", art:"img/ted-lasso.jpg",
+  tags:"Apple TV+ &middot; Strategic loss leader",
+  facts:['<span class="score">89% Match</span>','<span>Apple TV+</span>','<span class="pill">2020</span>'],
+  body:
+    '<p>The show that made Apple TV+ worth subscribing to.</p>'+
+    '<p>Its value to Apple was never the subscription line. It was keeping people inside the hardware '+
+    'ecosystem, a return Netflix has no equivalent of and cannot bid against.</p>'
+},
+{
+  id:"andor", row:"The Competition", chapter:"Disney+", kind:"title",
+  name:"Andor", art:"img/andor.jpg",
+  tags:"Disney+ &middot; Cross-subsidised",
+  facts:['<span class="score">92% Match</span>','<span>Disney+</span>','<span class="pill">2022</span>'],
+  body:
+    '<p>An expensive prestige series set inside an enormous existing franchise.</p>'+
+    '<p>This is where the competitive argument gets uncomfortable. A rival can fund a show like this '+
+    'from parks, toys and cinema, and does not need it to pay for itself the way a pure subscription '+
+    'business does.</p>'
+},
+
+/* --- Licensed, Not Owned ---------------------------------------------- *
+ * The catalogue side of the same argument: titles that moved between       *
+ * services because somebody else held the rights. Figures here are press   *
+ * reports, not company disclosures, and are marked as such.                */
+{
+  id:"theoffice", row:"Licensed, Not Owned", chapter:"Left for Peacock, 2021", kind:"title",
+  name:"The Office", art:"img/the-office.jpg",
+  tags:"Licensed &middot; Withdrawn",
+  facts:['<span class="score">98% Match</span>','<span>Licensed</span>','<span class="pill">Gone</span>'],
+  body:
+    '<p>For years the single most watched thing on Netflix, and none of it was owned. NBCUniversal took '+
+    'it back on 1 January 2021 to launch Peacock.</p>'+
+    '<p>Nothing makes the case for original production more plainly. The biggest title on the service '+
+    'could be removed by its owner, and was.</p>'
+},
+{
+  id:"friends", row:"Licensed, Not Owned", chapter:"Left for HBO Max, 2020", kind:"title",
+  name:"Friends", art:"img/friends.jpg",
+  tags:"Licensed &middot; Withdrawn",
+  facts:['<span class="score">96% Match</span>','<span>Licensed</span>','<span class="pill">Gone</span>'],
+  body:
+    '<p>Netflix is reported to have paid around $100M to keep it for one further year in 2019, and lost '+
+    'it to HBO Max on 1 January 2020 regardless.</p>'+
+    '<p>Renting an audience gets more expensive every time the landlord decides to compete with you, '+
+    'and eventually the price is not a number at all.</p>'
+},
+{
+  id:"parksrec", row:"Licensed, Not Owned", chapter:"Left for Peacock, 2020", kind:"title",
+  name:"Parks and Recreation", art:"img/parks-and-rec.jpg",
+  tags:"Licensed &middot; Withdrawn",
+  facts:['<span class="score">90% Match</span>','<span>Licensed</span>','<span class="pill">Gone</span>'],
+  body:
+    '<p>Withdrawn in the same NBCUniversal move as The Office.</p>'+
+    '<p>Comfort comedy is unusually valuable to a subscription business because people rewatch it, and '+
+    'rewatching is retention that costs nothing further to produce. Losing it costs more than the '+
+    'licence fee saved.</p>'
+},
+{
+  id:"himym", row:"Licensed, Not Owned", chapter:"Moved to Hulu", kind:"title",
+  name:"How I Met Your Mother", art:"img/himym.jpg",
+  tags:"Licensed &middot; Withdrawn",
+  facts:['<span class="score">87% Match</span>','<span>Licensed</span>','<span class="pill">Gone</span>'],
+  body:
+    '<p>Another long-running network sitcom that left the US service for its rights holder&rsquo;s own '+
+    'platform.</p>'+
+    '<p>The pattern is the point: every studio that launched a service took its back catalogue with it, '+
+    'and all of it left at once.</p>'
+},
+{
+  id:"seinfeld", row:"Licensed, Not Owned", chapter:"Arrived 2021", kind:"title",
+  name:"Seinfeld", art:"img/seinfeld.jpg",
+  tags:"Licensed &middot; Acquired",
+  facts:['<span class="score">91% Match</span>','<span>Licensed</span>','<span class="pill">Arrived</span>'],
+  body:
+    '<p>The traffic runs both ways. Netflix took the global rights from Hulu in October 2021, on a '+
+    'five-year deal reported at over $500M.</p>'+
+    '<p>It is the best available price tag on what a proven library title costs, and a reminder that '+
+    'a deal like this buys five years and then expires. An original does not.</p>'
+},
+{
+  id:"community", row:"Licensed, Not Owned", chapter:"Arrived 2020", kind:"title",
+  name:"Community", art:"img/community.jpg",
+  tags:"Licensed &middot; Acquired",
+  facts:['<span class="score">86% Match</span>','<span>Licensed</span>','<span class="pill">Arrived</span>'],
+  body:
+    '<p>Picked up from Hulu in April 2020 and promptly one of the most watched things on the service.</p>'+
+    '<p>Licensing still works, and it works fast: no production risk, no lead time, an audience that '+
+    'already exists. It simply is not permanent, which is the whole argument.</p>'
+},
+
+/* --- Trending Now ----------------------------------------------------- *
+ * Film economics, which is the part of the market a subscription service   *
+ * fits into least comfortably.                                             */
+{
+  id:"inception", row:"Trending Now", chapter:"Film &middot; 2010", kind:"title",
+  name:"Inception", art:"img/inception.jpg",
+  tags:"Film &middot; Original blockbuster",
+  facts:['<span class="score">94% Match</span>','<span>Film</span>','<span class="pill">2010</span>'],
+  body:
+    '<p>An expensive blockbuster with no franchise behind it, which is close to extinct now.</p>'+
+    '<p>The economics of a film like this are exactly what pushed studios toward series they can '+
+    'amortise across a subscription instead of recovering in a single opening weekend.</p>'
+},
+{
+  id:"oppenheimer", row:"Trending Now", chapter:"Film &middot; 2023", kind:"title",
+  name:"Oppenheimer", art:"img/oppenheimer.jpg",
+  tags:"Film &middot; Theatrical",
+  facts:['<span class="score">95% Match</span>','<span>Film</span>','<span class="pill">2023</span>'],
+  body:
+    '<p>Three hours, no franchise, and close to a billion dollars at the box office.</p>'+
+    '<p>It is the strongest recent evidence that a theatrical release does something a straight-to-'+
+    'service drop cannot, which is why Netflix&rsquo;s film strategy remains the most contested part '+
+    'of its content spend.</p>'
+},
+{
+  id:"dunetwo", row:"Trending Now", chapter:"Film &middot; 2024", kind:"title",
+  name:"Dune: Part Two", art:"img/dune-part-two.jpg",
+  tags:"Film &middot; Windowed release",
+  facts:['<span class="score">93% Match</span>','<span>Film</span>','<span class="pill">2024</span>'],
+  body:
+    '<p>In cinemas first, on the owner&rsquo;s streaming service afterwards.</p>'+
+    '<p>The staggered window is the compromise every major rival except Netflix has settled on: collect '+
+    'the theatrical revenue, then use the same film a second time to hold subscribers.</p>'
+},
+{
+  id:"eeaao", row:"Trending Now", chapter:"Film &middot; 2022", kind:"title",
+  name:"Everything Everywhere All at Once", art:"img/everything-everywhere.jpg",
+  tags:"Film &middot; Budget discipline",
+  facts:['<span class="score">92% Match</span>','<span>Film</span>','<span class="pill">2022</span>'],
+  body:
+    '<p>Made independently for a reported $25M or so, and it won seven Academy Awards.</p>'+
+    '<p>Prestige does not require a tentpole budget. That is the uncomfortable half of any '+
+    'content-spend argument: the correlation between money and acclaim is much weaker than the '+
+    'spending implies.</p>'
+},
+{
+  id:"maverick", row:"Trending Now", chapter:"Film &middot; 2022", kind:"title",
+  name:"Top Gun: Maverick", art:"img/top-gun-maverick.jpg",
+  tags:"Film &middot; The road not taken",
+  facts:['<span class="score">94% Match</span>','<span>Film</span>','<span class="pill">2022</span>'],
+  body:
+    '<p>Paramount declined to sell it to a streaming service and held it back for cinemas through the '+
+    'pandemic, at considerable cost.</p>'+
+    '<p>It went on to earn more than $1.4B. This is the direct counter-example to Red Notice: the same '+
+    'kind of star vehicle, released the other way, earning money a subscription release could never '+
+    'have shown.</p>'
+},
+{
+  id:"parasite", row:"Trending Now", chapter:"Film &middot; 2019", kind:"title",
+  name:"Parasite", art:"img/parasite.jpg",
+  tags:"Film &middot; Subtitles",
+  facts:['<span class="score">96% Match</span>','<span>Film</span>','<span class="pill">2019</span>'],
+  body:
+    '<p>The first non-English winner of Best Picture.</p>'+
+    '<p>It arrived a year before Money Heist broke through worldwide and two before Squid Game, and '+
+    'pointed at the same conclusion: subtitles had stopped being a ceiling on how large an audience '+
+    'could get. Every argument in this analysis about local production rests on that.</p>'
+},
+{
+  id:"spiderverse", row:"Trending Now", chapter:"Film &middot; 2018", kind:"title",
+  name:"Spider-Man: Into the Spider-Verse", art:"img/spider-verse.jpg",
+  tags:"Film &middot; Distinctiveness",
+  facts:['<span class="score">93% Match</span>','<span>Film</span>','<span class="pill">2018</span>'],
+  body:
+    '<p>Sony put its money into a look nobody else had rather than into more of it.</p>'+
+    '<p>Distinctiveness is cheaper than scale and it travels further. In a market where every service '+
+    'is buying volume, being unmistakable is the more defensible position.</p>'
+},
+{
+  id:"furyroad", row:"Trending Now", chapter:"Film &middot; 2015", kind:"title",
+  name:"Mad Max: Fury Road", art:"img/fury-road.jpg",
+  tags:"Film &middot; Travels without translation",
+  facts:['<span class="score">91% Match</span>','<span>Film</span>','<span class="pill">2015</span>'],
+  body:
+    '<p>Practical effects, very little dialogue, and it plays in any language on earth.</p>'+
+    '<p>Titles that need almost no translation are worth disproportionately more to a service selling '+
+    'one catalogue across 190 countries, because the cost of carrying them internationally is close '+
+    'to zero.</p>'
+},
+{
+  id:"br2049", row:"Trending Now", chapter:"Film &middot; 2017", kind:"title",
+  name:"Blade Runner 2049", art:"img/blade-runner-2049.jpg",
+  tags:"Film &middot; The long tail",
+  facts:['<span class="score">89% Match</span>','<span>Film</span>','<span class="pill">2017</span>'],
+  body:
+    '<p>Widely admired, and it lost money in cinemas. It found its audience on streaming afterwards.</p>'+
+    '<p>A long tail is worth far more to a subscription business than to a box office, which is a large '+
+    'part of why the libraries were worth buying in the first place.</p>'
+},
+{
+  id:"whiplash", row:"Trending Now", chapter:"Film &middot; 2014", kind:"title",
+  name:"Whiplash", art:"img/whiplash.jpg",
+  tags:"Film &middot; The floor of the range",
+  facts:['<span class="score">90% Match</span>','<span>Film</span>','<span class="pill">2014</span>'],
+  body:
+    '<p>Shot in nineteen days for a reported $3.3M, and nominated for Best Picture.</p>'+
+    '<p>It sits here as the bottom of the cost range this analysis keeps referring to. The entire film '+
+    'cost less than a single minute of a tentpole series.</p>'
+},
 ];
 
 /* ---------------------------------------------------------------- rows */
 var ROW_ORDER = ["Start Here","Market Forces","Product & Pricing",
-                 "The Q4 2021 Slate","The Numbers","Risks & Recommendations","More Like This"];
+                 "The Q4 2021 Slate","The Numbers","Risks & Recommendations",
+                 "The Competition","Licensed, Not Owned","Trending Now","More Like This"];
 var rowsEl = document.getElementById("rows");
 
 // The nine numbered chapters are the analysis. Everything else (the show
@@ -1046,7 +1348,7 @@ function chapterAt(s){ return CHAPTERS.indexOf(s); }   // 0-based, -1 if not one
 function cardHTML(s){
   if(s.kind === "title"){
     return '<button class="card card-poster" type="button" data-open="'+s.id+'" '+
-             'style="background-image:url('+s.art+')">'+
+             'data-art="'+s.art+'">'+
              '<span class="card-art">'+
                '<span><span class="card-chapter">'+s.chapter+'</span>'+
                '<span class="card-name">'+s.name+'</span></span>'+
@@ -1059,7 +1361,7 @@ function cardHTML(s){
     Math.round((n + 1) / CHAPTERS.length * 100)+'%"></span></span>';
 
   return '<button class="card" type="button" data-open="'+s.id+'" '+
-           'style="background-image:url('+s.art+')">'+
+           'data-art="'+s.art+'">'+
            '<span class="card-art">'+
              '<span><span class="card-chapter">'+s.chapter+'</span>'+
              '<span class="card-stat">'+s.stat+'<small>'+s.statLabel+'</small></span></span>'+
@@ -1079,7 +1381,7 @@ ROW_ORDER.forEach(function(rowName){
 
   if(rowName === "More Like This"){
     h += '<a class="card" href="../" '+
-         'style="background-image:url(img/breaking-bad-couch.jpg);text-decoration:none">'+
+         'data-art="img/breaking-bad-couch.jpg" style="text-decoration:none">'+
            '<span class="card-art"><span><span class="card-chapter">Portfolio</span>'+
            '<span class="card-stat">&larr;<small>go back</small></span></span>'+
            '<span class="card-name">Joseph Nguyen</span></span></a>';
@@ -1089,6 +1391,37 @@ ROW_ORDER.forEach(function(rowName){
   sec.innerHTML = h;
   rowsEl.appendChild(sec);
 });
+
+/* -------------------------------------------------------- card artwork */
+// There are now more than sixty cards, and fetching all of that up front
+// would cost more than the rest of the page put together. Art is attached
+// when a card comes within a screen or so of the viewport instead. The
+// margin is generous because horizontal scrolling inside a rail moves
+// faster than the eye, and .card carries a solid fallback colour, so a card
+// that has not painted yet is still perfectly readable.
+(function lazyArt(){
+  var cards = document.querySelectorAll("[data-art]");
+
+  function paint(el){
+    el.style.backgroundImage = "url(" + el.getAttribute("data-art") + ")";
+    el.removeAttribute("data-art");
+  }
+
+  if(!window.IntersectionObserver){
+    Array.prototype.forEach.call(cards, paint);
+    return;
+  }
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      paint(e.target);
+      io.unobserve(e.target);
+    });
+  }, {rootMargin:"600px 800px"});
+
+  Array.prototype.forEach.call(cards, function(el){ io.observe(el); });
+})();
 
 /* rail arrows */
 Array.prototype.forEach.call(document.querySelectorAll(".rail-wrap"), function(wrap){
