@@ -27,14 +27,15 @@
     max-width: 60ch;
     line-height: 1.8;
     opacity: 0.85;
-    /* Both edges flush against the carousel beside it. Hyphenation comes with
-       it rather than as a flourish: justifying a column this narrow without it
-       stretches the word spacing on unlucky lines far enough to leave white
-       channels running down the paragraph. */
+    /* Both edges flush against the carousel beside it. */
     text-align: justify;
-    /* Prefixed for Safari, which still needs it. */
-    -webkit-hyphens: auto;
-    hyphens: auto;
+    /* No hyphenation: breaking a short word like "my-self" across two lines
+       costs more in reading than the tidier word spacing buys back. The price
+       is that the browser has to absorb every line's slack in the gaps between
+       words, so an unlucky line here will run wider-spaced than its
+       neighbours. */
+    -webkit-hyphens: manual;
+    hyphens: manual;
 }
 
 .about-bio + .about-bio {
