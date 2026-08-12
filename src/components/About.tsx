@@ -126,9 +126,9 @@ function About() {
             <p className="about-bio">
               I'm a student at Virginia Tech studying Business Information
               Technology. I'm really passionate about problem solving and creating
-              things that solve some sort of problem in my life or creating things
-              that I think it would be really cool to share. Check out down below for
-              some projects that showcase my passion for building and problem solving.
+              things that solve some sort of problem in my life or things that I
+              think would be really cool to share. Check out some of the projects
+              below that showcase what I mean.
             </p>
             {/* Second paragraph is also what gives this column enough height to
                 sit alongside the carousel rather than trailing off halfway up. */}
