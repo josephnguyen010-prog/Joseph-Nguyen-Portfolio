@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/Joseph-Nguyen-Portfolio-/static/css/main.b53d8b50.css",
-    "main.js": "/Joseph-Nguyen-Portfolio-/static/js/main.39db10e1.js",
+    "main.js": "/Joseph-Nguyen-Portfolio-/static/js/main.40f71ede.js",
     "static/js/453.b05d8aa5.chunk.js": "/Joseph-Nguyen-Portfolio-/static/js/453.b05d8aa5.chunk.js",
     "static/media/bg-light.png": "/Joseph-Nguyen-Portfolio-/static/media/bg-light.bac0efb485244a522981.png",
     "static/media/bg-dark.png": "/Joseph-Nguyen-Portfolio-/static/media/bg-dark.f420c6b8458af72de935.png",
@@ -16,16 +16,17 @@
     "static/media/chicago.webp": "/Joseph-Nguyen-Portfolio-/static/media/chicago.038e8dcc88dc8f055fc5.webp",
     "static/media/vietnam.webp": "/Joseph-Nguyen-Portfolio-/static/media/vietnam.aa33cec30506e5f5d973.webp",
     "static/media/venus.jpg": "/Joseph-Nguyen-Portfolio-/static/media/venus.83a79008f7f40840c4c2.jpg",
+    "static/media/jjk.jpg": "/Joseph-Nguyen-Portfolio-/static/media/jjk.c1e8dbff158eeea41114.jpg",
     "static/media/venus.png": "/Joseph-Nguyen-Portfolio-/static/media/venus.0c7ac02df1a38e4c631d.png",
     "static/media/avatar.jpg": "/Joseph-Nguyen-Portfolio-/static/media/avatar.9807f5ee78de27639fcc.jpg",
     "index.html": "/Joseph-Nguyen-Portfolio-/index.html",
     "static/media/virginia-tech.svg": "/Joseph-Nguyen-Portfolio-/static/media/virginia-tech.6949aa9cec7639318918d8888b571d77.svg",
     "main.b53d8b50.css.map": "/Joseph-Nguyen-Portfolio-/static/css/main.b53d8b50.css.map",
-    "main.39db10e1.js.map": "/Joseph-Nguyen-Portfolio-/static/js/main.39db10e1.js.map",
+    "main.40f71ede.js.map": "/Joseph-Nguyen-Portfolio-/static/js/main.40f71ede.js.map",
     "453.b05d8aa5.chunk.js.map": "/Joseph-Nguyen-Portfolio-/static/js/453.b05d8aa5.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.b53d8b50.css",
-    "static/js/main.39db10e1.js"
+    "static/js/main.40f71ede.js"
   ]
 }
