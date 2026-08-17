@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jujutsu Kaisen Computer Vision Project</title>
+<style>
+  :root {
+    --bg: #14121a;
+    --panel: #1c1a24;
+    --line: #3c3844;
+    --text: #ece9f2;
+    --muted: #9a94a8;
+    --accent: #ff5a78;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    gap: 10px;
+  }
+
+  [hidden] { display: none !important; }
+
+  h1 { font-size: 1.5rem; margin: 0 0 6px; font-weight: 600; text-align: center; }
+
+  .title { text-align: center; margin-bottom: 6px; }
+
+  /* Logo and heading sit side by side, wrapping on narrow screens rather than
+     shrinking the mark until it is unreadable.
+
+     Both are sized from the bar's own font-size -- the logo in em, the heading
+     at 1em -- so they scale together and stay matched at every width instead of
+     drifting apart as the viewport changes. */
+  .titlebar {
+    display: flex; align-items: center; justify-content: center;
+    gap: 16px; flex-wrap: wrap; margin-bottom: 8px;
+    font-size: clamp(1.15rem, 2.4vw, 1.75rem);
+    transition: font-size 160ms ease;
+  }
+  /* Smaller once the camera is up: the mark stays for identity, but the demo is
+     what the screen is for by then. */
+  body.demo-active .titlebar { font-size: clamp(0.85rem, 1.5vw, 1.1rem); margin-bottom: 0; }
+  #logo { height: 2.1em; width: auto; max-width: 60vw; object-fit: contain; display: block; }
+
+  .title.has-logo h1 { font-size: 1em; font-weight: 600; margin: 0; line-height: 1.1; }
+  p.lede { margin: 0 auto; color: var(--muted); max-width: 68ch; text-align: center; font-size: 0.88rem; }
+
+  button {
+    font: inherit; font-weight: 600; color: #fff;
+    background: var(--accent); border: 0; border-radius: 8px;
+    padding: 11px 24px; cursor: pointer;
+  }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button.secondary { background: transparent; border: 1px solid var(--line); color: var(--text); font-weight: 500; }
+
+  /* ---- intro ---- */
+
+  #intro { width: min(100%, 1060px); display: flex; flex-direction: column; gap: 12px; }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .step {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 14px;
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .step .num {
+    flex: 0 0 auto;
+    display: inline-grid; place-items: center;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-size: 0.74rem; font-weight: 700;
+  }
+  .step h3 { margin: 0 0 2px; font-size: 0.88rem; font-weight: 600; }
+  .step p { margin: 0; color: var(--muted); font-size: 0.8rem; line-height: 1.35; }
+
+  .signs-heading { text-align: center; }
+  .signs-heading h2 { font-size: 0.95rem; margin: 0; font-weight: 600; }
+  .signs-heading p { margin: 2px 0 0; color: var(--muted); font-size: 0.82rem; }
+
+  .signs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  @media (max-width: 900px) { .signs { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); } }
+
+  .sign-card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 8px; text-align: center;
+    display: flex; flex-direction: column;
+  }
+  .sign-card .frame {
+    aspect-ratio: 1; display: grid; place-items: center;
+    border-radius: 6px; background: #14121a; overflow: hidden; margin-bottom: 6px;
+  }
+  .sign-card img { width: 100%; height: 100%; object-fit: contain; }
+  .sign-card .missing { color: var(--muted); font-size: 0.75rem; padding: 8px; }
+  .sign-card .name { font-size: 0.84rem; font-weight: 600; margin-bottom: 3px; }
+  .sign-card .how { font-size: 0.73rem; color: var(--muted); line-height: 1.35; text-align: left; margin: 0; }
+  .sign-card .note { font-size: 0.7rem; color: var(--muted); opacity: 0.75; margin: 4px 0 0; text-align: left; font-style: italic; }
+
+  .intro-actions { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .privacy { color: var(--muted); font-size: 0.78rem; text-align: center; margin: 0; }
+  .credit { color: var(--muted); font-size: 0.78rem; text-align: center; margin: 0; opacity: 0.8; }
+  .credit a { color: inherit; }
+  .error { color: var(--accent); font-size: 0.86rem; text-align: center; margin: 0; max-width: 46ch; }
+
+  /* ---- demo ---- */
+
+  #demo { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+
+  /* The camera gets the larger share. It is where the work happens -- lining up
+     your hands, watching the ring close -- while the character panel is a glance.
+     Narrowing it also buys the camera vertical space, since the stage is capped
+     by window width. The portraits are about 1.75:1 and lose nothing here. */
+  .stage {
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 2px;
+    background: var(--line); border: 1px solid var(--line);
+    border-radius: 12px; overflow: hidden;
+    height: clamp(240px, 58vh, 560px);
+    width: min(100%, calc(clamp(240px, 58vh, 560px) * 2.7));
+  }
+
+  @media (max-width: 860px) {
+    .stage {
+      grid-template-columns: 1fr; grid-template-rows: 1fr 1fr;
+      height: clamp(320px, 70vh, 720px);
+      width: min(100%, calc(clamp(320px, 70vh, 720px) * 8 / 9));
+    }
+  }
+
+  .panel { position: relative; background: var(--panel); display: grid; place-items: center; min-height: 0; min-width: 0; }
+  canvas { width: 100%; height: 100%; display: block; }
+
+  #portrait { max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0; transition: opacity 180ms ease; }
+  #portrait.visible { opacity: 1; }
+
+  #hint { position: absolute; color: var(--muted); font-size: 0.9rem; padding: 16px; text-align: center; }
+
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  #status { color: var(--muted); font-size: 0.9rem; min-height: 1.4em; text-align: center; }
+
+  /* Everything optional lives here, so the controls row stays short however
+     many features get added. */
+  #settings {
+    width: min(100%, 560px); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 18px; display: none; gap: 10px; flex-direction: column;
+  }
+  #settings.open { display: flex; }
+
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 0.92rem; }
+  .row label { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+  .row input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  .row input[type="range"] { accent-color: var(--accent); width: 140px; }
+  .row .note { color: var(--muted); font-size: 0.82rem; }
+  .row.disabled { opacity: 0.45; pointer-events: none; }
+
+  hr { border: 0; border-top: 1px solid var(--line); margin: 2px 0; width: 100%; }
+
+  #readout {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 0.78rem; color: var(--muted);
+    background: #14121a; border: 1px solid var(--line); border-radius: 6px;
+    padding: 10px 12px; margin: 0; white-space: pre; display: none;
+  }
+  #readout.visible { display: block; }
+
+  video { display: none; }
+</style>
+</head>
+<body>
+
+<!-- Outside both views, so the mark stays put rather than appearing and
+     disappearing as you move between them. -->
+<div class="title" id="title">
+  <div class="titlebar">
+    <img id="logo" alt="Jujutsu Kaisen" hidden />
+    <h1 id="heading">Jujutsu Kaisen Computer Vision Project</h1>
+  </div>
+</div>
+
+<!-- ---------------- intro ---------------- -->
+<section id="intro">
+  <p class="lede">
+    A hand sign recogniser trained from scratch. Throw one of five signs at your
+    webcam and it names the character it belongs to.
+  </p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="num">1</div>
+      <div>
+        <h3>Allow the camera</h3>
+        <p>Your browser will ask. The feed never leaves your machine.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div>
+        <h3>Throw a sign</h3>
+        <p>Both hands up, facing the camera, roughly an arm's length back.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div>
+        <h3>Hold it steady</h3>
+        <p>A ring closes around your hands as it charges. About a second.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="signs-heading">
+    <h2>The five signs</h2>
+    <p>Anything else your hands are doing is read as nothing, so you won't set it off by accident.</p>
+  </div>
+  <div class="signs" id="signGrid"></div>
+
+  <div class="intro-actions">
+    <button id="enter">Start</button>
+    <p class="privacy">
+      Runs entirely in this tab &mdash; the video and the model both stay on your
+      machine, and nothing is uploaded or recorded.
+    </p>
+    <p class="credit">Created by Joseph Nguyen</p>
+  </div>
+</section>
+
+<!-- ---------------- demo ---------------- -->
+<main id="demo" hidden>
+  <div class="stage">
+    <div class="panel">
+      <canvas id="camera"></canvas>
+      <span id="hint">Camera off</span>
+    </div>
+    <div class="panel">
+      <img id="portrait" alt="" />
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="cameraButton">Start camera</button>
+    <button id="backToIntro" class="secondary">Instructions</button>
+    <button id="settingsToggle" class="secondary">Settings</button>
+  </div>
+
+  <div id="status"></div>
+  <p class="error" id="demoError" hidden></p>
+
+  <div id="settings">
+    <div class="row">
+      <label><input type="checkbox" id="skeleton" checked /> Show hand tracking</label>
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="debug" /> Show readout</label>
+      <span class="note">live probabilities and frame rate</span>
+    </div>
+    <pre id="readout"></pre>
+    <hr />
+    <div class="row disabled" id="audioRow">
+      <label><input type="checkbox" id="mute" /> Mute audio</label>
+      <span class="note" id="audioNote">no audio files found</span>
+    </div>
+    <div class="row disabled" id="volumeRow">
+      <label for="volume">Music volume</label>
+      <input type="range" id="volume" min="0" max="100" value="35" />
+    </div>
+  </div>
+</main>
+
+<video id="video" playsinline muted></video>
+
+<script type="module">
+  import { SignDemo } from "./app.js";
+  import { SoundBoard } from "./audio.js";
+
+  const $ = (id) => document.getElementById(id);
+  const elements = {
+    intro: $("intro"), demo: $("demo"), signGrid: $("signGrid"),
+    enter: $("enter"), cameraButton: $("cameraButton"), backToIntro: $("backToIntro"),
+    demoError: $("demoError"), title: $("title"), logo: $("logo"), heading: $("heading"),
+    video: $("video"), canvas: $("camera"), portrait: $("portrait"), hint: $("hint"),
+    settingsToggle: $("settingsToggle"), settings: $("settings"),
+    skeleton: $("skeleton"), debug: $("debug"), readout: $("readout"),
+    mute: $("mute"), volume: $("volume"), audioRow: $("audioRow"),
+    volumeRow: $("volumeRow"), audioNote: $("audioNote"), status: $("status"),
+  };
+
+  let demo = null;
+  let sounds = null;
+  let running = false;
+  let loaded = false;
+  let shownPortrait = null;
+  let frames = 0;
+  let fpsMark = performance.now();
+  let fps = 0;
+
+  const REFERENCE_EXTENSIONS = ["png", "jpg", "jpeg", "webp", "gif"];
+
+  // ---- the logo ----
+  //
+  // Optional. Drop assets/logo.<ext> in and it appears above the heading, which
+  // then shrinks to a subtitle. With no file the heading carries the page on its
+  // own, so the page is never waiting on an image that may not exist.
+  (function loadLogo() {
+    const extensions = ["svg", "png", "webp", "jpg"];
+    let attempt = 0;
+    elements.logo.onload = () => {
+      elements.logo.hidden = false;
+      elements.title.classList.add("has-logo");
+      elements.heading.textContent = "Computer Vision Project";
+    };
+    elements.logo.onerror = () => {
+      attempt += 1;
+      if (attempt < extensions.length) {
+        elements.logo.src = `assets/logo.${extensions[attempt]}`;
+      }
+    };
+    elements.logo.src = `assets/logo.${extensions[0]}`;
+  })();
+
+  // ---- the sign reference cards ----
+
+  /**
+   * Extensions are tried in turn through the error handler rather than being
+   * fixed, so a mix of formats works and a sign with no image yet shows a
+   * placeholder instead of a broken-image icon. Reference pictures can then be
+   * added one at a time.
+   */
+  function signCard({ name, display, howTo, note }) {
+    const card = document.createElement("div");
+    card.className = "sign-card";
+
+    const frame = document.createElement("div");
+    frame.className = "frame";
+
+    const image = document.createElement("img");
+    image.alt = display;
+    let attempt = 0;
+    image.onerror = () => {
+      attempt += 1;
+      if (attempt < REFERENCE_EXTENSIONS.length) {
+        image.src = `assets/instructions/${name}.${REFERENCE_EXTENSIONS[attempt]}`;
+      } else {
+        const missing = document.createElement("span");
+        missing.className = "missing";
+        missing.textContent = "no reference image";
+        frame.replaceChildren(missing);
+      }
+    };
+    image.src = `assets/instructions/${name}.${REFERENCE_EXTENSIONS[0]}`;
+
+    const label = document.createElement("div");
+    label.className = "name";
+    label.textContent = display;
+
+    frame.append(image);
+    card.append(frame, label);
+
+    // textContent, not innerHTML -- these strings come from signs.py and are
+    // edited by hand, so there is no reason to let them inject markup.
+    if (howTo) {
+      const how = document.createElement("p");
+      how.className = "how";
+      how.textContent = howTo;
+      card.append(how);
+    }
+    if (note) {
+      const extra = document.createElement("p");
+      extra.className = "note";
+      extra.textContent = note;
+      card.append(extra);
+    }
+
+    return card;
+  }
+
+  // signs.json rather than model.json: the intro renders before anyone presses
+  // Start, and half a megabyte of weights has no business being downloaded just
+  // to draw five labels.
+  fetch("./signs.json")
+    .then((response) => (response.ok ? response.json() : null))
+    .then((data) => data && elements.signGrid.replaceChildren(...data.signs.map(signCard)))
+    .catch(() => {});
+
+  // ---- per-frame state ----
+
+  function onState(state) {
+    frames += 1;
+    const now = performance.now();
+    if (now - fpsMark > 500) {
+      fps = Math.round((frames * 1000) / (now - fpsMark));
+      frames = 0;
+      fpsMark = now;
+    }
+
+    // The video is live well before the models finish downloading, so say so
+    // rather than looking like a demo that detects nothing.
+    if (state.loading) {
+      elements.status.textContent = "Loading the hand tracker…";
+      return;
+    }
+    if (!loaded) {
+      loaded = true;
+      elements.status.textContent = "Throw a sign and hold it.";
+    }
+
+    // Swap the <img> only when the sign changes. Reassigning src every frame
+    // would restart the GIF continuously and it would never animate.
+    const wanted = state.recognised ? state.label : null;
+    if (wanted !== shownPortrait) {
+      shownPortrait = wanted;
+      if (wanted) {
+        elements.portrait.src = `assets/characters/${wanted}.gif`;
+        elements.portrait.classList.add("visible");
+      } else {
+        elements.portrait.classList.remove("visible");
+      }
+    }
+
+    if (state.fired) sounds?.fire(state.label);
+
+    if (elements.readout.classList.contains("visible")) {
+      const ranked = [...state.classes.keys()]
+        .sort((a, b) => state.probabilities[b] - state.probabilities[a])
+        .slice(0, 3)
+        .map((i) => `${state.classes[i].padEnd(20)}${state.probabilities[i].toFixed(2)}`);
+      elements.readout.textContent = [
+        ...ranked,
+        `charge ${state.charge.toFixed(2)}`,
+        `hands  ${state.handCount} (peak ${state.peakHands})    ${fps} fps`,
+        `gate   ${demo?.handGate ? "on" : "OFF"}`,
+      ].join("\n");
+    }
+  }
+
+  // ---- view switching ----
+
+  function showDemo() {
+    elements.intro.hidden = true;
+    elements.demo.hidden = false;
+    document.body.classList.add("demo-active");
+  }
+
+  function showIntro() {
+    elements.demo.hidden = true;
+    elements.intro.hidden = false;
+    document.body.classList.remove("demo-active");
+    // The intro button only ever moves between views, so it stays enabled and
+    // there is no way to get stranded here.
+    elements.enter.textContent = running ? "Back to camera" : "Start";
+  }
+
+  // The intro is purely informational: this just moves to the demo. The camera
+  // is started from the demo screen, where the permission prompt appears next to
+  // the thing it is asking about.
+  elements.enter.addEventListener("click", showDemo);
+
+  /** Release the camera and reset the panel, without throwing the page away. */
+  function stopCamera() {
+    demo?.stop();
+    sounds?.stop();
+    running = false;
+    loaded = false;
+    shownPortrait = null;
+
+    // Clear the last frame rather than leaving a frozen picture of you behind.
+    const context = elements.canvas.getContext("2d");
+    context.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
+    elements.portrait.classList.remove("visible");
+
+    elements.hint.textContent = "Camera off";
+    elements.hint.hidden = false;
+    elements.status.textContent = "";
+    elements.cameraButton.textContent = "Start camera";
+    elements.cameraButton.classList.remove("secondary");
+    elements.cameraButton.disabled = false;
+  }
+
+  elements.cameraButton.addEventListener("click", async () => {
+    if (running) {
+      stopCamera();
+      return;
+    }
+
+    elements.cameraButton.disabled = true;
+    elements.cameraButton.textContent = "Starting…";
+    elements.demoError.hidden = true;
+    elements.hint.textContent = "Starting camera…";
+    elements.status.textContent = "Loading model and camera…";
+
+    try {
+      // ?gate=off disables the two-hand requirement, to test whether it is what
+      // is blocking a sign.
+      const handGate = new URLSearchParams(location.search).get("gate") !== "off";
+      demo = new SignDemo({ video: elements.video, canvas: elements.canvas, onState, handGate });
+      demo.showSkeleton = elements.skeleton.checked;
+      await demo.start();
+      running = true;
+      elements.hint.hidden = true;
+      elements.cameraButton.textContent = "Stop";
+      elements.cameraButton.classList.add("secondary");
+      elements.cameraButton.disabled = false;
+
+      // Audio is discovered after the model loads, since the sign names come
+      // from it. Starting it here keeps it inside the click that got us here --
+      // browsers block playback that isn't traceable to a user gesture.
+      // Discovered once and kept: stopping and starting the camera again should
+      // not re-probe every file.
+      if (!sounds) {
+        sounds = new SoundBoard({ signs: demo.classifier.classes });
+        const available = await sounds.load();
+        if (sounds.hasAudio) {
+          elements.audioRow.classList.remove("disabled");
+          elements.audioNote.textContent = available.music
+            ? `theme + ${available.effects.length} sign sounds`
+            : `${available.effects.length} sign sounds`;
+          if (available.music) elements.volumeRow.classList.remove("disabled");
+        }
+      }
+      if (sounds.hasAudio && !elements.mute.checked) await sounds.start();
+    } catch (error) {
+      // Stay on the demo screen: the button that failed is here, and it is the
+      // obvious thing to press again once the permission is sorted out.
+      running = false;
+      elements.cameraButton.disabled = false;
+      elements.cameraButton.textContent = "Start camera";
+      elements.hint.textContent = "Camera off";
+      elements.status.textContent = "";
+      elements.demoError.textContent =
+        error.reason === "permission"
+          ? "Camera permission denied. Allow it in your browser, then press Start camera again."
+          : error.message;
+      elements.demoError.hidden = false;
+    }
+  });
+
+  // The camera keeps running behind the instructions, so coming back is instant
+  // rather than paying for the permission prompt and model load again.
+  elements.backToIntro.addEventListener("click", showIntro);
+
+  elements.settingsToggle.addEventListener("click", () => {
+    elements.settings.classList.toggle("open");
+  });
+
+  elements.skeleton.addEventListener("change", () => {
+    if (demo) demo.showSkeleton = elements.skeleton.checked;
+  });
+
+  elements.debug.addEventListener("change", () => {
+    elements.readout.classList.toggle("visible", elements.debug.checked);
+  });
+
+  elements.mute.addEventListener("change", () => {
+    sounds?.setMuted(elements.mute.checked);
+  });
+
+  elements.volume.addEventListener("input", () => {
+    if (sounds?.music) sounds.music.volume = Number(elements.volume.value) / 100;
+  });
+</script>
+</body>
+</html>

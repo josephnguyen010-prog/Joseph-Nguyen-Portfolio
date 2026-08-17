@@ -6,6 +6,7 @@ import netflixCaseStudy from '../assets/images/netflix-case-study.jpg';
 import venus from '../assets/images/venus.jpg';
 // Same again - a screenshot of the app itself.
 import arrivals from '../assets/images/arrivals.jpg';
+import jjk from '../assets/images/jjk.jpg';
 import Reveal from './Reveal';
 import '../assets/styles/Project.scss';
 
@@ -14,6 +15,8 @@ import '../assets/styles/Project.scss';
 const caseStudyUrl = `${process.env.PUBLIC_URL}/netflix-case-study/`;
 // Arrivals routes on the hash, so it survives a refresh under this sub-path.
 const arrivalsUrl = `${process.env.PUBLIC_URL}/arrivals/`;
+// A static page in public/, rebuilt from the jjk-hand-signs repo by build_web.py.
+const handSignsUrl = `${process.env.PUBLIC_URL}/jjk/`;
 
 interface ProjectItem {
     image: string;
@@ -36,6 +39,12 @@ const projects: ProjectItem[] = [
         title: "Arrivals: Letterboxd for Cities",
         href: arrivalsUrl,
         description: "Log the cities you have been to and rate them out of five. Ties are settled by asking which one you preferred, so a new city lands by binary search - three questions for an eight-city band, not eight. React, TypeScript and Vite; the link opens the working app.",
+    },
+    {
+        image: jjk,
+        title: "Hand Sign Recognition",
+        href: handSignsUrl,
+        description: "Throw one of five anime hand signs at your webcam and it names the character. MediaPipe finds the hand landmarks; a classifier trained on my own recordings does the rest, scoring 95% on held-out recording sessions rather than a random split, which would have flattered it to 100%. Runs entirely in the browser - the model is a few matrix multiplies in plain JavaScript, so there is no ML runtime to download and no video leaves the tab.",
     },
     {
         image: netflixCaseStudy,
