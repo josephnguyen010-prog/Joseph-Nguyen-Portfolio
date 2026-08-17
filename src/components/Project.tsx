@@ -44,7 +44,7 @@ const projects: ProjectItem[] = [
         image: jjk,
         title: "Jujutsu Kaisen Computer Vision Project",
         href: handSignsUrl,
-        description: "Throw one of five anime hand signs at your webcam and it names the character. Machine learning end to end: a neural network trained on 3,000 samples I recorded and labelled myself, scoring 95% on held-out sessions where a random split would have flattered it to 100%. Runs in the browser; no video leaves the tab.",
+        description: "Throw one of five anime hand signs at your webcam and it names the character. Machine learning end to end: a neural network trained on a 3,000-sample dataset built from scratch, scoring 95% on held-out sessions where a random split would have flattered it to 100%. Runs in the browser; no video leaves the tab.",
     },
     {
         image: netflixCaseStudy,
