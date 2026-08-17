@@ -44,7 +44,7 @@ const projects: ProjectItem[] = [
         image: jjk,
         title: "Jujutsu Kaisen Computer Vision Project",
         href: handSignsUrl,
-        description: "Throw one of five anime hand signs at your webcam and it names the character. MediaPipe finds the hand landmarks; a classifier trained on my own recordings does the rest, scoring 95% on held-out recording sessions rather than a random split, which would have flattered it to 100%. Runs entirely in the browser - the model is a few matrix multiplies in plain JavaScript, so there is no ML runtime to download and no video leaves the tab.",
+        description: "Throw one of five anime hand signs at your webcam and it names the character. A neural network trained on 3,000 samples I recorded and labelled myself, scoring 95% on held-out recording sessions - a random split would have flattered it to 100%. Runs entirely in the browser, so no video leaves the tab.",
     },
     {
         image: netflixCaseStudy,
