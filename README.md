@@ -2,7 +2,7 @@
 
 My personal portfolio site. Business Information Technology student at Virginia Tech, building things in data, tech risk, and product.
 
-**[View the live site →](https://josephnguyen010-prog.github.io/Joseph-Nguyen-Portfolio-)**
+**[View the live site →](https://josephnguyen010-prog.github.io/Joseph-Nguyen-Portfolio)**
 
 ![Screenshot of the portfolio homepage](./src/assets/images/screenshot.png)
 
