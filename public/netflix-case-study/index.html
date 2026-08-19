@@ -12,6 +12,7 @@
 :root{
   --red:#e50914;
   --red-dark:#b81d24;
+  --chart-b:#4a94c4;   /* 2nd chart series: dE 22.1 deutan vs --red */
   --bg:#141414;
   --bg-raise:#1c1c1c;
   --bg-card:#232323;
@@ -259,7 +260,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   color:var(--ink-2);margin-bottom:5px;
 }
 /* a watch-progress bar: the track spans the card, the red fill grows with
-   how far through the nine chapters this one sits */
+   how far through the numbered chapters this one sits */
 .card-bar{
   position:absolute;left:0;right:0;bottom:0;height:3px;
   background:rgba(255,255,255,.22);
@@ -350,6 +351,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .tbl tbody tr:hover{background:rgba(255,255,255,.03)}
 .hi{color:var(--ink);font-weight:700}
 .tbl-scroll{overflow-x:auto}
+/* a table of sentences rather than figures: left-aligned, top-aligned, and
+   wide enough columns that a row does not become a column of single words */
+.tbl-prose th,.tbl-prose td{text-align:left;vertical-align:top;line-height:1.5}
+.tbl-prose td:first-child{white-space:nowrap}
+@media (max-width:640px){ .tbl-prose{min-width:520px} .tbl-prose td:first-child{white-space:normal} }
 
 /* ---------------------------------------------------------------- stats */
 .stats{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin:0 0 22px}
@@ -369,6 +375,16 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .panel svg{display:block;width:100%;height:auto;overflow:visible}
 .bar{fill:var(--red);transition:fill .15s ease}
 .bar:hover{fill:#ff2d38}
+.bar-b{fill:var(--chart-b)}
+.bar-b:hover{fill:#68abd8}
+.grid{stroke:var(--line);stroke-width:1}
+/* left-aligned and capped: stretched across the full sheet the bars read as slabs */
+.chart-svg{display:block;width:100%;max-width:560px;height:auto;overflow:visible}
+.ylab{fill:var(--ink-3);font-size:9px}
+/* identity is never colour alone: every series is named in the legend too */
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin:2px 0 10px;font-size:.78rem;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:11px;height:11px;border-radius:2px;flex:none}
 .axis{stroke:var(--line);stroke-width:1}
 .tick{fill:var(--ink-3);font-size:9px}
 .val{fill:var(--ink);font-size:10px;font-weight:700}
@@ -568,6 +584,168 @@ function renderTable(){
   return h + '</tbody></table></div>';
 }
 
+/* ------------------------------------------------- average revenue per member
+   Q4 2024 regional table from the Q4 2024 shareholder letter. ARM is Netflix's
+   own metric (streaming revenue / average paid memberships / months), so these
+   are reported, not derived. F/X neutral holds last year's exchange rates. */
+var ARM = [
+  {name:"UCAN", mem: 89.63, prev:84.80, rev:4517, arm:17.26, yoy: 4, fxn: 4},
+  {name:"EMEA", mem:101.13, prev:96.13, rev:3288, arm:11.11, yoy: 3, fxn: 1},
+  {name:"LATAM",mem: 53.33, prev:49.18, rev:1230, arm: 8.00, yoy:-7, fxn:18},
+  {name:"APAC", mem: 57.54, prev:52.60, rev:1212, arm: 7.34, yoy: 0, fxn:-1}
+];
+
+function pct(n){ return (n > 0 ? "+" : n < 0 ? "\u2212" : "") + Math.abs(n) + "%"; }
+
+function renderARM(){
+  var mem = 0, rev = 0, prev = 0;
+  ARM.forEach(function(r){ mem += r.mem; rev += r.rev; prev += r.prev; });
+  // the one derived figure here: Netflix publishes ARM by region only
+  var blended = rev / ((mem + prev) / 2) / 3;
+
+  var h = '<div class="tbl-scroll"><table class="tbl">'+
+    '<caption>Average revenue per membership, Q4 2024, and the memberships behind it. '+
+    'Source: Netflix Q4 2024 shareholder letter.</caption><thead><tr>'+
+    '<th>Region</th><th>Members</th><th>Q4 revenue</th><th>ARM / month</th>'+
+    '<th>Y/Y</th><th>Y/Y F/X neutral</th></tr></thead><tbody>';
+  ARM.forEach(function(r){
+    h += '<tr><td>'+r.name+'</td><td>'+r.mem.toFixed(2)+'M</td>'+
+         '<td>$'+r.rev.toLocaleString()+'M</td>'+
+         '<td class="hi">$'+r.arm.toFixed(2)+'</td>'+
+         '<td>'+pct(r.yoy)+'</td><td>'+pct(r.fxn)+'</td></tr>';
+  });
+  h += '<tr><td class="hi">Total</td><td class="hi">'+mem.toFixed(2)+'M</td>'+
+       '<td class="hi">$'+rev.toLocaleString()+'M</td>'+
+       '<td class="hi">$'+blended.toFixed(2)+'</td><td colspan="2">blended, derived</td></tr>';
+  return h + '</tbody></table></div>'+
+    '<p class="chart-note">The blended figure is the only derived number in the table: total Q4 '+
+    'streaming revenue over the average of opening and closing memberships, over three months. '+
+    'Netflix reports ARM by region and publishes no company-wide figure.</p>';
+}
+
+/* ------------------------------------------------------------------ the field
+   FY2024 streaming segments as each company reports them. Disney's fiscal year
+   ended 28 Sep 2024, the others 31 Dec 2024: full years, but not identical
+   periods, which is the honest caveat on every cross-company table like this. */
+function renderCompetitors(){
+  return '<div class="tbl-scroll"><table class="tbl">'+
+    '<caption>Streaming segments, FY2024. Sources: Netflix, Disney, Warner Bros. Discovery and '+
+    'Alphabet Form 10-K filings. Disney&rsquo;s fiscal year ended 28 September 2024.</caption>'+
+    '<thead><tr><th>Service</th><th>Revenue</th><th>Operating result</th><th>Margin</th>'+
+    '<th>Subscribers</th><th>ARPU / month</th></tr></thead><tbody>'+
+    '<tr><td class="hi">Netflix</td><td class="hi">$39.0B</td><td class="hi">+$10.4B</td>'+
+      '<td class="hi">26.7%</td><td>301.6M</td><td>$7.34 to $17.26</td></tr>'+
+    '<tr><td>Disney DTC <span style="color:var(--ink-3)">(Disney+, Hulu)</span></td>'+
+      '<td>$22.8B</td><td>+$0.1B</td><td>0.6%</td><td>122.7M / 52.0M</td><td>$7.18</td></tr>'+
+    '<tr><td>WBD DTC <span style="color:var(--ink-3)">(Max, discovery+)</span></td>'+
+      '<td>$10.3B</td><td>&minus;$1.5B</td><td>&minus;14.4%</td><td>116.9M</td><td>$7.76</td></tr>'+
+    '<tr><td>YouTube <span style="color:var(--ink-3)">(advertising only)</span></td>'+
+      '<td>$36.1B</td><td>not disclosed</td><td>n/a</td><td>n/a</td><td>n/a</td></tr>'+
+    '<tr><td>Prime Video</td><td>not disclosed</td><td>not disclosed</td><td>n/a</td>'+
+      '<td>not disclosed</td><td>n/a</td></tr>'+
+    '</tbody></table></div>'+
+    '<p class="chart-note">Disney+ and Hulu are listed separately because Disney reports them that '+
+    'way and counts a bundle subscriber in both. Disney ARPU shown is Disney+ Core; WBD ARPU is its '+
+    'global figure across Max, discovery+ and HBO.</p>';
+}
+
+/* --------------------------------------------------- content build vs harvest
+   Cash out of the door against the slice of the library charged to profit.
+   FY2021-FY2022 from the FY2023 10-K cash flow statement, FY2023-FY2024 from
+   the FY2024 10-K. US$ billions. */
+var CONTENT = [
+  {y:"FY21", spend:17.70, amort:12.23},
+  {y:"FY22", spend:16.84, amort:14.03},
+  {y:"FY23", spend:12.55, amort:14.20},
+  {y:"FY24", spend:16.22, amort:15.30}
+];
+var C_SPEND = "Cash spent on content", C_AMORT = "Charged to profit";
+
+/* Grouped bars: two series, one shared scale, one axis. Identity is carried by
+   the legend and the labelled FY24 pair as well as by hue, so the chart still
+   reads without colour. */
+function renderContentChart(){
+  var W = 420, H = 176, PAD_T = 20, PAD_B = 28, plotH = H - PAD_T - PAD_B;
+  var x0 = 34, xR = W - 8, bw = 24, gapIn = 3, max = 18;
+  var groupW = bw * 2 + gapIn;
+  var stride = (xR - x0) / CONTENT.length;   // bands are centred inside these
+  var y = function(v){ return PAD_T + plotH - v / max * plotH; };
+
+  var h = '<div class="legend">'+
+    '<span><i style="background:var(--red)"></i>'+C_SPEND+'</span>'+
+    '<span><i style="background:var(--chart-b)"></i>'+C_AMORT+'</span></div>';
+
+  h += '<svg class="chart-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+
+       'Cash spent on content against content charged to profit, FY2021 to FY2024. Spending ran '+
+       'above the charge in FY2021, FY2022 and FY2024, and below it in FY2023.">';
+
+  [0,6,12,18].forEach(function(v){
+    h += '<line class="grid" x1="'+x0+'" y1="'+y(v)+'" x2="'+xR+'" y2="'+y(v)+'"/>'+
+         '<text class="ylab" x="'+(x0-6)+'" y="'+(y(v)+3)+'" text-anchor="end">$'+v+'B</text>';
+  });
+
+  CONTENT.forEach(function(d,i){
+    var gx = x0 + i*stride + (stride - groupW)/2;
+    [[d.spend,"bar",C_SPEND],[d.amort,"bar bar-b",C_AMORT]].forEach(function(p,j){
+      var bx = gx + j*(bw+gapIn), by = y(p[0]);
+      h += '<rect class="'+p[1]+'" x="'+bx+'" y="'+by+'" width="'+bw+'" height="'+
+           (y(0)-by)+'" rx="3"><title>'+p[2]+', '+d.y+': $'+p[0].toFixed(2)+'B</title></rect>';
+      if(i === CONTENT.length-1)
+        h += '<text class="val" x="'+(bx+bw/2)+'" y="'+(by-5)+
+             '" text-anchor="middle">'+p[0].toFixed(1)+'</text>';
+    });
+    h += '<text class="tick" x="'+(gx+groupW/2)+'" y="'+(H-8)+'" text-anchor="middle">'+
+         d.y+'</text>';
+  });
+
+  h += '<line class="axis" x1="'+x0+'" y1="'+y(0)+'" x2="'+xR+'" y2="'+y(0)+'"/></svg>';
+  return h + '<p class="chart-note">US$ billions on one shared scale. Where the red bar clears the '+
+    'blue one the library is growing; where it falls short the library is being drawn down. '+
+    'Source: Netflix FY2023 and FY2024 Form 10-K cash flow statements.</p>';
+}
+
+function renderContentTable(){
+  var h = '<div class="tbl-scroll"><table class="tbl"><caption>Content cash spend against content '+
+    'amortisation, US$ billions. Source: Netflix FY2023 and FY2024 Form 10-K.</caption><thead><tr>'+
+    '<th>Year</th><th>'+C_SPEND+'</th><th>'+C_AMORT+'</th><th>Net build</th></tr></thead><tbody>';
+  CONTENT.forEach(function(d){
+    var net = d.spend - d.amort;
+    h += '<tr><td>20'+d.y.slice(2)+'</td><td>'+d.spend.toFixed(2)+'</td><td>'+
+         d.amort.toFixed(2)+'</td><td class="hi">'+(net < 0 ? "\u2212" : "+")+
+         Math.abs(net).toFixed(2)+'</td></tr>';
+  });
+  return h + '</tbody></table></div>';
+}
+
+/* ----------------------------------------------------- the operating leverage
+   FY2023 to FY2024 from the FY2024 10-K statement of operations, held as filed
+   in US$ thousands. Rounding to millions first would report revenue growth as
+   15.7% against the 15.6% in the filing, so the percentages come off these and
+   the millions are for display only. */
+var BRIDGE = [
+  {k:"Revenue",                    a:33723297, b:39000966},
+  {k:"Cost of revenues",           a:19715368, b:21038464},
+  {k:"Marketing",                  a: 2657883, b: 2917554},
+  {k:"Technology and development", a: 2675758, b: 2925295},
+  {k:"General and administrative", a: 1720285, b: 1702039},
+  {k:"Operating income",           a: 6954003, b:10417614}
+];
+
+function renderBridge(){
+  var h = '<div class="tbl-scroll"><table class="tbl"><caption>FY2023 to FY2024, US$ millions. '+
+    'Source: Netflix FY2024 Form 10-K.</caption><thead><tr><th>Line</th><th>FY2023</th>'+
+    '<th>FY2024</th><th>Change</th></tr></thead><tbody>';
+  BRIDGE.forEach(function(r){
+    var d = (r.b / r.a - 1) * 100;
+    var td = (r.k === "Revenue" || r.k === "Operating income") ? ' class="hi"' : '';
+    var m = function(v){ return Math.round(v/1000).toLocaleString(); };
+    h += '<tr><td'+td+'>'+r.k+'</td><td'+td+'>'+m(r.a)+'</td>'+
+         '<td'+td+'>'+m(r.b)+'</td><td class="hi">'+
+         (d < 0 ? "\u2212" : "+")+Math.abs(d).toFixed(1)+'%</td></tr>';
+  });
+  return h + '</tbody></table></div>';
+}
+
 /* ----------------------------------------------------------- chapters */
 var SECTIONS = [
 /* --- Start Here ------------------------------------------------------ */
@@ -598,14 +776,19 @@ var SECTIONS = [
   tags:"Overview &middot; Synthesis",
   facts:['<span class="score">96% Match</span>','<span>Synthesis</span>','<span class="pill">3 min</span>'],
   body:
-    '<h4>Market position</h4><p>Netflix leads a maturing streaming market, but growth now depends '+
-    'on pricing and advertising rather than subscriber adds.</p>'+
+    '<h4>Market position</h4><p>Netflix leads a maturing streaming market and is the only large '+
+    'service profitable on streaming alone: a 26.7% operating margin against 0.6% at Disney&rsquo;s '+
+    'direct-to-consumer segment and an operating loss at Warner Bros. Discovery.</p>'+
     '<h4>Product &amp; pricing</h4><p>A four-tier ladder from ad-supported to 4K Premium lets one '+
-    'catalogue serve very different levels of willingness to pay.</p>'+
-    '<h4>Content economics</h4><p>Content is the core cost driver, and originals trade higher upfront '+
-    'risk for owned assets that keep earning long after release.</p>'+
-    '<h4>Risks &amp; outlook</h4><p>Competition, content inflation and paid-sharing saturation are the '+
-    'main threats to further margin expansion after FY2024.</p>'
+    'catalogue serve very different levels of willingness to pay. A member is worth 2.4 times as '+
+    'much in the US and Canada as in Asia-Pacific, so where members are added matters as much as '+
+    'how many.</p>'+
+    '<h4>Content economics</h4><p>Content amortisation is 73% of the cost of serving a member. '+
+    'FY2024 margin came from costs growing 6.8% while revenue grew 15.6%, helped by a strike year '+
+    'that let Netflix run on a library it had already paid for.</p>'+
+    '<h4>Risks &amp; outlook</h4><p>Currency is the largest sized risk, at roughly $1B off the 2025 '+
+    'revenue forecast; content spend normalising after FY2023 is the second. Free cash flow was '+
+    'flat at $6.9B even as operating income rose 50%.</p>'
 },
 {
   id:"wednesday", row:"Start Here", chapter:"Netflix Original", kind:"title",
@@ -649,7 +832,23 @@ var SECTIONS = [
     'of revenue, up 15.6% year over year, at a <strong>26.7% operating margin</strong>.</p>'+
     '<p>Scale matters because content is largely a fixed cost that amortises across the member base. '+
     'From Q1 2025 Netflix <strong>stopped disclosing quarterly membership counts</strong>, '+
-    'signalling that revenue and margin, not subscriber adds, are the metrics management wants to be judged on.</p>'
+    'signalling that revenue and margin, not subscriber adds, are the metrics management wants to be judged on.</p>'+
+    '<h4>Measured against the field</h4>'+
+    '<p>Leadership is easy to assert, so here it is priced. Netflix is the only large streaming '+
+    'service that earns a real operating profit on streaming alone.</p>'+
+    renderCompetitors()+
+    '<p>The gap is not revenue, it is margin. Disney reaches a comparable share of households and '+
+    'turns $22.8B into <strong>$143M of operating income</strong>, a 0.6% margin, in the first year '+
+    'that segment made anything at all. Warner Bros. Discovery still lost <strong>$1.5B</strong> at '+
+    'the operating line. Netflix converted <strong>26.7%</strong>. Roughly a decade of spending '+
+    'ahead of revenue bought a cost base the others are still assembling.</p>'+
+    '<p>That gap cuts both ways. A rival losing money on streaming has little to lose by cutting '+
+    'price, because its reported profitability barely moves either way, and Netflix has 26.7 points '+
+    'of margin to defend.</p>'+
+    '<p>The two competitors that never appear as a profit line are the dangerous ones. Amazon does '+
+    'not report Prime Video separately and Alphabet discloses YouTube advertising revenue but no '+
+    'segment margin, so neither has to defend a streaming P&amp;L to its shareholders. '+
+    'Netflix does, every quarter.</p>'
 },
 {
   id:"footprint", row:"Market Forces", chapter:"Chapter 4",
@@ -663,11 +862,25 @@ var SECTIONS = [
     'and APAC <strong>$4.4B</strong>.</p>'+
     '<p>That means roughly <strong>55% of revenue now comes from outside the United States and '+
     'Canada</strong>, which is both the growth story and a currency exposure.</p>'+
+    '<h4>What a member is actually worth</h4>'+
+    '<p>Netflix reports average revenue per membership, ARM, by region. It is the number that turns '+
+    'a member count into a revenue forecast, and the reason the two are not interchangeable.</p>'+
+    renderARM()+
+    '<p><strong>EMEA carries 13% more members than UCAN and produces 27% less revenue.</strong> At '+
+    '$17.26 a month a UCAN member is worth <strong>2.4 times</strong> an APAC member at $7.34. The '+
+    'regions where members are cheapest to add are the ones that move revenue least, which is why '+
+    'the member count on its own was always a poor headline.</p>'+
+    '<h4>Where the currency exposure actually shows</h4>'+
+    '<p>LATAM ARM fell <strong>7% year over year in dollars while rising 18% on a currency-neutral '+
+    'basis</strong>. Those 25 points are the exposure stated as a number: Netflix raised local '+
+    'prices, subscribers paid more, and the reported line still went backwards because the dollar '+
+    'strengthened against the currencies it collects in. Company-wide, Netflix put the currency '+
+    'hit at roughly <strong>$1B</strong> off its 2025 revenue forecast, net of hedging.</p>'+
     '<h4>Why it matters</h4><ul>'+
-    '<li>International markets carry lower average revenue per member, so growth in members does '+
-    'not translate one-for-one into revenue.</li>'+
     '<li>A single content slate serves every market, which is what makes the geographic spread '+
     'economically attractive in the first place.</li>'+
+    '<li>Revenue growth and member growth come from different places: members from APAC and LATAM, '+
+    'revenue still mostly from UCAN and EMEA.</li>'+
     '<li>Mainland China remains unserved, and service in Russia was suspended in 2022.</li>'+
     '</ul>'
 },
@@ -867,7 +1080,7 @@ var SECTIONS = [
 /* --- The Numbers ----------------------------------------------------- */
 {
   id:"revenue", row:"The Numbers", chapter:"Chapter 7",
-  name:"Revenue by Region", stat:"+31%", statLabel:"FY21 to FY24",
+  name:"Revenue by Region", stat:"+32%", statLabel:"Streaming, FY21 to FY24",
   art:"img/money-heist-1.jpg",
   tags:"Revenue &middot; Data",
   facts:['<span class="score">99% Match</span>','<span>Revenue</span>','<span class="pill">FY21&ndash;FY24</span>'],
@@ -880,9 +1093,57 @@ var SECTIONS = [
     '<p>Revenue is diversifying away from the United States and Canada. UCAN is still the largest '+
     'single region, but every region grew, and LATAM and APAC together now add about $9.3B.</p>'+
     '<div class="chart-head"><span class="chart-title">Streaming revenue by region, FY2021&ndash;FY2024</span>'+
-    '<button class="toggle" type="button" id="tblToggle" aria-expanded="false">Show as table</button></div>'+
+    '<button class="toggle" type="button" data-chart="chartView" data-table="tableView" '+
+    'aria-expanded="false">Show as table</button></div>'+
     '<div id="chartView">'+renderChart()+'</div>'+
-    '<div id="tableView" hidden>'+renderTable()+'</div>'
+    '<div id="tableView" hidden>'+renderTable()+'</div>'+
+    '<p>Revenue is only half of it. What that growth cost to produce is the next chapter.</p>'
+},
+{
+  id:"content", row:"The Numbers", chapter:"Chapter 8",
+  name:"Content Economics", stat:"73%", statLabel:"Of direct cost is content",
+  art:"img/the-gray-man.jpg",
+  tags:"Cost &middot; Unit economics",
+  facts:['<span class="score">98% Match</span>','<span>Economics</span>','<span class="pill">FY21&ndash;FY24</span>'],
+  body:
+    '<div class="stats">'+
+      '<div class="stat"><b>$21.0B</b><span>Cost of revenues</span><em>53.9% of revenue</em></div>'+
+      '<div class="stat"><b>$15.3B</b><span>Content amortised</span><em>73% of that cost</em></div>'+
+      '<div class="stat"><b>$6.9B</b><span>Free cash flow</span><em>flat on FY2023</em></div>'+
+    '</div>'+
+    '<p>A subscription business is judged on what a member costs to serve, not on what the top line '+
+    'does. For Netflix nearly all of that cost is a single line: <strong>content amortisation was '+
+    '$15.3B of the $21.0B cost of revenues</strong>, or 73 cents in every dollar of direct cost.</p>'+
+    '<h4>Two different content numbers</h4>'+
+    '<p>Netflix reports content twice and the pair only makes sense together. <strong>Additions to '+
+    'content assets</strong> is cash out of the door this year. <strong>Amortisation of content '+
+    'assets</strong> is the slice of the whole library charged against this year&rsquo;s profit. '+
+    'When spend runs above amortisation the library is being built; when it runs below, the library '+
+    'is being harvested.</p>'+
+    '<div class="chart-head"><span class="chart-title">Content: cash spent against cash charged, '+
+    'FY2021&ndash;FY2024</span>'+
+    '<button class="toggle" type="button" data-chart="contentChart" data-table="contentTable" '+
+    'aria-expanded="false">Show as table</button></div>'+
+    '<div id="contentChart">'+renderContentChart()+'</div>'+
+    '<div id="contentTable" hidden>'+renderContentTable()+'</div>'+
+    '<p>The FY2023 dip is the writers&rsquo; and actors&rsquo; strikes. Production stopped, cash '+
+    'spend fell to <strong>$12.6B</strong> against <strong>$14.2B</strong> amortised, and Netflix '+
+    'ran the year on a library it had already paid for. That is a real part of where the margin came '+
+    'from, and it is the one part that cannot repeat: FY2024 spend is back up to $16.2B.</p>'+
+    '<h4>What actually moved the margin</h4>'+
+    '<p>Operating margin went from 20.6% to 26.7% in a single year. That was not a price rise on its '+
+    'own. Every cost line grew more slowly than revenue, and the largest grew at less than half its '+
+    'rate.</p>'+
+    renderBridge()+
+    '<p>This is operating leverage, and it is the whole subscription argument in one table. The slate '+
+    'is produced once and streamed to 301.6M members, so a member added in FY2024 carried almost no '+
+    'extra content cost. Revenue grew <strong>$5.3B</strong>, total operating costs grew '+
+    '<strong>$1.8B</strong>, and the difference became <strong>$3.5B</strong> of operating income.</p>'+
+    '<h4>The catch</h4>'+
+    '<p>Free cash flow was <strong>$6.9B in FY2024 and $6.9B in FY2023</strong>, unchanged, while '+
+    'operating income rose 50%. The extra profit went straight back out as content. Cash generation, '+
+    'not reported margin, is the honest measure of how much room there is to keep spending, and on '+
+    'that measure FY2024 was flat.</p>'
 },
 {
   id:"dark", row:"The Numbers", chapter:"Netflix Original", kind:"title",
@@ -917,44 +1178,91 @@ var SECTIONS = [
     '<p>A Finnish crime drama Netflix picked up for worldwide distribution. Acquiring finished local content is the cheapest way to fill a catalogue in a market it does not yet produce in.</p>'
 },
 {
-  id:"risks", row:"Risks & Recommendations", chapter:"Chapter 8",
-  name:"Risks", stat:"3", statLabel:"Risk classes",
+  id:"risks", row:"Risks & Recommendations", chapter:"Chapter 9",
+  name:"Risks", stat:"6", statLabel:"Ranked by exposure",
   art:"img/breaking-bad-lab.jpg",
   tags:"Risk &middot; Outlook",
   facts:['<span class="score">93% Match</span>','<span>Risk</span>','<span class="pill">Forward view</span>'],
   body:
-    '<h4>Competitive</h4><ul>'+
-    '<li>Disney+, Max, Prime Video and YouTube all compete for the same living-room hours.</li>'+
-    '<li>YouTube and short-form video are the underrated threat: they compete on attention, '+
-    'not catalogue.</li>'+
-    '</ul><h4>Financial</h4><ul>'+
-    '<li>Content spend is largely committed years ahead and hard to cut without weakening the slate.</li>'+
-    '<li>Further price rises carry churn risk once paid-sharing gains are absorbed.</li>'+
-    '<li>Currency moves hit the ~55% of revenue earned outside UCAN.</li>'+
-    '</ul><h4>Structural</h4><ul>'+
-    '<li>Advertising is still small next to subscription revenue and depends on a soft ad market.</li>'+
-    '<li>Ending quarterly membership disclosure reduces outside visibility into growth: '+
-    'good for management, harder for analysts.</li>'+
-    '</ul>'
+    '<p>An unranked list of risks is a list, not an analysis. These are ordered by how much of '+
+    'FY2024 is actually at stake, each with the number that would show it arriving.</p>'+
+    '<div class="tbl-scroll"><table class="tbl tbl-prose"><caption>Ranked by sized exposure to FY2024 revenue '+
+    'or operating income.</caption><thead><tr><th>Risk</th><th>What is exposed</th>'+
+    '<th>The tell to watch</th></tr></thead><tbody>'+
+    '<tr><td class="hi">1. Currency</td><td>~55% of revenue, about $21.6B, is earned outside UCAN. '+
+    'Netflix sized the 2025 hit at roughly $1B net of hedging.</td>'+
+    '<td>Reported ARM growth against F/X neutral ARM growth. LATAM ran 25 points apart in Q4 2024.</td></tr>'+
+    '<tr><td class="hi">2. Content spend normalising</td><td>FY2023 spent $1.6B less than it '+
+    'amortised. A return to the FY2021 gap, when spend ran $5.5B ahead, would absorb most of the '+
+    '$6.9B of free cash flow.</td>'+
+    '<td>Additions to content assets against amortisation, in the cash flow statement.</td></tr>'+
+    '<tr><td class="hi">3. Pricing power</td><td>ARM grew just 1% year over year in Q4 2024, 3% '+
+    'currency-neutral. The paid-sharing conversion that carried FY2023 and FY2024 is largely '+
+    'done.</td>'+
+    '<td>ARM growth, and churn among ad-tier members at their first price change.</td></tr>'+
+    '<tr><td class="hi">4. Advertising is unproven</td><td>Netflix guided a rough doubling of ad '+
+    'revenue in 2025 from a base too small to report as its own line. It cannot yet offset a '+
+    'subscription slowdown.</td>'+
+    '<td>Whether ad revenue is ever broken out separately. Until it is, it is not material.</td></tr>'+
+    '<tr><td class="hi">5. Competitors with nothing to lose</td><td>Disney DTC earns 0.6% and WBD '+
+    'DTC loses money, so neither sacrifices much reported profit by cutting price. Netflix has 26.7 '+
+    'points of margin to defend.</td>'+
+    '<td>Competitor pricing moves and bundle terms, not their subscriber counts.</td></tr>'+
+    '<tr><td class="hi">6. Reduced disclosure</td><td>From Q1 2025 there are no quarterly membership '+
+    'or ARM figures, which are the inputs to every estimate above.</td>'+
+    '<td>The bi-annual engagement report, now the main published measure of demand.</td></tr>'+
+    '</tbody></table></div>'+
+    '<h4>The one that is underrated</h4>'+
+    '<p>YouTube appears in no streaming league table and took <strong>$36.1B of advertising revenue '+
+    'in 2024</strong>, within touching distance of Netflix&rsquo;s entire business. It competes for '+
+    'the same hours while carrying no content slate of its own, and it is the incumbent in exactly '+
+    'the advertising market Netflix is trying to enter. Risk 4 and risk 5 are the same risk seen '+
+    'from two ends.</p>'
 },
 {
-  id:"recs", row:"Risks & Recommendations", chapter:"Chapter 9",
-  name:"Recommendations", stat:"ARPU", statLabel:"The metric that matters",
+  id:"recs", row:"Risks & Recommendations", chapter:"Chapter 10",
+  name:"Recommendations", stat:"ARM", statLabel:"The metric that matters",
   art:"img/breaking-bad-smoke.jpg",
   tags:"Strategy &middot; Actions",
   facts:['<span class="score">95% Match</span>','<span>Strategy</span>','<span class="pill">Actionable</span>'],
   body:
     '<h4>Priority</h4><p><strong>Grow revenue per member, not member count.</strong> The end of '+
     'quarterly membership disclosure already concedes this; the operating plan should follow it.</p>'+
-    '<h4>Actions</h4><ul>'+
-    '<li>Push ad-tier reach and fill rate: it is the only new revenue line already at scale.</li>'+
-    '<li>Time price increases to markets where engagement per member is already rising.</li>'+
-    '<li>Use live events to create appointment viewing the catalogue cannot replicate.</li>'+
-    '</ul><h4>Measure by</h4><ul>'+
-    '<li>Revenue per membership by region, tracked against FY2024 baselines.</li>'+
-    '<li>Operating margin, targeting expansion beyond FY2024&rsquo;s 26.7%.</li>'+
+    '<h4>Actions, and what each one costs</h4>'+
+    '<p>Every recommendation here has a price attached, because one without a tradeoff is a slogan.</p>'+
+    '<div class="tbl-scroll"><table class="tbl tbl-prose"><caption>Baselines are FY2024 actuals throughout.</caption>'+
+    '<thead><tr><th>Action</th><th>Target</th><th>What it costs</th></tr></thead><tbody>'+
+    '<tr><td class="hi">Push ad-tier reach and fill rate</td>'+
+    '<td>Ad revenue large enough to report as its own line, on the way to 10% of total revenue.</td>'+
+    '<td>Every Standard member who steps down to the ad tier gives up $10.00 a month, $17.99 against '+
+    '$7.99. Ad load has to earn that back before the tier adds anything.</td></tr>'+
+    '<tr><td class="hi">Time price rises to engagement</td>'+
+    '<td>Currency-neutral ARM growth above 3%, against the 1% reported in Q4 2024.</td>'+
+    '<td>Slower revenue in markets that are not ready, and churn concentrated in exactly the '+
+    'price-sensitive members the ad tier was built to keep.</td></tr>'+
+    '<tr><td class="hi">Price and hedge for currency</td>'+
+    '<td>Reported ARM within 5 points of currency-neutral ARM. LATAM ran 25 points apart.</td>'+
+    '<td>Hedging costs real money and local price rises risk volume in the fastest-growing '+
+    'regions.</td></tr>'+
+    '<tr><td class="hi">Use live events for appointment viewing</td>'+
+    '<td>Enough events to lift engagement in the weeks the scripted slate is thin.</td>'+
+    '<td>A live event is a high fixed cost that does not amortise. A fight is watched once; a series '+
+    'earns for years. This is the one action that works against the cost structure above.</td></tr>'+
+    '</tbody></table></div>'+
+    '<h4>Measure by</h4><ul>'+
+    '<li>ARM by region against the Q4 2024 baselines: $17.26 UCAN, $11.11 EMEA, $8.00 LATAM, '+
+    '$7.34 APAC.</li>'+
+    '<li>Operating margin beyond FY2024&rsquo;s 26.7%, with the FY2023 strike benefit stripped out '+
+    'of the comparison.</li>'+
+    '<li>Free cash flow, which was flat at $6.9B while operating income rose 50% and is the '+
+    'harder test.</li>'+
     '<li>Retention of ad-tier members through their first price change.</li>'+
-    '</ul>'
+    '</ul>'+
+    '<h4>What would prove this wrong</h4>'+
+    '<p>If ad-tier members turn out to churn no more than Standard members through a price rise, the '+
+    'cannibalisation cost above is overstated, the ladder is doing its job, and the priority should '+
+    'move back towards reach. That single number decides between the first two actions, and Netflix '+
+    'has not published it.</p>'
 },
 {
   id:"edgerunners", row:"Risks & Recommendations", chapter:"Netflix Original", kind:"title",
@@ -1351,8 +1659,8 @@ var ROW_ORDER = ["Start Here","Market Forces","Product & Pricing",
                  "The Q4 2021 Slate","The Numbers","Risks & Recommendations","More Like This"];
 var rowsEl = document.getElementById("rows");
 
-// The nine numbered chapters are the analysis. Everything else (the show
-// cards, the colophon) is furniture, and is skipped by Play and by Next.
+// The numbered chapters are the analysis. Everything else (the show cards,
+// the colophon) is furniture, and is skipped by Play and by Next.
 function isChapter(s){ return /^Chapter \d+$/.test(s.chapter); }
 
 var CHAPTERS = SECTIONS.filter(isChapter);
@@ -1611,17 +1919,22 @@ function byId(id){
   return -1;
 }
 
+// A chapter can carry more than one chart, so each toggle names its own pair
+// of views instead of sharing fixed ids. The body is re-rendered on every open,
+// so these listeners always go on fresh elements.
 function wireTableToggle(){
-  var btn = document.getElementById("tblToggle");
-  if(!btn) return;
-  btn.addEventListener("click", function(){
-    var chart = document.getElementById("chartView");
-    var table = document.getElementById("tableView");
-    var showTable = chart.hidden === false;
-    chart.hidden = showTable;
-    table.hidden = !showTable;
-    btn.textContent = showTable ? "Show as chart" : "Show as table";
-    btn.setAttribute("aria-expanded", showTable ? "true" : "false");
+  var btns = document.querySelectorAll("#sheetBody .toggle[data-chart]");
+  Array.prototype.forEach.call(btns, function(btn){
+    btn.addEventListener("click", function(){
+      var chart = document.getElementById(btn.getAttribute("data-chart"));
+      var table = document.getElementById(btn.getAttribute("data-table"));
+      if(!chart || !table) return;
+      var showTable = chart.hidden === false;
+      chart.hidden = showTable;
+      table.hidden = !showTable;
+      btn.textContent = showTable ? "Show as chart" : "Show as table";
+      btn.setAttribute("aria-expanded", showTable ? "true" : "false");
+    });
   });
 }
 
