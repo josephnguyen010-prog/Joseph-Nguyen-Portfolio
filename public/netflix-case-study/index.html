@@ -458,7 +458,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
         <span class="score">98% Match</span>
         <span>2026</span>
         <span class="pill">FY2021&ndash;FY2024</span>
-        <span>9 Chapters</span>
+        <span id="chapterCount">9 Chapters</span>
         <span class="pill">HD</span>
       </p>
       <p class="synopsis">
@@ -1664,6 +1664,11 @@ var rowsEl = document.getElementById("rows");
 function isChapter(s){ return /^Chapter \d+$/.test(s.chapter); }
 
 var CHAPTERS = SECTIONS.filter(isChapter);
+
+// The billboard used to carry a hand-typed chapter count and it went stale the
+// first time a chapter was added. Derive it, so it cannot drift again.
+document.getElementById("chapterCount").textContent =
+  CHAPTERS.length + " Chapters";
 
 function chapterAt(s){ return CHAPTERS.indexOf(s); }   // 0-based, -1 if not one
 
