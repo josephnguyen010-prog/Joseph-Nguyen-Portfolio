@@ -390,6 +390,28 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .val{fill:var(--ink);font-size:10px;font-weight:700}
 .chart-note{font-size:.76rem;color:var(--ink-3);margin:8px 0 0}
 
+/* ---------------------------------------------------------- chart tooltip
+   Replaces the SVG <title> tooltip, which waited about a second, could not be
+   styled, and never fired on touch at all: on a phone the numbers behind the
+   bars were simply unreachable. Fixed positioning keeps it clear of the
+   modal's own scrolling. */
+.tip{
+  position:fixed;z-index:900;pointer-events:none;
+  background:var(--bg-card);border:1px solid var(--line);border-radius:6px;
+  padding:8px 10px;max-width:230px;
+  font-size:.78rem;line-height:1.45;color:var(--ink-2);
+  box-shadow:0 8px 26px rgba(0,0,0,.6);
+  opacity:0;transform:translateY(3px);
+  transition:opacity .12s ease,transform .12s ease;
+}
+.tip.is-on{opacity:1;transform:none}
+.tip b{display:block;color:var(--ink);font-size:.8rem;margin-bottom:2px}
+.tip span{display:block;margin-top:4px;color:var(--ink-3)}
+/* touch has no hover, so the tapped bar is marked instead */
+.bar.is-tip{fill:#ff2d38}
+.bar-b.is-tip{fill:#68abd8}
+@media (prefers-reduced-motion:reduce){ .tip{transition:none} }
+
 /* --------------------------------------------------------------- footer */
 .foot{
   border-top:1px solid var(--line);margin-top:20px;
@@ -549,7 +571,8 @@ function renderChart(){
       var x = i*(bw+gap)+4;
       var y = PAD_T + plotH - h;
       html += '<rect class="bar" x="'+x+'" y="'+y+'" width="'+bw+'" height="'+h+
-              '" rx="3"><title>'+r.full+' '+YEARS[i]+': '+money(val)+'</title></rect>';
+              '" rx="3" data-tip="<b>'+r.full+'</b>'+YEARS[i]+' &middot; '+money(val)+
+              '"></rect>';
       if(i===3) html += '<text class="val" x="'+(x+bw/2)+'" y="'+(y-4)+'" text-anchor="middle">'+val.toFixed(1)+'</text>';
       html += '<text class="tick" x="'+(x+bw/2)+'" y="'+(H-5)+'" text-anchor="middle">'+YEARS[i]+'</text>';
     });
@@ -654,10 +677,10 @@ function renderCompetitors(){
    FY2021-FY2022 from the FY2023 10-K cash flow statement, FY2023-FY2024 from
    the FY2024 10-K. US$ billions. */
 var CONTENT = [
-  {y:"FY21", spend:17.70, amort:12.23},
-  {y:"FY22", spend:16.84, amort:14.03},
-  {y:"FY23", spend:12.55, amort:14.20},
-  {y:"FY24", spend:16.22, amort:15.30}
+  {y:"FY21", spend:17.702202, amort:12.230367},
+  {y:"FY22", spend:16.839038, amort:14.026132},
+  {y:"FY23", spend:12.554703, amort:14.197437},
+  {y:"FY24", spend:16.223617, amort:15.301517}
 ];
 var C_SPEND = "Cash spent on content", C_AMORT = "Charged to profit";
 
@@ -688,8 +711,12 @@ function renderContentChart(){
     var gx = x0 + i*stride + (stride - groupW)/2;
     [[d.spend,"bar",C_SPEND],[d.amort,"bar bar-b",C_AMORT]].forEach(function(p,j){
       var bx = gx + j*(bw+gapIn), by = y(p[0]);
+      var net = d.spend - d.amort;
       h += '<rect class="'+p[1]+'" x="'+bx+'" y="'+by+'" width="'+bw+'" height="'+
-           (y(0)-by)+'" rx="3"><title>'+p[2]+', '+d.y+': $'+p[0].toFixed(2)+'B</title></rect>';
+           (y(0)-by)+'" rx="3" data-tip="<b>'+p[2]+'</b>'+d.y+' &middot; $'+
+           p[0].toFixed(2)+'B<span>Net '+(net < 0 ? '&minus;' : '+')+'$'+
+           Math.abs(net).toFixed(2)+'B '+(net < 0 ? 'drawn down' : 'built')+
+           '</span>"></rect>';
       if(i === CONTENT.length-1)
         h += '<text class="val" x="'+(bx+bw/2)+'" y="'+(by-5)+
              '" text-anchor="middle">'+p[0].toFixed(1)+'</text>';
@@ -1924,10 +1951,74 @@ function byId(id){
   return -1;
 }
 
+/* ---------------------------------------------------------- chart tooltip
+   One tooltip element serves every chart. Listeners sit on #sheetBody, which
+   survives each open (only its innerHTML is replaced), so they are attached
+   once rather than per chapter. */
+var tip = document.createElement("div");
+tip.className = "tip";
+document.body.appendChild(tip);
+var tipMark = null;
+
+function placeTip(mark){
+  var r = mark.getBoundingClientRect(), t = tip.getBoundingClientRect();
+  var x = r.left + r.width/2 - t.width/2;
+  var y = r.top - t.height - 10;
+  if(y < 8) y = r.bottom + 10;                    // flip below when near the top
+  x = Math.max(8, Math.min(x, window.innerWidth - t.width - 8));
+  tip.style.left = Math.round(x) + "px";
+  tip.style.top  = Math.round(y) + "px";
+}
+
+function showTip(mark){
+  if(mark === tipMark) return;
+  if(tipMark) tipMark.classList.remove("is-tip");
+  tipMark = mark;
+  mark.classList.add("is-tip");
+  tip.innerHTML = mark.getAttribute("data-tip");
+  tip.classList.add("is-on");
+  placeTip(mark);                                  // measure once it has content
+}
+
+function hideTip(){
+  if(tipMark) tipMark.classList.remove("is-tip");
+  tipMark = null;
+  tip.classList.remove("is-on");
+}
+
+function markAt(e){
+  var t = e.target;
+  return (t && t.closest) ? t.closest("[data-tip]") : null;
+}
+
+(function wireTips(){
+  var body = document.getElementById("sheetBody");
+  // mouse: hovering on and off the marks
+  body.addEventListener("pointermove", function(e){
+    var m = markAt(e);
+    if(m) showTip(m);
+    else if(e.pointerType === "mouse") hideTip();
+  });
+  // touch and pen: a tap is the only way in, and a tap elsewhere dismisses
+  body.addEventListener("pointerdown", function(e){
+    var m = markAt(e);
+    if(m) showTip(m); else hideTip();
+  });
+  // a lifted finger destroys the pointer and fires pointerleave, which would
+  // tear the tooltip down the instant a tap raised it
+  body.addEventListener("pointerleave", function(e){
+    if(e.pointerType === "mouse") hideTip();
+  });
+  // a fixed tooltip would otherwise sit stranded once the panel moves
+  document.getElementById("scrim").addEventListener("scroll", hideTip, true);
+  window.addEventListener("resize", hideTip);
+})();
+
 // A chapter can carry more than one chart, so each toggle names its own pair
 // of views instead of sharing fixed ids. The body is re-rendered on every open,
 // so these listeners always go on fresh elements.
 function wireTableToggle(){
+  hideTip();                        // a stale tooltip must not outlive its chart
   var btns = document.querySelectorAll("#sheetBody .toggle[data-chart]");
   Array.prototype.forEach.call(btns, function(btn){
     btn.addEventListener("click", function(){
