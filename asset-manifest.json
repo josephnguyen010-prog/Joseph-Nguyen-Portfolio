@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/Joseph-Nguyen-Portfolio/static/css/main.237946eb.css",
-    "main.js": "/Joseph-Nguyen-Portfolio/static/js/main.5c750274.js",
+    "main.js": "/Joseph-Nguyen-Portfolio/static/js/main.dd709927.js",
     "static/js/453.b05d8aa5.chunk.js": "/Joseph-Nguyen-Portfolio/static/js/453.b05d8aa5.chunk.js",
     "static/media/bg-light.png": "/Joseph-Nguyen-Portfolio/static/media/bg-light.bac0efb485244a522981.png",
     "static/media/bg-dark.png": "/Joseph-Nguyen-Portfolio/static/media/bg-dark.f420c6b8458af72de935.png",
@@ -11,7 +11,7 @@
     "static/media/rsm-intern-class.webp": "/Joseph-Nguyen-Portfolio/static/media/rsm-intern-class.6111d47ea100f6dca5a3.webp",
     "static/media/minneapolis.webp": "/Joseph-Nguyen-Portfolio/static/media/minneapolis.c49eff7f36ffec502fe6.webp",
     "static/media/rsm-game-night.webp": "/Joseph-Nguyen-Portfolio/static/media/rsm-game-night.22897151ce12b0b30062.webp",
-    "static/media/netflix-case-study.jpg": "/Joseph-Nguyen-Portfolio/static/media/netflix-case-study.044ec6bd1aef418d33ba.jpg",
+    "static/media/netflix-case-study.jpg": "/Joseph-Nguyen-Portfolio/static/media/netflix-case-study.e4d3d491c6550bb3b696.jpg",
     "static/media/arrivals.jpg": "/Joseph-Nguyen-Portfolio/static/media/arrivals.4d457c26a8f88dca1c9c.jpg",
     "static/media/chicago.webp": "/Joseph-Nguyen-Portfolio/static/media/chicago.038e8dcc88dc8f055fc5.webp",
     "static/media/jjk.jpg": "/Joseph-Nguyen-Portfolio/static/media/jjk.a4ccd779554cc4cef0e8.jpg",
@@ -22,11 +22,11 @@
     "index.html": "/Joseph-Nguyen-Portfolio/index.html",
     "static/media/virginia-tech.svg": "/Joseph-Nguyen-Portfolio/static/media/virginia-tech.6949aa9cec7639318918d8888b571d77.svg",
     "main.237946eb.css.map": "/Joseph-Nguyen-Portfolio/static/css/main.237946eb.css.map",
-    "main.5c750274.js.map": "/Joseph-Nguyen-Portfolio/static/js/main.5c750274.js.map",
+    "main.dd709927.js.map": "/Joseph-Nguyen-Portfolio/static/js/main.dd709927.js.map",
     "453.b05d8aa5.chunk.js.map": "/Joseph-Nguyen-Portfolio/static/js/453.b05d8aa5.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.237946eb.css",
-    "static/js/main.5c750274.js"
+    "static/js/main.dd709927.js"
   ]
 }
