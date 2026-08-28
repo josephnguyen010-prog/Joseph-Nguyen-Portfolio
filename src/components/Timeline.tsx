@@ -31,10 +31,10 @@ const ROLES: Role[] = [
     logo: venusLogo,
     fullBleed: true,
     blurb:
-      "Built a college blind dating app around progressive hints, mutual opt-in, and " +
-      "GPS-verified check-in. Designed a two-layer matching algorithm scoring compatibility " +
-      "across 22 weighted dimensions, on a 20-table Postgres backend with row-level security " +
-      "and server-enforced state machines.",
+      "Founded a college blind dating app with progressive hints, mutual opt-in, and " +
+      "GPS-verified check-in. Built a two-layer matching algorithm scoring compatibility " +
+      "across 22 weighted dimensions on a 20-table Postgres backend, stress tested at 50 " +
+      "concurrent users with zero failures.",
   },
   {
     title: "Tech Risk Consulting Intern",
@@ -44,10 +44,10 @@ const ROLES: Role[] = [
     logo: rsmLogo,
     fullBleed: true,
     blurb:
-      "Reviewed change management processes across 3 client engagements, documenting how " +
-      "system changes are requested, approved, and deployed. Tested 50+ application access " +
-      "controls for provisioning and terminated-access exceptions, and documented 6 process " +
-      "walkthroughs to map current-state workflows.",
+      "Supported the AI governance team by tracking risk assessment discussions and " +
+      "regulatory considerations for responsible AI adoption. Tested 50+ application access " +
+      "controls for provisioning exceptions, and mapped current-state workflows across 6 " +
+      "process walkthroughs.",
   },
   {
     title: "Digital Solutions Intern",

@@ -11,8 +11,8 @@ const labelsFirst = [
     "Tableau",
     "SQL",
     "Excel",
-    "VBA",
     "Power Platform",
+    "Data Visualization",
     "KPI Design",
 ];
 
@@ -21,7 +21,7 @@ const labelsSecond = [
     "Requirements Gathering",
     "Risk Assessments",
     "Access Controls",
-    "Change Management",
+    "AI Governance",
     "Agile",
     "Jira",
     "Miro",
