@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>Arrivals</title>
+  <!-- A globe with a plane crossing it, in the app's own airmail palette: navy
+       ground, kraft-cream globe, air-blue meridians, air-red plane.
+
+       The plane carries a ground-coloured outline so it stays separate from the
+       globe underneath it at 16px, where a red-on-cream edge alone would smear
+       into a single blob. -->
+  <rect width="64" height="64" rx="14" fill="#1b2730"/>
+
+  <circle cx="29" cy="35" r="19" fill="#f1eee6"/>
+  <!-- Equator and meridian. Two lines only: at tab size a full grid of
+       latitudes fills in solid and the globe stops reading as a sphere. -->
+  <path d="M10 35 H48" fill="none" stroke="#2e5f92" stroke-width="3.2" stroke-linecap="round"/>
+  <ellipse cx="29" cy="35" rx="8.5" ry="19" fill="none" stroke="#2e5f92" stroke-width="3.2"/>
+
+  <!-- Climbing to the right, the way an arrivals board reads. -->
+  <path d="M57 7 L20 25 L35 29 L38 45 Z"
+        fill="#c8402f" stroke="#1b2730" stroke-width="2.6" stroke-linejoin="round"/>
+</svg>

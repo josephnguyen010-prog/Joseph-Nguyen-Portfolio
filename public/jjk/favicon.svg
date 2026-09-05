@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>Jujutsu Kaisen Computer Vision</title>
+  <!-- A hand throwing a seal, in the page's own accent on its own ground.
+
+       Drawn as a solid silhouette rather than as a shape cut out of a disc.
+       The cut-out version was tried first and failed: the palm met the edge of
+       the disc and the whole thing stopped reading as a hand, which is the one
+       thing this icon has to do.
+
+       The two fingers are splayed by a few degrees rather than held parallel.
+       That gap is what makes it legible as a hand at 16px - parallel fingers
+       close up into a single blob once the icon is tab sized. -->
+  <rect width="64" height="64" rx="14" fill="#14121a"/>
+  <g fill="#ff5a78">
+    <rect x="20" y="11" width="10" height="28" rx="5" transform="rotate(-7 25 25)"/>
+    <rect x="33" y="8" width="10" height="31" rx="5" transform="rotate(5 38 23)"/>
+    <rect x="17" y="29" width="30" height="25" rx="10"/>
+    <rect x="9" y="31" width="15" height="10" rx="5" transform="rotate(-28 16 36)"/>
+  </g>
+</svg>
