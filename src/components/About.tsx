@@ -11,6 +11,7 @@ import nationalInternDay from '../assets/images/gallery/national-intern-day.webp
 import virginiaTech from '../assets/images/gallery/virginia-tech.webp';
 import chicago from '../assets/images/gallery/chicago.webp';
 import minneapolis from '../assets/images/gallery/minneapolis.webp';
+import newYorkCity from '../assets/images/gallery/new-york-city.webp';
 import vietnam from '../assets/images/gallery/vietnam.webp';
 import worldCup from '../assets/images/gallery/world-cup-2026.webp';
 
@@ -26,6 +27,7 @@ const photos: Photo[] = [
   { src: virginiaTech, caption: 'Virginia Tech' },
   { src: chicago, caption: 'Chicago' },
   { src: minneapolis, caption: 'Minneapolis' },
+  { src: newYorkCity, caption: 'New York City' },
   { src: vietnam, caption: 'Vietnam' },
   { src: worldCup, caption: 'World Cup 2026' },
 ];
@@ -33,7 +35,7 @@ const photos: Photo[] = [
 /**
  * How long each photo holds before the carousel moves on by itself. The slide
  * itself takes 520ms of this, so the real pause on each photo is a little over
- * two seconds - brisk without being a flicker, and eight photos come round in
+ * two seconds - brisk without being a flicker, and nine photos come round in
  * well under half a minute.
  */
 const AUTO_ADVANCE_MS = 3000;
