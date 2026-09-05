@@ -429,13 +429,18 @@ function HokieRun() {
   }, [revealed]);
 
   const reset = () => {
+    // `frame` and `ground` are carried over rather than zeroed. They only
+    // position the scenery - the backdrop offset, the ground specks, the leg
+    // cycle - and now that the attract screen is already scrolling, zeroing
+    // them snapped the campus sideways at the exact moment a run began.
+    const { frame, ground } = game.current;
     game.current = {
       y: 0,
       vy: 0,
       speed: START_SPEED,
       dist: 0,
-      frame: 0,
-      ground: 0,
+      frame,
+      ground,
       hurdles: [],
       gap: 260,
     };
@@ -526,6 +531,39 @@ function HokieRun() {
   useEffect(() => {
     if (phase !== 'running') draw(phase);
   }, [phase, draw, revealed]);
+
+  /**
+   * Attract mode: the campus drifts past and the bird runs on the spot while
+   * the cabinet waits, so the screen reads as a game rather than a screenshot
+   * of one. Scenery only - no Cavaliers are dealt, nothing can be collided
+   * with, and `dist` is left alone so the score stays at zero until a run
+   * actually starts.
+   *
+   * Idle only. A finished run should stay exactly where it crashed, and held
+   * still entirely for anyone who asked for reduced motion, matching what the
+   * blink and the unfold already do.
+   */
+  useEffect(() => {
+    if (!revealed || phase !== 'idle') return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+    let raf = 0;
+    let last = 0;
+
+    const tick = (now: number) => {
+      if (last === 0) last = now;
+      const dt = Math.max(0, Math.min((now - last) / 16.667, 3));
+      last = now;
+      const g = game.current;
+      g.frame += dt;
+      g.ground += START_SPEED * dt;
+      draw('idle');
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [revealed, phase, draw]);
 
   /**
    * Blink "GAME OVER" once the run has ended, on the same 1s cadence as the
@@ -690,27 +728,37 @@ function HokieRun() {
           onKeyDown={onKeyDown}
         />
 
-        {phase !== 'running' && (
-          <button
-            type="button"
-            ref={promptRef}
-            className="hokie-prompt"
-            onClick={start}
-          >
-            {phase === 'idle' ? (
-              <>
-                <span className="hokie-prompt-title">Hokie Run</span>
-                <span className="hokie-prompt-line">
-                  <span className="hokie-blink">&#9654;</span> Click here to play
-                </span>
-              </>
-            ) : (
-              <span className="hokie-prompt-line">
-                Score {score} &middot; Click to retry
-              </span>
-            )}
-          </button>
-        )}
+        {/* Mounted in every phase, unlike before, because the title has to be
+            one continuous element for it to travel: unmounting and remounting
+            it around each run would leave nothing to transition between, and
+            it would simply cut from one place to the other. While a run is on,
+            the button carries only the title and is made inert. */}
+        <button
+          type="button"
+          ref={promptRef}
+          className={`hokie-prompt is-${phase}`}
+          onClick={start}
+          /* Out of the tab order while running - it is not offering anything
+             to press by then, and `aria-hidden` on a focusable element would
+             be a trap. Clicks pass through it to the canvas, which is what
+             turns a click into a jump. */
+          tabIndex={phase === 'running' ? -1 : 0}
+          aria-hidden={phase === 'running'}
+        >
+          <span className="hokie-prompt-title">Hokie Run</span>
+
+          {phase === 'idle' && (
+            <span className="hokie-prompt-line">
+              <span className="hokie-blink">&#9654;</span> Click here to play
+            </span>
+          )}
+
+          {phase === 'over' && (
+            <span className="hokie-prompt-line">
+              Score {score} &middot; Click to retry
+            </span>
+          )}
+        </button>
       </div>
 
       <div className="hokie-footer">
@@ -718,7 +766,10 @@ function HokieRun() {
         <button
           type="button"
           className="hokie-hide"
-          onClick={() => { setPhase('idle'); setRevealed(false); }}
+          /* Cleared on the way out, or the Cavaliers from the last run are
+             still standing there when the cabinet is reopened - frozen in
+             place while the attract screen scrolls past behind them. */
+          onClick={() => { reset(); setPhase('idle'); setRevealed(false); }}
         >
           Hide game
         </button>

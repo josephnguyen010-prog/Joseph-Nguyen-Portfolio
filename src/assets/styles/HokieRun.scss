@@ -177,6 +177,9 @@ $hokie-maroon: #861F41;
     align-items: center;
     justify-content: center;
     gap: 10px;
+    /* Percentages here resolve against the cabinet's width, which is exactly
+       what the canvas scales with - so anything measured this way holds its
+       place on the 600x160 screen at every viewport size. */
     border: none;
     border-radius: 6px;
     /* No scrim. This used to be a flat 55% black wash, which hid the campus
@@ -193,16 +196,59 @@ $hokie-maroon: #861F41;
     transition: background-color 200ms ease, color 200ms ease;
 }
 
-/* Only the idle screen gets a title - the retry screen already has news to
-   share (the score) and doesn't need the marquee competing with it.
+/* Inert while a run is on: the clicks belong to the canvas underneath, which
+   is what reads them as jumps. */
+.hokie-prompt.is-running {
+    pointer-events: none;
+}
 
-   Maroon with a cream drop shadow, because this now sits directly on the
-   daylight sky: white would dissolve into it and orange is too weak against
-   the pale band the title crosses. */
+/* The attract screen sits high, clear of the skyline and the bird, so the
+   backdrop reads as a place rather than as something behind a sign. This
+   offset only places the instruction pill - the title is positioned on its
+   own below, so that it can move independently of it.
+
+   The retry pill keeps the inherited centring, because "GAME OVER" is painted
+   onto the canvas at a fixed height and a raised pill would land on it. */
+.hokie-prompt.is-idle {
+    justify-content: flex-start;
+    padding-top: 10%;
+}
+
+/* Maroon with a cream drop shadow, because this sits directly on the daylight
+   sky: white would dissolve into it and orange is too weak against the pale
+   band the title crosses.
+
+   Taken out of the flex flow and anchored to the top edge so its position is
+   one animatable property rather than a consequence of what is stacked around
+   it - the pill below it comes and goes between phases, and in flow that would
+   drag the title with it. */
 .hokie-prompt-title {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    padding-top: 5.5%;
     color: $hokie-maroon;
     font-size: clamp(1.1rem, 3.6vw, 1.8rem);
     text-shadow: 2px 2px 0 rgba(255, 248, 236, 0.8);
+    /* Or it would swallow the clicks meant for the button it sits on. */
+    pointer-events: none;
+    transition: padding-top 420ms cubic-bezier(0.16, 1, 0.3, 1),
+                font-size 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Once a run starts the title shrinks and rises to sit on the score line,
+   the same move the JJK demo makes when its camera comes up - kept for
+   identity, out of the way of the thing the screen is actually for. It stays
+   there for the game-over screen too, where the retry pill takes the middle. */
+.hokie-prompt.is-running .hokie-prompt-title,
+.hokie-prompt.is-over .hokie-prompt-title {
+    padding-top: 1.5%;
+    /* Deliberately larger than the instruction pill it used to match: at that
+       size it read as a caption rather than as the game's name. It still has
+       to clear the score readout painted at the top right of the canvas, which
+       is what caps it. */
+    font-size: clamp(0.85rem, 2.2vw, 1.2rem);
 }
 
 /* The one thing that stays dark: a pill behind the instruction, so it reads
@@ -253,6 +299,10 @@ $hokie-maroon: #861F41;
     .hokie-blink { animation: none; }
 
     .hokie-cabinet { animation: none; }
+
+    /* The title still moves between phases - it has to, the two layouts are
+       different - but it arrives rather than travels. */
+    .hokie-prompt-title { transition: none; }
 
     .hokie-teaser:hover,
     .hokie-teaser:focus-visible { transform: none; }
