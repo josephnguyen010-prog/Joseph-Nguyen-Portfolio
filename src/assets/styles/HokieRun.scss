@@ -173,12 +173,16 @@ $hokie-maroon: #861F41;
     position: absolute;
     inset: 10px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 10px;
     border: none;
     border-radius: 6px;
-    background-color: rgba(12, 14, 19, 0.55);
+    /* No scrim. This used to be a flat 55% black wash, which hid the campus
+       backdrop the canvas had already drawn and left the cabinet looking
+       switched off. The two lines below earn their own legibility instead. */
+    background-color: transparent;
     color: #fff;
     font-family: 'Courier Prime', source-code-pro, monospace;
     font-size: clamp(0.85rem, 2.2vw, 1.15rem);
@@ -189,11 +193,42 @@ $hokie-maroon: #861F41;
     transition: background-color 200ms ease, color 200ms ease;
 }
 
+/* Only the idle screen gets a title - the retry screen already has news to
+   share (the score) and doesn't need the marquee competing with it.
+
+   Maroon with a cream drop shadow, because this now sits directly on the
+   daylight sky: white would dissolve into it and orange is too weak against
+   the pale band the title crosses. */
+.hokie-prompt-title {
+    color: $hokie-maroon;
+    font-size: clamp(1.1rem, 3.6vw, 1.8rem);
+    text-shadow: 2px 2px 0 rgba(255, 248, 236, 0.8);
+}
+
+/* The one thing that stays dark: a pill behind the instruction, so it reads
+   over whichever part of the backdrop happens to be behind it. */
+.hokie-prompt-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 16px;
+    border-radius: 999px;
+    background-color: rgba(12, 14, 19, 0.72);
+    font-size: clamp(0.7rem, 1.8vw, 0.95rem);
+    transition: background-color 200ms ease;
+}
+
+/* Hover lands on the pill rather than the whole screen - dimming the backdrop
+   on hover would undo the point of removing the scrim. */
 .hokie-prompt:hover,
 .hokie-prompt:focus-visible {
-    background-color: rgba(12, 14, 19, 0.35);
     color: $hokie-orange;
     outline: none;
+}
+
+.hokie-prompt:hover .hokie-prompt-line,
+.hokie-prompt:focus-visible .hokie-prompt-line {
+    background-color: rgba(12, 14, 19, 0.88);
 }
 
 .hokie-blink {

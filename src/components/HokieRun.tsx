@@ -516,9 +516,16 @@ function HokieRun() {
 
   // First paint, and a repaint whenever the game is not running so the screen
   // is never blank behind the prompt.
+  //
+  // `revealed` belongs in the deps even though the body never reads it: until
+  // the cabinet opens there is no canvas in the DOM, so the mount run of this
+  // effect paints nothing and returns at `draw`'s own null check. Opening the
+  // cabinet changes neither `phase` nor `draw`, so without this the attract
+  // screen was never painted at all - it only looked deliberate while a dark
+  // scrim sat over the top of it.
   useEffect(() => {
     if (phase !== 'running') draw(phase);
-  }, [phase, draw]);
+  }, [phase, draw, revealed]);
 
   /**
    * Blink "GAME OVER" once the run has ended, on the same 1s cadence as the
@@ -692,10 +699,15 @@ function HokieRun() {
           >
             {phase === 'idle' ? (
               <>
-                <span className="hokie-blink">&#9654;</span> Click here to play
+                <span className="hokie-prompt-title">Hokie Run</span>
+                <span className="hokie-prompt-line">
+                  <span className="hokie-blink">&#9654;</span> Click here to play
+                </span>
               </>
             ) : (
-              <>Score {score} &middot; Click to retry</>
+              <span className="hokie-prompt-line">
+                Score {score} &middot; Click to retry
+              </span>
             )}
           </button>
         )}
