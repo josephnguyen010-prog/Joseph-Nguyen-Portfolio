@@ -113,10 +113,23 @@
     svg { color: #fff; }
 }
 
-/* focus-within as well as hover, or the arrows would be invisible to anyone
-   tabbing to them - they stay in the tab order either way. */
-.carousel:hover .carousel-nav,
-.carousel:focus-within .carousel-nav {
+.carousel:hover .carousel-nav {
+    opacity: 1;
+}
+
+/* Keyboard focus as well as hover, or the arrows would be invisible to anyone
+   tabbing to them - they stay in the tab order either way.
+ *
+ * `:has(:focus-visible)` rather than `:focus-within`: a mouse click on an arrow
+ * or a dot leaves focus sitting on that button, and plain `:focus-within` kept
+ * the arrows pinned over the photo long after the pointer had gone. Browsers
+ * withhold `:focus-visible` from click-focus, so this shows them for tabbing
+ * and hides them again the moment the pointer leaves.
+ *
+ * Deliberately its own rule rather than a second selector on the one above: if
+ * `:has()` is unsupported the whole selector list would be dropped, and the
+ * hover reveal would go with it. */
+.carousel:has(:focus-visible) .carousel-nav {
     opacity: 1;
 }
 
