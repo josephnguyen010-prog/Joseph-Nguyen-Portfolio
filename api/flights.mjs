@@ -47,10 +47,25 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export default async function handler(req, res) {
   const origin = req.headers.origin;
-  if (origin && ALLOWED.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Vary", "Origin");
-  }
+  const allowed = !origin || ALLOWED.includes(origin);
+
+  /**
+   * Unconditionally, and this is the whole point of it. The answer is cached
+   * at the edge for six hours, so without `Vary` the CDN keeps one copy for
+   * everybody — and whichever request lands first decides whether that copy
+   * carries a CORS header. A curl with no Origin primed it once and the
+   * GitHub Pages copy was refused for six hours by a cached response that had
+   * simply never been given the header.
+   */
+  res.setHeader("Vary", "Origin");
+  if (origin && allowed) res.setHeader("Access-Control-Allow-Origin", origin);
+
+  /**
+   * Turned away before the upstream call rather than after it. Answering a
+   * disallowed origin without the header still spent a search from the
+   * month's quota to produce something the browser would throw away.
+   */
+  if (!allowed) return res.status(403).json({ error: "origin_not_allowed" });
 
   if (req.method === "OPTIONS") {
     res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
