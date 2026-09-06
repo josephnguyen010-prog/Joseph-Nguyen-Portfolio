@@ -12,6 +12,12 @@
  * portfolio has been bitten by that distinction before and consistency is
  * cheaper than remembering which is which.
  *
+ * Named .mjs, not .js. The portfolio's package.json has no "type": "module" —
+ * adding one would break Create React App's own tooling — so Node reads a .js
+ * file here as CommonJS and `export default` is a syntax error that takes the
+ * function down on every request. The extension forces ESM for this one file
+ * and leaves the build alone. The route is still /api/flights.
+ *
  * Without the key the function returns 503 and the app quietly falls back to
  * its own fare estimate and plain search links, which is also what happens on
  * a quota exhaustion, a SerpApi outage, or a cold start that times out. The
