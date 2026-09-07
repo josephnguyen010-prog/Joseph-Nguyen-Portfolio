@@ -4,9 +4,7 @@ import React from "react";
 import netflixCaseStudy from '../assets/images/netflix-case-study.jpg';
 // Same reasoning - the device mockup is 878KB as a PNG, 186KB here.
 import venus from '../assets/images/venus.jpg';
-// A title card rather than a screenshot: the app's own mark on its own
-// airmail ground, at the same 1700x1120 as the three photographic thumbnails
-// beside it so the grid rows stay even.
+// Same again - a screenshot of the app itself.
 import arrivals from '../assets/images/arrivals.jpg';
 import jjk from '../assets/images/jjk.jpg';
 import Reveal from './Reveal';
