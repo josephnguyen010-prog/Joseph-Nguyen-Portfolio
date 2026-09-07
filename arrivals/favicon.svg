@@ -1,20 +1,47 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <title>Arrivals</title>
-  <!-- A globe with a plane crossing it, in the app's own airmail palette: navy
-       ground, kraft-cream globe, air-blue meridians, air-red plane.
+  <!-- The same drawing as src/components/Logo.tsx, at tile size. It used to be
+       a different mark entirely - a globe crossed by a plane that appeared
+       nowhere in the app - so the tab and the bar were two identities that had
+       never met. Change one of these files and change the other.
 
-       The plane carries a ground-coloured outline so it stays separate from the
-       globe underneath it at 16px, where a red-on-cream edge alone would smear
-       into a single blob. -->
+       The stamp is inset only 4 from the tile, not 8. At 8 the plane came to
+       44% of the icon's width, which is legible at 48px and a smudge at 16,
+       where a favicon actually lives: the tile's padding was eating the only
+       part of the mark that says what the app is. -->
   <rect width="64" height="64" rx="14" fill="#1b2730"/>
 
-  <circle cx="29" cy="35" r="19" fill="#f1eee6"/>
-  <!-- Equator and meridian. Two lines only: at tab size a full grid of
-       latitudes fills in solid and the globe stops reading as a sphere. -->
-  <path d="M10 35 H48" fill="none" stroke="#2e5f92" stroke-width="3.2" stroke-linecap="round"/>
-  <ellipse cx="29" cy="35" rx="8.5" ry="19" fill="none" stroke="#2e5f92" stroke-width="3.2"/>
+  <mask id="perf">
+    <rect x="4" y="4" width="56" height="56" fill="#fff"/>
+    <g fill="#000">
+      <circle cx="8" cy="4" r="2.8"/><circle cx="8" cy="60" r="2.8"/>
+      <circle cx="16" cy="4" r="2.8"/><circle cx="16" cy="60" r="2.8"/>
+      <circle cx="24" cy="4" r="2.8"/><circle cx="24" cy="60" r="2.8"/>
+      <circle cx="32" cy="4" r="2.8"/><circle cx="32" cy="60" r="2.8"/>
+      <circle cx="40" cy="4" r="2.8"/><circle cx="40" cy="60" r="2.8"/>
+      <circle cx="48" cy="4" r="2.8"/><circle cx="48" cy="60" r="2.8"/>
+      <circle cx="56" cy="4" r="2.8"/><circle cx="56" cy="60" r="2.8"/>
+      <circle cx="4" cy="8" r="2.8"/><circle cx="60" cy="8" r="2.8"/>
+      <circle cx="4" cy="16" r="2.8"/><circle cx="60" cy="16" r="2.8"/>
+      <circle cx="4" cy="24" r="2.8"/><circle cx="60" cy="24" r="2.8"/>
+      <circle cx="4" cy="32" r="2.8"/><circle cx="60" cy="32" r="2.8"/>
+      <circle cx="4" cy="40" r="2.8"/><circle cx="60" cy="40" r="2.8"/>
+      <circle cx="4" cy="48" r="2.8"/><circle cx="60" cy="48" r="2.8"/>
+      <circle cx="4" cy="56" r="2.8"/><circle cx="60" cy="56" r="2.8"/>
+    </g>
+  </mask>
 
-  <!-- Climbing to the right, the way an arrivals board reads. -->
-  <path d="M57 7 L20 25 L35 29 L38 45 Z"
-        fill="#c8402f" stroke="#1b2730" stroke-width="2.6" stroke-linejoin="round"/>
+  <!-- The teeth are cut, not painted: the navy tile shows through them, which
+       is what makes the edge read as perforated rather than as a scalloped
+       border drawn in one particular colour. -->
+  <g mask="url(#perf)">
+    <rect x="4" y="4" width="56" height="56" fill="#f6f3eb"/>
+    <rect x="8.5" y="8.5" width="47" height="47" fill="none" stroke="#2e5f92" stroke-width="1.8"/>
+  </g>
+
+  <!-- The boarding pass's own plane, banked 35 degrees. -->
+  <g transform="translate(32 32) rotate(35) scale(1.5) translate(-12 -12)">
+    <path d="M21,16v-2l-8-5V3.5C13,2.67,12.33,2,11.5,2S10,2.67,10,3.5V9l-8,5v2l8-2.5V19l-2,1.5V22l3.5-1l3.5,1v-1.5L13,19v-5.5L21,16z"
+          fill="#c8402f"/>
+  </g>
 </svg>

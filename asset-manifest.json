@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/Joseph-Nguyen-Portfolio/static/css/main.9d403a81.css",
-    "main.js": "/Joseph-Nguyen-Portfolio/static/js/main.bdb97c41.js",
+    "main.js": "/Joseph-Nguyen-Portfolio/static/js/main.51dee95e.js",
     "static/js/453.b05d8aa5.chunk.js": "/Joseph-Nguyen-Portfolio/static/js/453.b05d8aa5.chunk.js",
     "static/media/bg-light.png": "/Joseph-Nguyen-Portfolio/static/media/bg-light.bac0efb485244a522981.png",
     "static/media/bg-dark.png": "/Joseph-Nguyen-Portfolio/static/media/bg-dark.f420c6b8458af72de935.png",
@@ -13,21 +13,21 @@
     "static/media/rsm-game-night.webp": "/Joseph-Nguyen-Portfolio/static/media/rsm-game-night.22897151ce12b0b30062.webp",
     "static/media/netflix-case-study.jpg": "/Joseph-Nguyen-Portfolio/static/media/netflix-case-study.e4d3d491c6550bb3b696.jpg",
     "static/media/new-york-city.webp": "/Joseph-Nguyen-Portfolio/static/media/new-york-city.6ebbd88a96a00be86dfd.webp",
-    "static/media/arrivals.jpg": "/Joseph-Nguyen-Portfolio/static/media/arrivals.4d457c26a8f88dca1c9c.jpg",
     "static/media/chicago.webp": "/Joseph-Nguyen-Portfolio/static/media/chicago.038e8dcc88dc8f055fc5.webp",
     "static/media/jjk.jpg": "/Joseph-Nguyen-Portfolio/static/media/jjk.a4ccd779554cc4cef0e8.jpg",
     "static/media/vietnam.webp": "/Joseph-Nguyen-Portfolio/static/media/vietnam.aa33cec30506e5f5d973.webp",
     "static/media/venus.jpg": "/Joseph-Nguyen-Portfolio/static/media/venus.83a79008f7f40840c4c2.jpg",
+    "static/media/arrivals.jpg": "/Joseph-Nguyen-Portfolio/static/media/arrivals.06e82086eafcfc85d461.jpg",
     "static/media/venus.png": "/Joseph-Nguyen-Portfolio/static/media/venus.0c7ac02df1a38e4c631d.png",
     "static/media/avatar.jpg": "/Joseph-Nguyen-Portfolio/static/media/avatar.9807f5ee78de27639fcc.jpg",
     "index.html": "/Joseph-Nguyen-Portfolio/index.html",
     "static/media/virginia-tech.svg": "/Joseph-Nguyen-Portfolio/static/media/virginia-tech.6949aa9cec7639318918d8888b571d77.svg",
     "main.9d403a81.css.map": "/Joseph-Nguyen-Portfolio/static/css/main.9d403a81.css.map",
-    "main.bdb97c41.js.map": "/Joseph-Nguyen-Portfolio/static/js/main.bdb97c41.js.map",
+    "main.51dee95e.js.map": "/Joseph-Nguyen-Portfolio/static/js/main.51dee95e.js.map",
     "453.b05d8aa5.chunk.js.map": "/Joseph-Nguyen-Portfolio/static/js/453.b05d8aa5.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.9d403a81.css",
-    "static/js/main.bdb97c41.js"
+    "static/js/main.51dee95e.js"
   ]
 }

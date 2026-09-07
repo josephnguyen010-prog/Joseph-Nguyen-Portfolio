@@ -3,17 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Served from public/, so Vite copies it to the root of the build. Kept
-         relative because the build is published under a subdirectory of the
-         portfolio, where a leading slash would point at the site root. -->
+    <!-- Served from public/, so Vite copies it to the root of the build.
+         ./ rather than a bare "./": this same index.html is what the
+         SPA returns for every route, so a document-relative href resolved
+         against /city/tokyo asked for /city/favicon.svg, got index.html back
+         with a text/html type, and the tab silently kept no icon at all. Vite
+         substitutes the dev server's "/" here and the deployed sub-path in a
+         build, so it stays correct at any route depth in both. -->
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <title>Arrivals — cities, logged</title>
     <meta name="description" content="Rate the cities you've been to, log every visit, and keep a ranking built from comparisons rather than guesswork." />
     <meta name="author" content="Joseph Nguyen" />
-    <script type="module" crossorigin src="./assets/index-gUz0Dl7X.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-CbjfXodX.css">
+    <script type="module" crossorigin src="./assets/index-B3R8F9T0.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-COGdkv37.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"></div>
   </body>
 </html>
