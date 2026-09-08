@@ -66,13 +66,13 @@ const projects: ProjectItem[] = [
         image: roiPot,
         title: "ROI-Pot: Did You Eat Your Money's Worth?",
         href: roiPotUrl,
-        description: "An all-you-can-eat Korean BBQ calculator. Drag or tap each plate as it comes off the grill and it tallies your order against retail meat prices, so closing out the check tells you who actually won the meal - you or the house. The food falls and piles up on the plate under a hand-rolled physics sim, gravity and collisions and all. React and Vite; the link opens the working prototype.",
+        description: "An all-you-can-eat Korean BBQ tally. Tap each plate off the grill and it prices the order against retail meat costs to settle who won the meal. Plates fall and stack on a hand-rolled physics sim - gravity, restitution, collision resolution. React and Vite; the link opens it.",
     },
     {
         image: nineMile,
         title: "Nine Mile Wash: A Western With No Art Files",
         href: nineMileUrl,
-        description: "A first-person western that runs in a browser tab with nothing loaded from disk - the town, the terrain, the outlaws, the horses and every gunshot are generated in code at load time. Fourteen buildings you can walk into, three saloons with people working in them, a Colt you reload a round at a time, and a Springfield taken off the rifleman on the saloon roof. Three.js and about 3,000 lines of plain JavaScript; the link opens the game.",
+        description: "A first-person western in one HTML file with no assets on disk - geometry, canvas textures and Web Audio gunshots are all generated at load. Analytic height-field terrain, height-aware AABB collision with walkable roofs, hitscan combat, waypoint-driven AI. Three.js and ~3,000 lines of vanilla JS; the link opens it.",
     },
 ];
 
