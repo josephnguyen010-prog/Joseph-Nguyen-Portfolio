@@ -66,7 +66,7 @@ const projects: ProjectItem[] = [
         image: roiPot,
         title: "ROI-Pot: Did You Eat Your Money's Worth?",
         href: roiPotUrl,
-        description: "An all-you-can-eat Korean BBQ tally. Tap each plate off the grill and it prices the order against retail meat costs to settle who won the meal. Plates fall and stack on a hand-rolled physics sim - gravity, restitution, collision resolution. React and Vite; the link opens it.",
+        description: "An all-you-can-eat Korean BBQ and hot pot tally. Tap each plate off the grill and it prices the order against retail meat costs to settle who won the meal. Plates fall and stack on a hand-rolled physics sim - gravity, restitution, collision resolution. React and Vite; the link opens it.",
     },
     {
         image: nineMile,
