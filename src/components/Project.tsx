@@ -10,7 +10,7 @@ import jjk from '../assets/images/jjk.jpg';
 // Same again - a screenshot of the prototype with food piled on the plate.
 import roiPot from '../assets/images/roi-pot.jpg';
 // Captured out of the game itself, headless, so it is a real frame.
-import nineMile from '../assets/images/nine-mile-wash.jpg';
+import wildWest from '../assets/images/joes-wild-west-game.jpg';
 import Reveal from './Reveal';
 import '../assets/styles/Project.scss';
 
@@ -26,7 +26,7 @@ const handSignsUrl = `${process.env.PUBLIC_URL}/jjk/`;
 const roiPotUrl = `${process.env.PUBLIC_URL}/roi-pot/`;
 // One self-contained HTML file in public/, built from the joes-western-game
 // repo. No relative asset paths, so it serves from this sub-path as is.
-const nineMileUrl = `${process.env.PUBLIC_URL}/nine-mile-wash/`;
+const wildWestUrl = `${process.env.PUBLIC_URL}/joes-wild-west-game/`;
 
 interface ProjectItem {
     image: string;
@@ -69,9 +69,9 @@ const projects: ProjectItem[] = [
         description: "An all-you-can-eat Korean BBQ and hot pot tally. Tap each plate off the grill and it prices the order against retail meat costs to settle who won the meal. Plates fall and stack on a hand-rolled physics sim - gravity, restitution, collision resolution. React and Vite; the link opens it.",
     },
     {
-        image: nineMile,
+        image: wildWest,
         title: "Joe's Wild West Game",
-        href: nineMileUrl,
+        href: wildWestUrl,
         description: "A first-person western in one HTML file with no assets on disk - geometry, canvas textures and Web Audio gunshots are all generated at load. Analytic height-field terrain, height-aware AABB collision with walkable roofs, hitscan combat, waypoint-driven AI. Three.js and ~3,000 lines of vanilla JS; the link opens it.",
     },
 ];
