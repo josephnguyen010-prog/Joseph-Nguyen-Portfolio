@@ -9,6 +9,8 @@ import arrivals from '../assets/images/arrivals.jpg';
 import jjk from '../assets/images/jjk.jpg';
 // Same again - a screenshot of the prototype with food piled on the plate.
 import roiPot from '../assets/images/roi-pot.jpg';
+// Captured out of the game itself, headless, so it is a real frame.
+import nineMile from '../assets/images/nine-mile-wash.jpg';
 import Reveal from './Reveal';
 import '../assets/styles/Project.scss';
 
@@ -22,6 +24,9 @@ const handSignsUrl = `${process.env.PUBLIC_URL}/jjk/`;
 // Vite build from the ROI-Pot Prototype repo, copied into public/. Built with
 // base './' so its own assets resolve from this sub-path.
 const roiPotUrl = `${process.env.PUBLIC_URL}/roi-pot/`;
+// One self-contained HTML file in public/, built from the joes-western-game
+// repo. No relative asset paths, so it serves from this sub-path as is.
+const nineMileUrl = `${process.env.PUBLIC_URL}/nine-mile-wash/`;
 
 interface ProjectItem {
     image: string;
@@ -62,6 +67,12 @@ const projects: ProjectItem[] = [
         title: "ROI-Pot: Did You Eat Your Money's Worth?",
         href: roiPotUrl,
         description: "An all-you-can-eat Korean BBQ calculator. Drag or tap each plate as it comes off the grill and it tallies your order against retail meat prices, so closing out the check tells you who actually won the meal - you or the house. The food falls and piles up on the plate under a hand-rolled physics sim, gravity and collisions and all. React and Vite; the link opens the working prototype.",
+    },
+    {
+        image: nineMile,
+        title: "Nine Mile Wash: A Western With No Art Files",
+        href: nineMileUrl,
+        description: "A first-person western that runs in a browser tab with nothing loaded from disk - the town, the terrain, the outlaws, the horses and every gunshot are generated in code at load time. Fourteen buildings you can walk into, three saloons with people working in them, a Colt you reload a round at a time, and a Springfield taken off the rifleman on the saloon roof. Three.js and about 3,000 lines of plain JavaScript; the link opens the game.",
     },
 ];
 
