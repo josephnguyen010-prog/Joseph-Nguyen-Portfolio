@@ -7,6 +7,8 @@ import venus from '../assets/images/venus.jpg';
 // Same again - a screenshot of the app itself.
 import arrivals from '../assets/images/arrivals.jpg';
 import jjk from '../assets/images/jjk.jpg';
+// Same again - a screenshot of the prototype with food piled on the plate.
+import roiPot from '../assets/images/roi-pot.jpg';
 import Reveal from './Reveal';
 import '../assets/styles/Project.scss';
 
@@ -17,6 +19,9 @@ const caseStudyUrl = `${process.env.PUBLIC_URL}/netflix-case-study/`;
 const arrivalsUrl = `${process.env.PUBLIC_URL}/arrivals/`;
 // A static page in public/, rebuilt from the jjk-hand-signs repo by build_web.py.
 const handSignsUrl = `${process.env.PUBLIC_URL}/jjk/`;
+// Vite build from the ROI-Pot Prototype repo, copied into public/. Built with
+// base './' so its own assets resolve from this sub-path.
+const roiPotUrl = `${process.env.PUBLIC_URL}/roi-pot/`;
 
 interface ProjectItem {
     image: string;
@@ -51,6 +56,12 @@ const projects: ProjectItem[] = [
         title: "SaaS Subscription Business Analysis",
         href: caseStudyUrl,
         description: "An end-to-end business analysis of Netflix, built as a browse interface instead of a slide deck - pick a profile, then open a chapter for market position, pricing, regional revenue, content operations, risks and recommendations. Built from public FY2021-FY2024 reporting.",
+    },
+    {
+        image: roiPot,
+        title: "ROI-Pot: Did You Eat Your Money's Worth?",
+        href: roiPotUrl,
+        description: "An all-you-can-eat Korean BBQ calculator. Drag or tap each plate as it comes off the grill and it tallies your order against retail meat prices, so closing out the check tells you who actually won the meal - you or the house. The food falls and piles up on the plate under a hand-rolled physics sim, gravity and collisions and all. React and Vite; the link opens the working prototype.",
     },
 ];
 
