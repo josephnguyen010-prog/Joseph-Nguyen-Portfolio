@@ -70,7 +70,7 @@ const projects: ProjectItem[] = [
     },
     {
         image: nineMile,
-        title: "Nine Mile Wash: A Western With No Art Files",
+        title: "Joe's Wild West Game",
         href: nineMileUrl,
         description: "A first-person western in one HTML file with no assets on disk - geometry, canvas textures and Web Audio gunshots are all generated at load. Analytic height-field terrain, height-aware AABB collision with walkable roofs, hitscan combat, waypoint-driven AI. Three.js and ~3,000 lines of vanilla JS; the link opens it.",
     },
