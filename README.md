@@ -20,6 +20,23 @@ My personal portfolio site. Business Information Technology student at Virginia 
 
 Dark and light modes, responsive down to mobile, and every animation respects `prefers-reduced-motion`.
 
+## Projects
+
+Each project has its own repo; a built copy of each is hosted inside this site under `public/`, so the links work without a separate deploy.
+
+| Project | Live | Source |
+|---|---|---|
+| Venus: blind dating, gamified | [joinvenusapp.com](https://joinvenusapp.com) | private |
+| Arrivals: Letterboxd for cities | [/arrivals/](https://josephnguyen010-prog.github.io/Joseph-Nguyen-Portfolio/arrivals/) | [Arrivals](https://github.com/josephnguyen010-prog/Arrivals) |
+| Jujutsu Kaisen hand-sign recognition | [/jjk/](https://josephnguyen010-prog.github.io/Joseph-Nguyen-Portfolio/jjk/) | [JJK-Computer-Vision-Project](https://github.com/josephnguyen010-prog/JJK-Computer-Vision-Project) |
+| Netflix business analysis | [/netflix-case-study/](https://josephnguyen010-prog.github.io/Joseph-Nguyen-Portfolio/netflix-case-study/) | lives in this repo |
+| ROI-Pot: did you eat your money's worth? | [/roi-pot/](https://josephnguyen010-prog.github.io/Joseph-Nguyen-Portfolio/roi-pot/) | [ROI-Pot](https://github.com/josephnguyen010-prog/ROI-Pot) |
+| Joe's Wild West Game | [/joes-wild-west-game/](https://josephnguyen010-prog.github.io/Joseph-Nguyen-Portfolio/joes-wild-west-game/) | [joes-western-game](https://github.com/josephnguyen010-prog/joes-western-game) |
+
+To update one, rebuild it in its own repo and replace its folder in `public/`. Each project's README says how.
+
+`api/flights.mjs` is a serverless function for the Vercel deployment. It proxies live flight search for Arrivals, so the SerpApi key stays on the server.
+
 ## Built with
 
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![Sass](https://img.shields.io/badge/Sass-CC6699?style=for-the-badge&logo=sass&logoColor=white) ![MUI](https://img.shields.io/badge/MUI-007FFF?style=for-the-badge&logo=mui&logoColor=white) ![Node.js](https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
