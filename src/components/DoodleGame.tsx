@@ -5,6 +5,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { EMAIL, isEmailConfigured, sendDoodle } from '../lib/email';
 import { canvasToPng, isUploadConfigured, uploadDoodle } from '../lib/doodleUpload';
 import '../assets/styles/DoodleGame.scss';
+import { prefersReducedMotion } from "../lib/motion";
 
 /**
  * One reel, one whole prompt. Two flavours, dealt from the same bag: absurd
@@ -458,9 +459,7 @@ function DoodleGame({ mode = 'dark' }: Props) {
      *
      * matchMedia is guarded because jsdom does not implement it.
      */
-    const reduced = Boolean(
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
-    );
+    const reduced = prefersReducedMotion();
     const spinMs = reduced ? REDUCED_SPIN_MS : SPIN_MS;
     const target = reduced ? next : loops * PROMPTS.length + next;
 

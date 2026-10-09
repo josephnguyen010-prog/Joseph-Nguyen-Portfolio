@@ -1,4 +1,3 @@
-import React from "react";
 // JPEG rather than PNG: it is a photographic screenshot, so PNG cost 1.7MB
 // against 215KB here for no visible difference.
 import netflixCaseStudy from '../assets/images/netflix-case-study.jpg';

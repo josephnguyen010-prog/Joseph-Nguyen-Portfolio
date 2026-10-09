@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import '../assets/styles/LoadingScreen.scss';
+import { prefersReducedMotion } from "../lib/motion";
 
 interface Props {
   /** Called once the screen has finished fading out and can be unmounted. */
@@ -44,10 +45,6 @@ function progressAt(elapsed: number): number {
   }
   return 100;
 }
-
-const prefersReducedMotion = (): boolean =>
-  typeof window !== "undefined" &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 export default function LoadingScreen({ onFinish, duration = BASE_TOTAL }: Props) {
   const [progress, setProgress] = useState(0);

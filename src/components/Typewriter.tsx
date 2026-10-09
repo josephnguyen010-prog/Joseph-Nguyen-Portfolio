@@ -1,4 +1,5 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { prefersReducedMotion } from "../lib/motion";
 
 interface Props {
   /**
@@ -40,10 +41,6 @@ interface Props {
    */
   fitLines?: boolean;
 }
-
-const prefersReducedMotion = (): boolean =>
-  typeof window !== "undefined" &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** Reused across measurements; making one per call is needless garbage. */
 let scratchCtx: CanvasRenderingContext2D | null = null;

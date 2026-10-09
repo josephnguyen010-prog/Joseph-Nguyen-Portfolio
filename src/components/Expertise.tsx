@@ -1,4 +1,3 @@
-import React from "react";
 import '@fortawesome/free-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartColumn, faDiagramProject, faCode } from '@fortawesome/free-solid-svg-icons';

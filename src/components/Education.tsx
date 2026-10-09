@@ -1,4 +1,3 @@
-import React from "react";
 import Reveal from './Reveal';
 import HokieRun from './HokieRun';
 import vtLogo from '../assets/images/logos/virginia-tech.svg';

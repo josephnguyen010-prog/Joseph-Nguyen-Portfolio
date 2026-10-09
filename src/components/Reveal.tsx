@@ -1,9 +1,10 @@
-import React, {
+import {
   PropsWithChildren,
   useEffect,
   useRef,
   useState,
 } from "react";
+import { prefersReducedMotion } from "../lib/motion";
 
 type Direction = "up" | "down" | "left" | "right" | "none";
 
@@ -42,10 +43,6 @@ const offset = (direction: Direction, distance: number): string => {
       return "none";
   }
 };
-
-const prefersReducedMotion = (): boolean =>
-  typeof window !== "undefined" &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 export default function Reveal(props: PropsWithChildren<Props>) {
   const {

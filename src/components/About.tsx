@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -14,6 +14,7 @@ import minneapolis from '../assets/images/gallery/minneapolis.webp';
 import newYorkCity from '../assets/images/gallery/new-york-city.webp';
 import vietnam from '../assets/images/gallery/vietnam.webp';
 import worldCup from '../assets/images/gallery/world-cup-2026.webp';
+import { prefersReducedMotion } from "../lib/motion";
 
 interface Photo {
   src: string;
@@ -84,7 +85,7 @@ function About() {
    */
   useEffect(() => {
     if (paused || openIndex !== null) return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    if (prefersReducedMotion()) return;
     const timer = window.setInterval(() => advance(1), AUTO_ADVANCE_MS);
     return () => window.clearInterval(timer);
   }, [paused, openIndex, advance]);

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import '../assets/styles/HokieRun.scss';
+import { prefersReducedMotion } from "../lib/motion";
 
 /**
  * A HokieBird endless runner, in the shape of Chrome's offline dinosaur.
@@ -545,7 +546,7 @@ function HokieRun() {
    */
   useEffect(() => {
     if (!revealed || phase !== 'idle') return;
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    if (prefersReducedMotion()) return;
 
     let raf = 0;
     let last = 0;
@@ -575,7 +576,7 @@ function HokieRun() {
     if (phase !== 'over') return;
     gameOverLit.current = true;
 
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    if (prefersReducedMotion()) return;
 
     let timer = window.setTimeout(function flip() {
       gameOverLit.current = !gameOverLit.current;
